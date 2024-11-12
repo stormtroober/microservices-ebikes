@@ -14,13 +14,7 @@ public class MainVerticle extends AbstractVerticle {
 
         Router router = Router.router(vertx);
         router.get("/").handler(ctx -> {
-            ctx.response().end("Hello from " + serviceName);
-        });
-
-        // Basic inter-service request example
-        vertx.setPeriodic(5000, id -> {
-//            makeRequest("service-b", 8082);
-//            makeRequest("service-c", 8083);
+            ctx.response().end("Bau from " + serviceName);
         });
 
         vertx.createHttpServer()
@@ -34,14 +28,6 @@ public class MainVerticle extends AbstractVerticle {
                     }
                 });
     }
-
-//    public void makeRequest(String targetHost, int targetPort) {
-//        vertx.createHttpClient().get(targetPort, targetHost, "/", response -> {
-//            response.handler(body -> {
-//                System.out.println("Received response from " + targetHost + ": " + body.toString());
-//            });
-//        }).end();
-//    }
 
     public static void main(String[] args) {
         Vertx vertx = Vertx.vertx();

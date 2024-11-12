@@ -14,7 +14,7 @@ public class MainVerticle extends AbstractVerticle {
 
         Router router = Router.router(vertx);
         router.get("/").handler(ctx -> {
-            ctx.response().end("Hello from " + serviceName);
+            ctx.response().end("Bau from " + serviceName);
         });
 
         // Basic inter-service request example

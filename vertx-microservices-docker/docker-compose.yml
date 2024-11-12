@@ -2,10 +2,14 @@ services:
   service-a:
     build:
       context: ./service-a
-    container_name: service-a
+    container_name: "${SERVICE_A_NAME}"
     environment:
       - SERVICE_A_NAME
       - SERVICE_A_PORT
+      - SERVICE_B_NAME
+      - SERVICE_B_PORT
+      - SERVICE_C_NAME
+      - SERVICE_C_PORT
     ports:
       - "${SERVICE_A_PORT}:${SERVICE_A_PORT}"
     networks:
@@ -14,7 +18,7 @@ services:
   service-b:
     build:
       context: ./service-b
-    container_name: service-b
+    container_name: "${SERVICE_B_NAME}"
     environment:
       - SERVICE_B_NAME
       - SERVICE_B_PORT
@@ -26,7 +30,7 @@ services:
   service-c:
     build:
       context: ./service-c
-    container_name: service-c
+    container_name: "${SERVICE_C_NAME}"
     environment:
       - SERVICE_C_NAME
       - SERVICE_C_PORT
