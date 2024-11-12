@@ -25,6 +25,7 @@ application {
 }
 
 tasks.jar {
+    archiveFileName.set("app.jar")
     manifest {
         attributes["Main-Class"] = application.mainClass.get() // or specify your main class directly
     }
