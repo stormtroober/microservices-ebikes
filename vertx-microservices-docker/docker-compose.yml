@@ -1,14 +1,13 @@
-version: '3'
 services:
   service-a:
     build:
       context: ./service-a
     container_name: service-a
     environment:
-      - SERVICE_NAME=Service-A
-      - SERVICE_PORT=8081
+      - SERVICE_A_NAME
+      - SERVICE_A_PORT
     ports:
-      - "8081:8081"
+      - "${SERVICE_A_PORT}:${SERVICE_A_PORT}"
     networks:
       - microservice-network
 
@@ -17,10 +16,10 @@ services:
       context: ./service-b
     container_name: service-b
     environment:
-      - SERVICE_NAME=Service-B
-      - SERVICE_PORT=8082
+      - SERVICE_B_NAME
+      - SERVICE_B_PORT
     ports:
-      - "8082:8082"
+      - "${SERVICE_B_PORT}:${SERVICE_B_PORT}"
     networks:
       - microservice-network
 
@@ -29,10 +28,10 @@ services:
       context: ./service-c
     container_name: service-c
     environment:
-      - SERVICE_NAME=Service-C
-      - SERVICE_PORT=8083
+      - SERVICE_C_NAME
+      - SERVICE_C_PORT
     ports:
-      - "8083:8083"
+      - "${SERVICE_C_PORT}:${SERVICE_C_PORT}"
     networks:
       - microservice-network
 

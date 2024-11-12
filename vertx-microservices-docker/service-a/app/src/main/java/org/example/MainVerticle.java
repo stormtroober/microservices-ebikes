@@ -9,8 +9,8 @@ public class MainVerticle extends AbstractVerticle {
 
     @Override
     public void start(Promise<Void> startPromise) {
-        int port = Integer.parseInt(System.getenv("SERVICE_PORT"));
-        String serviceName = System.getenv("SERVICE_NAME");
+        int port = Integer.parseInt(System.getenv("SERVICE_A_PORT"));
+        String serviceName = System.getenv("SERVICE_A_NAME");
 
         Router router = Router.router(vertx);
         router.get("/").handler(ctx -> {
@@ -34,14 +34,6 @@ public class MainVerticle extends AbstractVerticle {
                     }
                 });
     }
-
-//    public void makeRequest(String targetHost, int targetPort) {
-//        vertx.createHttpClient().get(targetPort, targetHost, "/", response -> {
-//            response.handler(body -> {
-//                System.out.println("Received response from " + targetHost + ": " + body.toString());
-//            });
-//        }).end();
-//    }
 
     public static void main(String[] args) {
         Vertx vertx = Vertx.vertx();

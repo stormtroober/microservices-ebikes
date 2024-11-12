@@ -9,8 +9,8 @@ public class MainVerticle extends AbstractVerticle {
 
     @Override
     public void start(Promise<Void> startPromise) {
-        int port = Integer.parseInt(System.getenv("SERVICE_PORT"));
-        String serviceName = System.getenv("SERVICE_NAME");
+        int port = Integer.parseInt(System.getenv("SERVICE_B_PORT"));
+        String serviceName = System.getenv("SERVICE_B_NAME");
 
         Router router = Router.router(vertx);
         router.get("/").handler(ctx -> {
