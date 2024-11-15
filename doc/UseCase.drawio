@@ -1,0 +1,96 @@
+<mxfile host="app.diagrams.net" agent="Mozilla/5.0 (X11; Linux x86_64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/131.0.0.0 Safari/537.36" version="24.8.6">
+  <diagram name="Page-1" id="9X63FI0NOCY1MrYFVr9t">
+    <mxGraphModel dx="1433" dy="791" grid="1" gridSize="10" guides="1" tooltips="1" connect="1" arrows="1" fold="1" page="1" pageScale="1" pageWidth="850" pageHeight="1100" math="0" shadow="0">
+      <root>
+        <mxCell id="0" />
+        <mxCell id="1" parent="0" />
+        <mxCell id="ZC73WA0iKfkPs1EN0aNV-23" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;entryX=0;entryY=0.5;entryDx=0;entryDy=0;endArrow=none;endFill=0;curved=1;" edge="1" parent="1" source="ZC73WA0iKfkPs1EN0aNV-1" target="ZC73WA0iKfkPs1EN0aNV-5">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="ZC73WA0iKfkPs1EN0aNV-24" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;entryX=0;entryY=0.5;entryDx=0;entryDy=0;endArrow=none;endFill=0;curved=1;" edge="1" parent="1" source="ZC73WA0iKfkPs1EN0aNV-1" target="ZC73WA0iKfkPs1EN0aNV-7">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="ZC73WA0iKfkPs1EN0aNV-30" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;entryX=0;entryY=0.5;entryDx=0;entryDy=0;endArrow=none;endFill=0;curved=1;" edge="1" parent="1" source="ZC73WA0iKfkPs1EN0aNV-1" target="ZC73WA0iKfkPs1EN0aNV-27">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="ZC73WA0iKfkPs1EN0aNV-31" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;entryX=0;entryY=0.5;entryDx=0;entryDy=0;endArrow=none;endFill=0;curved=1;" edge="1" parent="1" source="ZC73WA0iKfkPs1EN0aNV-1" target="ZC73WA0iKfkPs1EN0aNV-25">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="ZC73WA0iKfkPs1EN0aNV-32" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;entryX=0;entryY=0.5;entryDx=0;entryDy=0;endArrow=none;endFill=0;curved=1;" edge="1" parent="1" source="ZC73WA0iKfkPs1EN0aNV-1" target="ZC73WA0iKfkPs1EN0aNV-26">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="ZC73WA0iKfkPs1EN0aNV-36" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;entryX=0;entryY=0.5;entryDx=0;entryDy=0;endArrow=none;endFill=0;curved=1;" edge="1" parent="1" source="ZC73WA0iKfkPs1EN0aNV-1" target="ZC73WA0iKfkPs1EN0aNV-34">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="ZC73WA0iKfkPs1EN0aNV-1" value="User" style="shape=umlActor;verticalLabelPosition=bottom;verticalAlign=top;html=1;outlineConnect=0;" vertex="1" parent="1">
+          <mxGeometry x="20" y="220" width="120" height="180" as="geometry" />
+        </mxCell>
+        <mxCell id="ZC73WA0iKfkPs1EN0aNV-18" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;entryX=1;entryY=0.5;entryDx=0;entryDy=0;curved=1;endArrow=none;endFill=0;" edge="1" parent="1" source="ZC73WA0iKfkPs1EN0aNV-2" target="ZC73WA0iKfkPs1EN0aNV-8">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="ZC73WA0iKfkPs1EN0aNV-19" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;entryX=1;entryY=0.5;entryDx=0;entryDy=0;curved=1;endArrow=none;endFill=0;" edge="1" parent="1" source="ZC73WA0iKfkPs1EN0aNV-2" target="ZC73WA0iKfkPs1EN0aNV-9">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="ZC73WA0iKfkPs1EN0aNV-20" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;entryX=1;entryY=0.5;entryDx=0;entryDy=0;curved=1;endArrow=none;endFill=0;" edge="1" parent="1" source="ZC73WA0iKfkPs1EN0aNV-2" target="ZC73WA0iKfkPs1EN0aNV-11">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="ZC73WA0iKfkPs1EN0aNV-21" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;entryX=1;entryY=0.5;entryDx=0;entryDy=0;curved=1;endArrow=none;endFill=0;" edge="1" parent="1" source="ZC73WA0iKfkPs1EN0aNV-2" target="ZC73WA0iKfkPs1EN0aNV-10">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="ZC73WA0iKfkPs1EN0aNV-22" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;entryX=1;entryY=0.5;entryDx=0;entryDy=0;curved=1;endArrow=none;endFill=0;" edge="1" parent="1" source="ZC73WA0iKfkPs1EN0aNV-2" target="ZC73WA0iKfkPs1EN0aNV-5">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="ZC73WA0iKfkPs1EN0aNV-2" value="Admin" style="shape=umlActor;verticalLabelPosition=bottom;verticalAlign=top;html=1;outlineConnect=0;" vertex="1" parent="1">
+          <mxGeometry x="650" y="220" width="120" height="180" as="geometry" />
+        </mxCell>
+        <mxCell id="ZC73WA0iKfkPs1EN0aNV-5" value="&lt;span id=&quot;docs-internal-guid-56142e82-7fff-e0bf-c8f7-7ab0e00c2423&quot;&gt;&lt;p style=&quot;line-height:1.38;margin-top:0pt;margin-bottom:0pt;&quot; dir=&quot;ltr&quot;&gt;&lt;span style=&quot;font-size: 11pt; font-family: Arial, sans-serif; background-color: transparent; font-variant-numeric: normal; font-variant-east-asian: normal; font-variant-alternates: normal; font-variant-position: normal; font-variant-emoji: normal; vertical-align: baseline; white-space-collapse: preserve;&quot;&gt;register to system&lt;/span&gt;&lt;/p&gt;&lt;div&gt;&lt;span style=&quot;font-size: 11pt; font-family: Arial, sans-serif; background-color: transparent; font-variant-numeric: normal; font-variant-east-asian: normal; font-variant-alternates: normal; font-variant-position: normal; font-variant-emoji: normal; vertical-align: baseline; white-space-collapse: preserve;&quot;&gt;&lt;br&gt;&lt;/span&gt;&lt;/div&gt;&lt;/span&gt;" style="ellipse;whiteSpace=wrap;html=1;" vertex="1" parent="1">
+          <mxGeometry x="338" y="80" width="175" height="70" as="geometry" />
+        </mxCell>
+        <mxCell id="ZC73WA0iKfkPs1EN0aNV-7" value="&lt;span style=&quot;font-size: 14.6667px; white-space-collapse: preserve;&quot; id=&quot;docs-internal-guid-56142e82-7fff-e0bf-c8f7-7ab0e00c2423&quot;&gt;&lt;p style=&quot;line-height:1.38;margin-top:0pt;margin-bottom:0pt;&quot; dir=&quot;ltr&quot;&gt;&lt;font face=&quot;Arial, sans-serif&quot;&gt;login to system&lt;/font&gt;&lt;/p&gt;&lt;/span&gt;" style="ellipse;whiteSpace=wrap;html=1;" vertex="1" parent="1">
+          <mxGeometry x="338" y="165" width="175" height="70" as="geometry" />
+        </mxCell>
+        <mxCell id="ZC73WA0iKfkPs1EN0aNV-28" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;" edge="1" parent="1" source="ZC73WA0iKfkPs1EN0aNV-8" target="ZC73WA0iKfkPs1EN0aNV-27">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="ZC73WA0iKfkPs1EN0aNV-29" value="extends" style="edgeLabel;html=1;align=center;verticalAlign=middle;resizable=0;points=[];" vertex="1" connectable="0" parent="ZC73WA0iKfkPs1EN0aNV-28">
+          <mxGeometry x="-0.0226" y="2" relative="1" as="geometry">
+            <mxPoint as="offset" />
+          </mxGeometry>
+        </mxCell>
+        <mxCell id="ZC73WA0iKfkPs1EN0aNV-8" value="&lt;span style=&quot;font-size: 14.6667px; white-space-collapse: preserve;&quot; id=&quot;docs-internal-guid-56142e82-7fff-e0bf-c8f7-7ab0e00c2423&quot;&gt;&lt;p style=&quot;line-height:1.38;margin-top:0pt;margin-bottom:0pt;&quot; dir=&quot;ltr&quot;&gt;&lt;font face=&quot;Arial, sans-serif&quot;&gt;see all the bikes&lt;/font&gt;&lt;/p&gt;&lt;/span&gt;" style="ellipse;whiteSpace=wrap;html=1;" vertex="1" parent="1">
+          <mxGeometry x="338" y="250" width="175" height="70" as="geometry" />
+        </mxCell>
+        <mxCell id="ZC73WA0iKfkPs1EN0aNV-9" value="&lt;span id=&quot;docs-internal-guid-56142e82-7fff-e0bf-c8f7-7ab0e00c2423&quot;&gt;&lt;p style=&quot;line-height:1.38;margin-top:0pt;margin-bottom:0pt;&quot; dir=&quot;ltr&quot;&gt;&lt;span style=&quot;font-size: 11pt; font-family: Arial, sans-serif; background-color: transparent; font-variant-numeric: normal; font-variant-east-asian: normal; font-variant-alternates: normal; font-variant-position: normal; font-variant-emoji: normal; vertical-align: baseline; white-space-collapse: preserve;&quot;&gt;add bikes to system&lt;/span&gt;&lt;/p&gt;&lt;div&gt;&lt;span style=&quot;font-size: 11pt; font-family: Arial, sans-serif; background-color: transparent; font-variant-numeric: normal; font-variant-east-asian: normal; font-variant-alternates: normal; font-variant-position: normal; font-variant-emoji: normal; vertical-align: baseline; white-space-collapse: preserve;&quot;&gt;&lt;br&gt;&lt;/span&gt;&lt;/div&gt;&lt;/span&gt;" style="ellipse;whiteSpace=wrap;html=1;" vertex="1" parent="1">
+          <mxGeometry x="341" y="830" width="175" height="70" as="geometry" />
+        </mxCell>
+        <mxCell id="ZC73WA0iKfkPs1EN0aNV-10" value="&lt;span style=&quot;font-size: 14.6667px; white-space-collapse: preserve;&quot; id=&quot;docs-internal-guid-56142e82-7fff-e0bf-c8f7-7ab0e00c2423&quot;&gt;&lt;p style=&quot;line-height:1.38;margin-top:0pt;margin-bottom:0pt;&quot; dir=&quot;ltr&quot;&gt;&lt;font face=&quot;Arial, sans-serif&quot;&gt;see the users&lt;/font&gt;&lt;/p&gt;&lt;/span&gt;" style="ellipse;whiteSpace=wrap;html=1;" vertex="1" parent="1">
+          <mxGeometry x="335.5" y="990" width="175" height="70" as="geometry" />
+        </mxCell>
+        <mxCell id="ZC73WA0iKfkPs1EN0aNV-11" value="&lt;span style=&quot;font-size: 14.6667px; white-space-collapse: preserve;&quot; id=&quot;docs-internal-guid-56142e82-7fff-e0bf-c8f7-7ab0e00c2423&quot;&gt;&lt;p style=&quot;line-height:1.38;margin-top:0pt;margin-bottom:0pt;&quot; dir=&quot;ltr&quot;&gt;&lt;font face=&quot;Arial, sans-serif&quot;&gt;recharge bikes&lt;/font&gt;&lt;/p&gt;&lt;/span&gt;" style="ellipse;whiteSpace=wrap;html=1;" vertex="1" parent="1">
+          <mxGeometry x="343.5" y="910" width="175" height="70" as="geometry" />
+        </mxCell>
+        <mxCell id="ZC73WA0iKfkPs1EN0aNV-17" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;entryX=1.006;entryY=0.6;entryDx=0;entryDy=0;entryPerimeter=0;curved=1;endArrow=none;endFill=0;" edge="1" parent="1" source="ZC73WA0iKfkPs1EN0aNV-2" target="ZC73WA0iKfkPs1EN0aNV-7">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="ZC73WA0iKfkPs1EN0aNV-25" value="&lt;span style=&quot;font-size: 14.6667px; white-space-collapse: preserve;&quot; id=&quot;docs-internal-guid-56142e82-7fff-e0bf-c8f7-7ab0e00c2423&quot;&gt;&lt;p style=&quot;line-height:1.38;margin-top:0pt;margin-bottom:0pt;&quot; dir=&quot;ltr&quot;&gt;&lt;font face=&quot;Arial, sans-serif&quot;&gt;start ride&lt;/font&gt;&lt;/p&gt;&lt;/span&gt;" style="ellipse;whiteSpace=wrap;html=1;" vertex="1" parent="1">
+          <mxGeometry x="342" y="490" width="175" height="70" as="geometry" />
+        </mxCell>
+        <mxCell id="ZC73WA0iKfkPs1EN0aNV-26" value="&lt;span style=&quot;font-size: 14.6667px; white-space-collapse: preserve;&quot; id=&quot;docs-internal-guid-56142e82-7fff-e0bf-c8f7-7ab0e00c2423&quot;&gt;&lt;p style=&quot;line-height:1.38;margin-top:0pt;margin-bottom:0pt;&quot; dir=&quot;ltr&quot;&gt;&lt;font face=&quot;Arial, sans-serif&quot;&gt;stop ride&lt;/font&gt;&lt;/p&gt;&lt;/span&gt;" style="ellipse;whiteSpace=wrap;html=1;" vertex="1" parent="1">
+          <mxGeometry x="342" y="580" width="175" height="70" as="geometry" />
+        </mxCell>
+        <mxCell id="ZC73WA0iKfkPs1EN0aNV-27" value="&lt;span style=&quot;font-size: 14.6667px; white-space-collapse: preserve;&quot; id=&quot;docs-internal-guid-56142e82-7fff-e0bf-c8f7-7ab0e00c2423&quot;&gt;&lt;p style=&quot;line-height:1.38;margin-top:0pt;margin-bottom:0pt;&quot; dir=&quot;ltr&quot;&gt;&lt;font face=&quot;Arial, sans-serif&quot;&gt;see available bikes&lt;/font&gt;&lt;/p&gt;&lt;/span&gt;" style="ellipse;whiteSpace=wrap;html=1;" vertex="1" parent="1">
+          <mxGeometry x="355.5" y="370" width="140" height="50" as="geometry" />
+        </mxCell>
+        <mxCell id="ZC73WA0iKfkPs1EN0aNV-33" value="&lt;span style=&quot;font-size: 14.6667px; white-space-collapse: preserve;&quot; id=&quot;docs-internal-guid-56142e82-7fff-e0bf-c8f7-7ab0e00c2423&quot;&gt;&lt;p style=&quot;line-height:1.38;margin-top:0pt;margin-bottom:0pt;&quot; dir=&quot;ltr&quot;&gt;&lt;font face=&quot;Arial, sans-serif&quot;&gt;recharge credit&lt;/font&gt;&lt;/p&gt;&lt;/span&gt;" style="ellipse;whiteSpace=wrap;html=1;" vertex="1" parent="1">
+          <mxGeometry x="339.5" y="660" width="175" height="70" as="geometry" />
+        </mxCell>
+        <mxCell id="ZC73WA0iKfkPs1EN0aNV-34" value="&lt;span style=&quot;font-size: 14.6667px; white-space-collapse: preserve;&quot; id=&quot;docs-internal-guid-56142e82-7fff-e0bf-c8f7-7ab0e00c2423&quot;&gt;&lt;p style=&quot;line-height:1.38;margin-top:0pt;margin-bottom:0pt;&quot; dir=&quot;ltr&quot;&gt;&lt;font face=&quot;Arial, sans-serif&quot;&gt;see credit&lt;/font&gt;&lt;/p&gt;&lt;/span&gt;" style="ellipse;whiteSpace=wrap;html=1;" vertex="1" parent="1">
+          <mxGeometry x="341" y="740" width="175" height="70" as="geometry" />
+        </mxCell>
+        <mxCell id="ZC73WA0iKfkPs1EN0aNV-35" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;entryX=-0.003;entryY=0.643;entryDx=0;entryDy=0;entryPerimeter=0;endArrow=none;endFill=0;curved=1;" edge="1" parent="1" source="ZC73WA0iKfkPs1EN0aNV-1" target="ZC73WA0iKfkPs1EN0aNV-33">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+      </root>
+    </mxGraphModel>
+  </diagram>
+</mxfile>
