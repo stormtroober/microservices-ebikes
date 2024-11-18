@@ -34,6 +34,8 @@ services:
     environment:
       - SERVICE_C_NAME
       - SERVICE_C_PORT
+      - SERVICE_B_NAME
+      - SERVICE_B_PORT
     ports:
       - "${SERVICE_C_PORT}:${SERVICE_C_PORT}"
     networks:
