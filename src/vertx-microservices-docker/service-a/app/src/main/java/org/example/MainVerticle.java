@@ -18,6 +18,13 @@ public class MainVerticle extends AbstractVerticle {
             ctx.response().end("Bau Bau " + serviceName);
         });
 
+        // Health check endpoint
+        router.get("/health").handler(ctx -> {
+            ctx.response()
+                    .putHeader("content-type", "application/json")
+                    .end("{\"status\":\"UP\"}");
+        });
+
         WebClient client = WebClient.create(vertx);
 
         // Basic inter-service request example
