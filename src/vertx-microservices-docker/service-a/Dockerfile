@@ -1,8 +1,8 @@
 # Stage 1: Use the official Gradle image to build the project
 FROM gradle:8.11-jdk21 AS build
-COPY app/build.gradle.kts settings.gradle.kts gradle/ ./
+COPY app/build.gradle.kts settings.gradle.kts gradle.properties ./
 COPY app/src src
-RUN gradle clean jar --no-daemon
+RUN gradle jar --no-deamon --parallel --build-cache
 
 # Debug step: Verify the built JAR
 #RUN ls -la build/libs

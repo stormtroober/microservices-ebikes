@@ -1,19 +1,23 @@
-# Use an official OpenJDK runtime as a parent image
+# Stage 1: Use the official Gradle image to build the project
+FROM gradle:8.11-jdk21 AS build
+COPY app/build.gradle.kts settings.gradle.kts gradle.properties ./
+COPY app/src src
+RUN gradle jar --no-deamon --parallel --build-cache
+
+# Debug step: Verify the built JAR
+#RUN ls -la build/libs
+
+# Stage 2: Use a minimal Java runtime image to run the built JAR
 FROM openjdk:21-jdk-slim
 
-# Copy the Gradle wrapper and build files
-COPY gradlew gradlew
-COPY gradle gradle
-COPY app/build.gradle.kts build.gradle.kts
-COPY settings.gradle.kts settings.gradle.kts
+# Set working directory in runtime stage
+WORKDIR /app
 
-COPY app/src src
+# Copy the built JAR file from the build stage
+COPY --from=build /home/gradle/build/libs/app.jar app.jar
 
-# Grant execution rights to the Gradle wrapper
-RUN chmod +x gradlew
-
-# Build the JAR file
-RUN ./gradlew clean jar
+# Debug step: Verify the JAR in the runtime stage
+#RUN ls -la /app
 
 # Set the entry point
-ENTRYPOINT ["java", "-jar", "build/libs/app.jar"]
+ENTRYPOINT ["java", "-jar", "app.jar"]
