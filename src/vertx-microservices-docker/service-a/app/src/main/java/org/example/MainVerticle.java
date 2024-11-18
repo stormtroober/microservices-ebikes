@@ -21,7 +21,7 @@ public class MainVerticle extends AbstractVerticle {
         WebClient client = WebClient.create(vertx);
 
         // Basic inter-service request example
-        vertx.setPeriodic(5000, id -> {
+        vertx.setPeriodic(30000, id -> {
             makeRequest(client, System.getenv("SERVICE_B_NAME"), Integer.parseInt(System.getenv("SERVICE_B_PORT")));
             makeRequest(client, System.getenv("SERVICE_C_NAME"), Integer.parseInt(System.getenv("SERVICE_C_PORT")));
         });
