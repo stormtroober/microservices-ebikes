@@ -1,9 +1,7 @@
-version: '3.8'
 services:
   eureka-server:
     build:
       context: .
-      dockerfile: Dockerfile
     image: eureka-server:latest
     ports:
       - "8761:8761"
