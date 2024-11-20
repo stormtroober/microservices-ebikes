@@ -23,12 +23,6 @@ repositories {
 }
 
 dependencies {
-    // Use JUnit test framework.
-    testImplementation(libs.junit)
-
-    // This dependency is used by the application.
-    implementation(libs.guava)
-
     implementation("io.vertx:vertx-core:4.4.0")
     implementation("io.vertx:vertx-web:4.4.0")
     implementation("io.vertx:vertx-web-client:4.4.0")
@@ -43,7 +37,7 @@ java {
 
 application {
     // Define the main class for the application.
-    mainClass = "org.example.App"
+    mainClass = "Main"
 }
 
 tasks.jar {
