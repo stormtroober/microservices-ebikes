@@ -16,6 +16,8 @@ repositories {
 }
 
 dependencies {
+    implementation("io.vertx:vertx-core:4.4.0")
+    implementation("io.vertx:vertx-web:4.4.0")
     implementation("io.vertx:vertx-web-client:4.4.4")
 }
 
@@ -44,5 +46,5 @@ tasks.jar {
 
 application {
     // Define the main class for the application.
-    mainClass = "org.example.VertxEurekaClient"
+    mainClass = "org.example.Launcher"
 }

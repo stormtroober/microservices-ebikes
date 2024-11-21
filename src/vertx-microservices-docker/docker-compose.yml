@@ -1,3 +1,4 @@
+
 services:
   eureka-server:
     build:
@@ -20,7 +21,7 @@ services:
     build:
       context: ./vertx-rest-eurekaclient
     ports:
-      - "8081:8081"
+      - "8080:8080"
     networks:
       - eureka-network
     depends_on:
@@ -28,7 +29,28 @@ services:
         condition: service_healthy
     environment:
       - EUREKA_CLIENT_SERVICEURL_DEFAULTZONE=http://eureka-server:8761/eureka/
-    entrypoint: ["sh", "-c", "sleep 1 && java -jar app.jar"]
+    healthcheck:
+      test: [ "CMD", "curl", "-f", "http://localhost:8080/health" ]
+      interval: 10s
+      timeout: 5s
+      retries: 3
+      start_period: 10s
+
+  api-gateway:
+    build:
+      context: ./eureka-apigateway  # Path to your API Gateway Dockerfile
+    ports:
+      - "8081:8081"  # Gateway runs on port 8081
+    networks:
+      - eureka-network
+    depends_on:
+      eureka-server:
+        condition: service_healthy
+      vertx-rest-eurekaclient:
+        condition: service_healthy
+    environment:
+      - EUREKA_CLIENT_SERVICEURL_DEFAULTZONE=http://eureka-server:8761/eureka/
+      - SPRING_APPLICATION_NAME=api-gateway  # Gateway service name
 
 networks:
   eureka-network:
