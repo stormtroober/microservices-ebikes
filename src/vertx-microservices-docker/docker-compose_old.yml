@@ -1,0 +1,52 @@
+#services:
+#  service-a:
+#    build:
+#      context: ./service-a
+#    container_name: "${SERVICE_A_NAME}"
+#    environment:
+#      - SERVICE_A_NAME
+#      - SERVICE_A_PORT
+#      - SERVICE_B_NAME
+#      - SERVICE_B_PORT
+#      - SERVICE_C_NAME
+#      - SERVICE_C_PORT
+#    ports:
+#      - "${SERVICE_A_PORT}:${SERVICE_A_PORT}"
+#    networks:
+#      - microservice-network
+#    healthcheck:
+#      test: ["CMD", "curl", "-f", "http://localhost:${SERVICE_A_PORT}/health"]
+#      interval: 30s
+#      timeout: 10s
+#      retries: 3
+#
+#  service-b:
+#    build:
+#      context: ./service-b
+#    container_name: "${SERVICE_B_NAME}"
+#    environment:
+#      - SERVICE_B_NAME
+#      - SERVICE_B_PORT
+#    ports:
+#      - "${SERVICE_B_PORT}:${SERVICE_B_PORT}"
+#    networks:
+#      - microservice-network
+#
+#  service-c:
+#    build:
+#      context: ./service-c
+#    container_name: "${SERVICE_C_NAME}"
+#    environment:
+#      - SERVICE_C_NAME
+#      - SERVICE_C_PORT
+#      - SERVICE_B_NAME
+#      - SERVICE_B_PORT
+#    ports:
+#      - "${SERVICE_C_PORT}:${SERVICE_C_PORT}"
+#    networks:
+#      - microservice-network
+#
+#networks:
+#  microservice-network:
+#    driver: bridge
+#

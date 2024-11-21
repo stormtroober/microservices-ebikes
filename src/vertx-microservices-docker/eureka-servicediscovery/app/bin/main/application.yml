@@ -11,3 +11,12 @@ eureka:
 spring:
   application:
     name: eureka-server
+
+management:
+  endpoints:
+    web:
+      exposure:
+        include: health
+  endpoint:
+    health:
+      show-details: always

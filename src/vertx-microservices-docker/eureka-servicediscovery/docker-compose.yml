@@ -2,7 +2,6 @@ services:
   eureka-server:
     build:
       context: .
-    image: eureka-server:latest
     ports:
       - "8761:8761"
     networks:
