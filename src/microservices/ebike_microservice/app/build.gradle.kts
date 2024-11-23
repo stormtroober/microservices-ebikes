@@ -26,6 +26,8 @@ dependencies {
     implementation("io.vertx:vertx-core:4.4.0")
     implementation("io.vertx:vertx-web:4.4.0")
     implementation("io.vertx:vertx-web-client:4.4.0")
+    implementation("io.vertx:vertx-mongo-client:4.4.0")
+    implementation("org.mongodb:mongodb-driver-reactivestreams:4.11.1")
 }
 
 // Apply a specific Java toolchain to ease working on different environments.

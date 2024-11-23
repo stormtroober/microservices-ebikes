@@ -1,14 +1,13 @@
 package application.ports;
 
 import ddd.Repository;
-import domain.model.EBike;
-
-import java.util.List;
-import java.util.Optional;
+import io.vertx.core.json.JsonArray;
+import io.vertx.core.json.JsonObject;
+import java.util.concurrent.CompletableFuture;
 
 public interface EBikeRepository extends Repository {
-    void save(EBike ebike);
-    void update(EBike ebike);
-    Optional<EBike> findById(String id);
-    List<EBike> findAll();
+    CompletableFuture<Void> save(JsonObject ebike);
+    CompletableFuture<Void> update(JsonObject ebike);
+    CompletableFuture<JsonObject> findById(String id);
+    CompletableFuture<JsonArray> findAll();
 }

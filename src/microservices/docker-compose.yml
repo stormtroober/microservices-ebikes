@@ -17,9 +17,52 @@ services:
       retries: 3
       start_period: 10s
 
-  vertx-rest-eurekaclient:
+  #  vertx-rest-eurekaclient:
+  #    build:
+  #      context: ./vertx-rest-eurekaclient
+  #    ports:
+  #      - "8080:8080"
+  #    networks:
+  #      - eureka-network
+  #    depends_on:
+  #      eureka-server:
+  #        condition: service_healthy
+  #    environment:
+  #      - EUREKA_CLIENT_SERVICEURL_DEFAULTZONE=http://eureka-server:8761/eureka/
+  #    healthcheck:
+  #      test: [ "CMD", "curl", "-f", "http://localhost:8080/health" ]
+  #      interval: 10s
+  #      timeout: 5s
+  #      retries: 3
+  #      start_period: 10s
+
+  mongodb-ebike:
+    image: mongo:latest
+    ports:
+      - "27017:27017"
+    networks:
+      - eureka-network
+    environment:
+      - GLIBC_TUNABLES=glibc.pthread.rseq=0
+    volumes:
+      - mongodb_data:/data/db
+    command: --wiredTigerCacheSizeGB 1
+    ulimits:
+      memlock: -1
+    deploy:
+      resources:
+        limits:
+          memory: 1G
+    healthcheck:
+      test: mongosh --eval 'db.runCommand("ping").ok' localhost:27017/test --quiet
+      interval: 10s
+      timeout: 5s
+      retries: 3
+      start_period: 10s
+
+  ebike-service:
     build:
-      context: ./vertx-rest-eurekaclient
+      context: ./ebike_microservice
     ports:
       - "8080:8080"
     networks:
@@ -27,7 +70,11 @@ services:
     depends_on:
       eureka-server:
         condition: service_healthy
+      mongodb-ebike:
+        condition: service_healthy
     environment:
+      - MONGODB_HOST=mongodb
+      - MONGODB_PORT=27017
       - EUREKA_CLIENT_SERVICEURL_DEFAULTZONE=http://eureka-server:8761/eureka/
     healthcheck:
       test: [ "CMD", "curl", "-f", "http://localhost:8080/health" ]
@@ -46,7 +93,7 @@ services:
     depends_on:
       eureka-server:
         condition: service_healthy
-      vertx-rest-eurekaclient:
+      ebike-service:
         condition: service_healthy
     environment:
       - EUREKA_CLIENT_SERVICEURL_DEFAULTZONE=http://eureka-server:8761/eureka/
@@ -55,3 +102,6 @@ services:
 networks:
   eureka-network:
     driver: bridge
+
+volumes:
+  mongodb_data:
