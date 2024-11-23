@@ -17,24 +17,18 @@ services:
       retries: 3
       start_period: 10s
 
-  #  vertx-rest-eurekaclient:
-  #    build:
-  #      context: ./vertx-rest-eurekaclient
-  #    ports:
-  #      - "8080:8080"
-  #    networks:
-  #      - eureka-network
-  #    depends_on:
-  #      eureka-server:
-  #        condition: service_healthy
-  #    environment:
-  #      - EUREKA_CLIENT_SERVICEURL_DEFAULTZONE=http://eureka-server:8761/eureka/
-  #    healthcheck:
-  #      test: [ "CMD", "curl", "-f", "http://localhost:8080/health" ]
-  #      interval: 10s
-  #      timeout: 5s
-  #      retries: 3
-  #      start_period: 10s
+  map-microservice:
+      build:
+        context: ./map_microservice
+      ports:
+        - "8087:8087"
+      networks:
+        - eureka-network
+      depends_on:
+        eureka-server:
+          condition: service_healthy
+      environment:
+        - EUREKA_CLIENT_SERVICEURL_DEFAULTZONE=http://eureka-server:8761/eureka/
 
   mongodb-ebike:
     image: mongo:latest

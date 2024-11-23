@@ -11,10 +11,17 @@ spring:
         locator:
           enabled: true  # Enable dynamic routing based on Eureka services
       routes:
+        # Route for vertx-service
         - id: vertx-service
-          uri: lb://VERTX-SERVICE  # Use the Eureka service name (case-insensitive)
+          uri: lb://VERTX-SERVICE  # Use the Eureka service name
           predicates:
-            - Path=/vertx-service/**  # Route requests to /vertx-service/**
+            - Path=/vertx-service/**  # Matches requests starting with /vertx-service/
+
+        # Route for another-service
+        - id: map-microservice
+          uri: lb://MAP-MICROSERVICE  # Use the Eureka service name
+          predicates:
+            - Path=/map-microservice/**  # Matches requests starting with /another-service/
 
 eureka:
   client:
