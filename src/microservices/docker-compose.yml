@@ -67,9 +67,11 @@ services:
       mongodb-ebike:
         condition: service_healthy
     environment:
-      - MONGODB_HOST=mongodb
-      - MONGODB_PORT=27017
-      - EUREKA_CLIENT_SERVICEURL_DEFAULTZONE=http://eureka-server:8761/eureka/
+      - MONGO_CONNECTION=mongodb://mongodb-ebike:27017
+      - EUREKA_HOST=eureka-server
+      - EUREKA_PORT=8761
+      - SERVICE_HOST=ebike-service
+      - SERVICE_PORT=8080
     healthcheck:
       test: [ "CMD", "curl", "-f", "http://localhost:8080/health" ]
       interval: 10s
