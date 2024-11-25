@@ -2,6 +2,8 @@ package infrastructure.repository;
 
 import domain.model.EBike;
 
+import java.util.List;
+import java.util.Map;
 import java.util.concurrent.CompletableFuture;
 
 public interface EBikeRepository {
@@ -12,4 +14,8 @@ public interface EBikeRepository {
     CompletableFuture<Void> assignBikeToUser(String username, EBike bike);
 
     CompletableFuture<Void> unassignBikeFromUser(String username, EBike bike);
+
+    CompletableFuture<List<EBike>> getAvailableBikes();
+
+    CompletableFuture<String> isBikeAssigned(EBike bike);
 }

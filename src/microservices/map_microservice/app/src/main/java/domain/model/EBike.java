@@ -8,10 +8,14 @@ public class EBike implements ValueObject, Serializable {
 
     private final String bikeName;
     private P2d position;
+    private EBikeState state;
+    private int batteryLevel;
 
-    public EBike(String bikeName, P2d position) {
+    public EBike(String bikeName, P2d position, EBikeState state, int batteryLevel) {
         this.bikeName = bikeName;
         this.position = position;
+        this.state = state;
+        this.batteryLevel = batteryLevel;
     }
 
     public String getBikeName() {
@@ -22,15 +26,21 @@ public class EBike implements ValueObject, Serializable {
         return position;
     }
 
-    public void setPosition(P2d position) {
-        this.position = position;
+    public EBikeState getState() {
+        return state;
+    }
+
+    public int getBatteryLevel() {
+        return batteryLevel;
     }
 
     @Override
     public String toString() {
-        return "Bike{" +
+        return "EBike{" +
                 "bikeName='" + bikeName + '\'' +
                 ", position=" + position +
+                ", state=" + state +
+                ", batteryLevel=" + batteryLevel + // Include in toString
                 '}';
     }
 }

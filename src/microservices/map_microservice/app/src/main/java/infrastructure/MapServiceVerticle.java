@@ -1,7 +1,8 @@
 package infrastructure;
 
-import application.ports.MapServiceAPI;
+import application.ports.RestMapServiceAPI;
 import domain.model.EBike;
+import domain.model.EBikeState;
 import domain.model.P2d;
 import io.vertx.core.AbstractVerticle;
 import io.vertx.core.http.HttpServer;
@@ -10,27 +11,24 @@ import io.vertx.ext.web.Router;
 import io.vertx.ext.web.client.WebClient;
 import io.vertx.ext.web.handler.BodyHandler;
 
-import java.util.concurrent.TimeUnit;
-
 public class MapServiceVerticle extends AbstractVerticle {
 
     private final String applicationName;
     private final String instanceId;
     private final int port;
     private WebClient client;
-    private final MapServiceAPI mapService;
+    private final RestMapServiceAPI mapService;
 
-    public MapServiceVerticle(MapServiceAPI mapService, String applicationName, String instanceId, int port) {
+    public MapServiceVerticle(RestMapServiceAPI mapService, String applicationName, String instanceId, int port) {
         this.mapService = mapService;
         this.applicationName = applicationName;
         this.instanceId = instanceId;
         this.port = port;
     }
 
-    public MapServiceVerticle(MapServiceAPI mapService, String applicationName, int port) {
+    public MapServiceVerticle(RestMapServiceAPI mapService, String applicationName, int port) {
         this(mapService, applicationName, "localhost:" + applicationName + ":" + port, port);
     }
-
 
     @Override
     public void start() {
@@ -49,8 +47,10 @@ public class MapServiceVerticle extends AbstractVerticle {
             String bikeName = body.getString("bikeName");
             double x = body.getDouble("x");
             double y = body.getDouble("y");
+            EBikeState state = EBikeState.valueOf(body.getString("state"));
+            int batteryLevel = body.getInteger("batteryLevel");
 
-            mapService.updateEBike(new EBike(bikeName, new P2d(x, y)))
+            mapService.updateEBike(new EBike(bikeName, new P2d(x, y), state, batteryLevel))
                     .thenAccept(v -> ctx.response().setStatusCode(200).end("OK"))
                     .exceptionally(ex -> {
                         ctx.response().setStatusCode(500).end(ex.getMessage());
@@ -89,10 +89,6 @@ public class MapServiceVerticle extends AbstractVerticle {
                 if (webSocketAsyncResult.succeeded()) {
                     var webSocket = webSocketAsyncResult.result();
 
-                    // Register the WebSocket client
-                    String clientId = webSocket.textHandlerID();
-                    System.out.println("Client connected: " + clientId);
-
                     // Listen to EventBus and send updates to this WebSocket
                     var consumer = vertx.eventBus().consumer("bikes.update", message -> {
                         webSocket.writeTextMessage(message.body().toString());
@@ -101,12 +97,10 @@ public class MapServiceVerticle extends AbstractVerticle {
                     // Cleanup on WebSocket close
                     webSocket.closeHandler(v -> {
                         consumer.unregister();
-                        System.out.println("Client disconnected: " + clientId);
                     });
 
-                    webSocket.exceptionHandler(err -> {
+                    webSocket.exceptionHandler(err ->  {
                         consumer.unregister();
-                        System.err.println("WebSocket error for client " + clientId + ": " + err.getMessage());
                     });
                 } else {
                     ctx.response().setStatusCode(500).end("WebSocket Upgrade Failed");
@@ -114,36 +108,49 @@ public class MapServiceVerticle extends AbstractVerticle {
             });
         });
 
-
-        // WebSocket for /observeUserBikes
         router.route("/observeUserBikes").handler(ctx -> {
+            String username = ctx.queryParam("username").stream().findFirst().orElse(null);
+            if (username == null) {
+                ctx.response().setStatusCode(400).end("Missing username parameter");
+                return;
+            }
             ctx.request().toWebSocket().onComplete(webSocketAsyncResult -> {
                 if (webSocketAsyncResult.succeeded()) {
                     var webSocket = webSocketAsyncResult.result();
-                    String username = ctx.queryParams().get("username");
 
-                    // Start observable
-                    mapService.observeUserBikes(username).thenRun(() -> {
-                        // Emit data periodically (dummy logic)
-                        vertx.setPeriodic(1000, id -> {
-                            webSocket.writeTextMessage(new JsonObject()
-                                    .put("type", "userBikeUpdate")
-                                    .put("user", username)
-                                    .put("bikes", "User-specific bikes here").encode());
-                        });
+                    // Listen to global bike updates
+                    var globalConsumer = vertx.eventBus().consumer("available_bikes", message -> {
+                        webSocket.writeTextMessage(message.body().toString());
+                    });
+
+                    // Listen to user-specific bike updates
+                    var userConsumer = vertx.eventBus().consumer(username, message -> {
+                        webSocket.writeTextMessage(message.body().toString());
+                    });
+
+                    // Cleanup on WebSocket close
+                    webSocket.closeHandler(v -> {
+                        globalConsumer.unregister();
+                        userConsumer.unregister();
+                    });
+
+                    webSocket.exceptionHandler(err -> {
+                        globalConsumer.unregister();
+                        userConsumer.unregister();
                     });
                 } else {
                     ctx.response().setStatusCode(500).end("WebSocket Upgrade Failed");
                 }
             });
         });
+
 
         // Start the server
         server.requestHandler(router).listen(8087, result -> {
             if (result.succeeded()) {
                 System.out.println("HTTP server started on port 8087");
-                registerWithEureka();
-                vertx.setPeriodic(TimeUnit.SECONDS.toMillis(30), id -> sendHeartbeat());
+                //registerWithEureka();
+                //vertx.setPeriodic(TimeUnit.SECONDS.toMillis(30), id -> sendHeartbeat());
             } else {
                 System.err.println("Failed to start HTTP server: " + result.cause().getMessage());
             }
