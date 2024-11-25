@@ -11,6 +11,8 @@ import io.vertx.ext.web.Router;
 import io.vertx.ext.web.client.WebClient;
 import io.vertx.ext.web.handler.BodyHandler;
 
+import java.util.concurrent.TimeUnit;
+
 public class MapServiceVerticle extends AbstractVerticle {
 
     private final String applicationName;
@@ -109,7 +111,9 @@ public class MapServiceVerticle extends AbstractVerticle {
         });
 
         router.route("/observeUserBikes").handler(ctx -> {
+            System.out.println("User connected");
             String username = ctx.queryParam("username").stream().findFirst().orElse(null);
+            System.out.println("User " + username + " connected");
             if (username == null) {
                 ctx.response().setStatusCode(400).end("Missing username parameter");
                 return;
@@ -117,7 +121,7 @@ public class MapServiceVerticle extends AbstractVerticle {
             ctx.request().toWebSocket().onComplete(webSocketAsyncResult -> {
                 if (webSocketAsyncResult.succeeded()) {
                     var webSocket = webSocketAsyncResult.result();
-
+                    System.out.println("User " + username + " connected");
                     // Listen to global bike updates
                     var globalConsumer = vertx.eventBus().consumer("available_bikes", message -> {
                         webSocket.writeTextMessage(message.body().toString());
@@ -130,16 +134,18 @@ public class MapServiceVerticle extends AbstractVerticle {
 
                     // Cleanup on WebSocket close
                     webSocket.closeHandler(v -> {
+                        ctx.response().setStatusCode(200).end("WebSocket Closed succesfully");
                         globalConsumer.unregister();
                         userConsumer.unregister();
                     });
 
                     webSocket.exceptionHandler(err -> {
+                        ctx.response().setStatusCode(500).end("WebSocket Failed");
                         globalConsumer.unregister();
                         userConsumer.unregister();
                     });
                 } else {
-                    ctx.response().setStatusCode(500).end("WebSocket Upgrade Failed");
+                    ctx.response().setStatusCode(500).end("WebSocket Failed");
                 }
             });
         });
@@ -149,8 +155,8 @@ public class MapServiceVerticle extends AbstractVerticle {
         server.requestHandler(router).listen(8087, result -> {
             if (result.succeeded()) {
                 System.out.println("HTTP server started on port 8087");
-                //registerWithEureka();
-                //vertx.setPeriodic(TimeUnit.SECONDS.toMillis(30), id -> sendHeartbeat());
+                registerWithEureka();
+                vertx.setPeriodic(TimeUnit.SECONDS.toMillis(30), id -> sendHeartbeat());
             } else {
                 System.err.println("Failed to start HTTP server: " + result.cause().getMessage());
             }
