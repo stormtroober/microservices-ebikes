@@ -1,4 +1,4 @@
-package infrastructure;
+package infrastructure.adapter;
 
 import application.ports.RestMapServiceAPI;
 import domain.model.EBike;
@@ -11,25 +11,30 @@ import io.vertx.ext.web.Router;
 import io.vertx.ext.web.client.WebClient;
 import io.vertx.ext.web.handler.BodyHandler;
 
+import java.util.UUID;
 import java.util.concurrent.TimeUnit;
 
 public class MapServiceVerticle extends AbstractVerticle {
 
-    private final String applicationName;
-    private final String instanceId;
+    private final String eurekaApplicationName;
+    private final String eurekaInstanceId;
     private final int port;
+    private final int eurekaPort;
+    private final String eurekaHost;
     private WebClient client;
     private final RestMapServiceAPI mapService;
 
-    public MapServiceVerticle(RestMapServiceAPI mapService, String applicationName, String instanceId, int port) {
+    public MapServiceVerticle(RestMapServiceAPI mapService, String eurekaApplicationName, String eurekaInstanceId) {
         this.mapService = mapService;
-        this.applicationName = applicationName;
-        this.instanceId = instanceId;
-        this.port = port;
+        this.eurekaApplicationName = eurekaApplicationName;
+        this.eurekaInstanceId = eurekaInstanceId;
+        this.port = EnvUtils.getEnvOrDefaultInt("SERVICE_PORT", 8087);
+        this.eurekaPort = EnvUtils.getEnvOrDefaultInt("EUREKA_PORT", 8761);
+        this.eurekaHost = EnvUtils.getEnvOrDefaultString("EUREKA_HOST", "eureka-service");
     }
 
-    public MapServiceVerticle(RestMapServiceAPI mapService, String applicationName, int port) {
-        this(mapService, applicationName, "localhost:" + applicationName + ":" + port, port);
+    public MapServiceVerticle(RestMapServiceAPI mapService, String eurekaApplicationName) {
+        this(mapService, eurekaApplicationName, eurekaApplicationName + "-" + UUID.randomUUID().toString().substring(0, 5));
     }
 
     @Override
@@ -166,21 +171,22 @@ public class MapServiceVerticle extends AbstractVerticle {
     private void registerWithEureka() {
         JsonObject instance = new JsonObject()
                 .put("instance", new JsonObject()
-                        .put("hostName", applicationName)
-                        .put("app", applicationName)
-                        .put("instanceId", instanceId)
+                        .put("hostName", eurekaApplicationName)
+                        .put("app", eurekaApplicationName)
+                        .put("instanceId", eurekaInstanceId)
                         .put("ipAddr", "127.0.0.1")
-                        .put("vipAddress", applicationName)
+                        .put("vipAddress", eurekaApplicationName)
                         .put("port", new JsonObject().put("$", port).put("@enabled", true))
                         .put("status", "UP")
-                        .put("healthCheckUrl", "http://" + applicationName+ ":" + port + "/health")
-                        .put("statusPageUrl", "http://" + applicationName+ ":" + port + "/info")
-                        .put("homePageUrl", "http://" + applicationName+ ":" + port + "/")
+                        .put("healthCheckUrl", "http://" + eurekaApplicationName + ":" + port + "/health")
+                        .put("statusPageUrl", "http://" + eurekaApplicationName + ":" + port + "/info")
+                        .put("homePageUrl", "http://" + eurekaApplicationName + ":" + port + "/")
                         .put("dataCenterInfo", new JsonObject()
                                 .put("@class", "com.netflix.appinfo.InstanceInfo$DefaultDataCenterInfo")
                                 .put("name", "MyOwn")));
+        System.out.println("Registering with Eureka: " + instance.encodePrettily());
 
-        client.post(8761, "eureka-server", "/eureka/apps/" + applicationName)
+        client.post(eurekaPort, eurekaHost, "/eureka/apps/" + eurekaApplicationName)
                 .sendJsonObject(instance, res -> {
                     if (res.succeeded()) {
                         System.out.println("Successfully registered with Eureka");
@@ -191,9 +197,7 @@ public class MapServiceVerticle extends AbstractVerticle {
     }
 
     private void sendHeartbeat() {
-        var uri = "/eureka/apps/" + applicationName + "/" + instanceId;
-        System.out.println("Sending heartbeat to Eureka: " + uri);
-        client.put(8761, "eureka-server", "/eureka/apps/" + applicationName + "/" + instanceId)
+        client.put(eurekaPort, eurekaHost, "/eureka/apps/" + eurekaApplicationName + "/" + eurekaInstanceId)
                 .send(res -> {
                     if (res.succeeded()) {
                         System.out.println("Heartbeat sent successfully");
