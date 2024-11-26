@@ -1,5 +1,6 @@
-package infrastructure.eventpublisher;
+package infrastructure;
 
+import application.ports.EventPublisher;
 import domain.model.EBike;
 import io.vertx.core.Vertx;
 import io.vertx.core.json.JsonObject;

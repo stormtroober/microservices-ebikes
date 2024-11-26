@@ -1,10 +1,11 @@
 import application.RestMapServiceAPIImpl;
+import application.ports.EventPublisher;
 import application.ports.RestMapServiceAPI;
 import infrastructure.adapter.MicroservicesCommunication;
-import infrastructure.eventpublisher.EventPublisherImpl;
+import infrastructure.EventPublisherImpl;
 import infrastructure.adapter.MapServiceVerticle;
-import infrastructure.repository.EBikeRepository;
-import infrastructure.repository.EBikeRepositoryImpl;
+import application.ports.EBikeRepository;
+import infrastructure.EBikeRepositoryImpl;
 import io.vertx.core.Vertx;
 
 public class Main {
@@ -12,9 +13,9 @@ public class Main {
         Vertx vertx = Vertx.vertx();
 
         EBikeRepository bikeRepository = new EBikeRepositoryImpl();
-
+        EventPublisher eventPublisher = new EventPublisherImpl(vertx);
         // Create service
-        RestMapServiceAPI service = new RestMapServiceAPIImpl(bikeRepository, new EventPublisherImpl(vertx));
+        RestMapServiceAPI service = new RestMapServiceAPIImpl(bikeRepository, eventPublisher);
 
         // Deploy single verticle with both API and Eureka registration
         vertx.deployVerticle(new MapServiceVerticle(service, "map-microservice"));

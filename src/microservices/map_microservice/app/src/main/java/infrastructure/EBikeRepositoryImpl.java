@@ -1,10 +1,10 @@
 // EBikeRepositoryImpl.java
-package infrastructure.repository;
+package infrastructure;
 
+import application.ports.EBikeRepository;
 import domain.model.EBike;
 import domain.model.EBikeState;
 
-import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.concurrent.CompletableFuture;

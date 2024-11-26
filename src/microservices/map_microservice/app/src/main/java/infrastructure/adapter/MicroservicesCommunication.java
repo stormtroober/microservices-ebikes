@@ -2,6 +2,7 @@ package infrastructure.adapter;
 
 import application.ports.RestMapServiceAPI;
 import domain.model.EBike;
+import domain.model.EBikeFactory;
 import domain.model.EBikeState;
 import domain.model.P2d;
 import io.vertx.core.AbstractVerticle;
@@ -38,8 +39,10 @@ public class MicroservicesCommunication extends AbstractVerticle {
                 EBikeState state = EBikeState.valueOf(body.getString("state"));
                 int batteryLevel = body.getInteger("batteryLevel");
 
+                EBikeFactory factory = EBikeFactory.getInstance();
+                EBike bike = factory.createEBike(bikeName, (float) x, (float) y, state, batteryLevel);
                 // Process the update request
-                mapService.updateEBike(new EBike(bikeName, new P2d(x, y), state, batteryLevel))
+                mapService.updateEBike(bike)
                         .thenAccept(v -> ctx.response().setStatusCode(200).end("EBike updated successfully"))
                         .exceptionally(ex -> {
                             ctx.response().setStatusCode(500).end("Failed to update EBike: " + ex.getMessage());

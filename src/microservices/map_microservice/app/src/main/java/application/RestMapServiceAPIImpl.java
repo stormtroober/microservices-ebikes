@@ -3,8 +3,8 @@ package application;
 import application.ports.RestMapServiceAPI;
 
 import domain.model.EBike;
-import infrastructure.eventpublisher.EventPublisher;
-import infrastructure.repository.EBikeRepository;
+import application.ports.EventPublisher;
+import application.ports.EBikeRepository;
 
 import java.util.concurrent.CompletableFuture;
 

@@ -1,9 +1,8 @@
-package infrastructure.repository;
+package application.ports;
 
 import domain.model.EBike;
 
 import java.util.List;
-import java.util.Map;
 import java.util.concurrent.CompletableFuture;
 
 public interface EBikeRepository {
