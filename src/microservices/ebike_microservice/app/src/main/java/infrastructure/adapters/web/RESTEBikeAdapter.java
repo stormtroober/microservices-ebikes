@@ -7,46 +7,44 @@ import io.vertx.ext.web.RoutingContext;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-public class RESTEBikeController {
-    private static final Logger logger = LoggerFactory.getLogger(RESTEBikeController.class);
+public class RESTEBikeAdapter {
+    private static final Logger logger = LoggerFactory.getLogger(RESTEBikeAdapter.class);
     private final EBikeServiceAPI ebikeService;
 
-    public RESTEBikeController(EBikeServiceAPI ebikeService) {
+    public RESTEBikeAdapter(EBikeServiceAPI ebikeService) {
         this.ebikeService = ebikeService;
     }
 
     public void configureRoutes(Router router) {
-        router.post("/api/ebikes").handler(this::createEBike);
+        router.post("/api/ebikes/create").handler(this::createEBike);
         router.get("/api/ebikes/:id").handler(this::getEBike);
         router.put("/api/ebikes/:id/recharge").handler(this::rechargeEBike);
-        router.put("/api/ebikes/:id").handler(this::updateEBike);
+        router.put("/api/ebikes/:id/update").handler(this::updateEBike);
         router.get("/api/ebikes").handler(this::getAllEBikes);
         router.get("/health").handler(this::healthCheck);
     }
 
     private void createEBike(RoutingContext ctx) {
-        ctx.request().body().onSuccess(buffer -> {
-            try {
-                JsonObject body = buffer.toJsonObject();
-                String id = body.getString("id");
-                float x = body.getFloat("x", 0.0f);
-                float y = body.getFloat("y", 0.0f);
+        try {
+            JsonObject body = ctx.body().asJsonObject();
+            String id = body.getString("id");
+            float x = body.getFloat("x", 0.0f);
+            float y = body.getFloat("y", 0.0f);
 
-                if (id == null || id.trim().isEmpty()) {
-                    sendError(ctx, 400, "Invalid id");
-                    return;
-                }
-
-                ebikeService.createEBike(id, x, y)
-                        .thenAccept(result -> sendResponse(ctx, 201, result))
-                        .exceptionally(e -> {
-                            handleError(ctx, e);
-                            return null;
-                        });
-            } catch (Exception e) {
-                handleError(ctx, new RuntimeException("Invalid JSON format"));
+            if (id == null || id.trim().isEmpty()) {
+                sendError(ctx, 400, "Invalid id");
+                return;
             }
-        }).onFailure(err -> handleError(ctx, err));
+
+            ebikeService.createEBike(id, x, y)
+                    .thenAccept(result -> sendResponse(ctx, 201, result))
+                    .exceptionally(e -> {
+                        handleError(ctx, e);
+                        return null;
+                    });
+        } catch (Exception e) {
+            handleError(ctx, new RuntimeException("Invalid JSON format"));
+        }
     }
 
     private void getEBike(RoutingContext ctx) {
@@ -92,29 +90,26 @@ public class RESTEBikeController {
     }
 
     private void updateEBike(RoutingContext ctx) {
-        String id = ctx.pathParam("id");
+        try {
+            JsonObject body = ctx.body().asJsonObject();
+            String id = ctx.pathParam("id");
+            body.put("id", id);
 
-        ctx.request().body().onSuccess(buffer -> {
-            try {
-                JsonObject body = buffer.toJsonObject();
-                body.put("id", id);
-
-                ebikeService.updateEBike(body)
-                        .thenAccept(result -> {
-                            if (result != null) {
-                                sendResponse(ctx, 200, result);
-                            } else {
-                                ctx.response().setStatusCode(404).end();
-                            }
-                        })
-                        .exceptionally(e -> {
-                            handleError(ctx, e);
-                            return null;
-                        });
-            } catch (Exception e) {
-                handleError(ctx, new RuntimeException("Invalid JSON format"));
-            }
-        }).onFailure(err -> handleError(ctx, err));
+            ebikeService.updateEBike(body)
+                    .thenAccept(result -> {
+                        if (result != null) {
+                            sendResponse(ctx, 200, result);
+                        } else {
+                            ctx.response().setStatusCode(404).end();
+                        }
+                    })
+                    .exceptionally(e -> {
+                        handleError(ctx, e);
+                        return null;
+                    });
+        } catch (Exception e) {
+            handleError(ctx, new RuntimeException("Invalid JSON format"));
+        }
     }
 
     private void getAllEBikes(RoutingContext ctx) {

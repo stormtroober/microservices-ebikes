@@ -102,15 +102,5 @@ public class EurekaRegistrationAdapter implements EurekaRegistrationPort {
                 });
     }
 
-    @Override
-    public Future<Void> deregister(String applicationName, String instanceId) {
-        if (!eurekaEnabled) {
-            return Future.succeededFuture();
-        }
 
-        return client.delete(eurekaPort, eurekaHost,
-                        "/eureka/apps/" + applicationName + "/" + instanceId)
-                .send()
-                .map(response -> null);
-    }
 }

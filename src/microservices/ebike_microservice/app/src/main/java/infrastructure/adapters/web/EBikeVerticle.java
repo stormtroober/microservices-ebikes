@@ -8,20 +8,17 @@ import io.vertx.ext.web.handler.BodyHandler;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import java.net.InetAddress;
-import java.util.UUID;
-
 public class EBikeVerticle extends AbstractVerticle {
     private static final Logger logger = LoggerFactory.getLogger(EBikeVerticle.class);
 
-    private final RESTEBikeController controller;
+    private final RESTEBikeAdapter controller;
     private final EurekaRegistrationPort eurekaRegistration;
     private final String applicationName;
     private final String hostName;
     private final int port;
 
     public EBikeVerticle(
-            RESTEBikeController controller,
+            RESTEBikeAdapter controller,
             EurekaRegistrationPort eurekaRegistration,
             String applicationName,
             String hostName,
