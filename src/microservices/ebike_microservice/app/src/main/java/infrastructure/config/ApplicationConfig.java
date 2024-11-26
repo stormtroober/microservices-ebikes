@@ -10,6 +10,7 @@ public class ApplicationConfig {
     private static final String DEFAULT_MONGO_CONNECTION = "mongodb://localhost:27017";
     private static final String DEFAULT_DB_NAME = "ebikes_db";
     private static final boolean DEFAULT_EUREKA_ENABLED = true; // Disabled by default for local development
+    private static final String DEFAULT_HOST_NAME = "ebike-microservice";
 
     private final String host;
     private final int port;
@@ -21,6 +22,7 @@ public class ApplicationConfig {
     );
     private final String dbName;
     private final boolean eurekaEnabled;
+    private final String hostName = System.getenv().getOrDefault("HOST_NAME", DEFAULT_HOST_NAME);
 
     public ApplicationConfig() {
         this.host = System.getenv().getOrDefault("SERVICE_HOST", DEFAULT_HOST);
@@ -29,8 +31,9 @@ public class ApplicationConfig {
         this.eurekaPort = Integer.parseInt(System.getenv().getOrDefault("EUREKA_PORT", String.valueOf(DEFAULT_EUREKA_PORT)));
         this.dbName = System.getenv().getOrDefault("DB_NAME", DEFAULT_DB_NAME);
         this.eurekaEnabled = Boolean.parseBoolean(System.getenv().getOrDefault("EUREKA_ENABLED", String.valueOf(DEFAULT_EUREKA_ENABLED)));
-    }
 
+    }
+    public String getHostName() { return hostName; }
     public String getHost() { return host; }
     public int getPort() { return port; }
     public String getEurekaHost() { return eurekaHost; }

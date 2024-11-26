@@ -17,20 +17,21 @@ public class EBikeVerticle extends AbstractVerticle {
     private final RESTEBikeController controller;
     private final EurekaRegistrationPort eurekaRegistration;
     private final String applicationName;
+    private final String hostName;
     private final int port;
-    private final String instanceId;
 
     public EBikeVerticle(
             RESTEBikeController controller,
             EurekaRegistrationPort eurekaRegistration,
             String applicationName,
+            String hostName,
             int port
     ) {
         this.controller = controller;
         this.eurekaRegistration = eurekaRegistration;
         this.applicationName = applicationName;
+        this.hostName = hostName;
         this.port = port;
-        this.instanceId = applicationName + ":" + UUID.randomUUID().toString();
     }
 
     @Override
@@ -47,7 +48,6 @@ public class EBikeVerticle extends AbstractVerticle {
                 .listen(port)
                 .onSuccess(server -> {
                     registerWithEureka();
-                    startHeartbeat();
                     logger.info("HTTP server started on port {}", port);
                     startPromise.complete();
                 })
@@ -56,7 +56,7 @@ public class EBikeVerticle extends AbstractVerticle {
 
     private void registerWithEureka() {
         try {
-            String hostName = InetAddress.getLocalHost().getHostName();
+
             eurekaRegistration.register(applicationName, hostName, port)
                     .onSuccess(v -> logger.info("Successfully registered with Eureka"))
                     .onFailure(err -> logger.error("Failed to register with Eureka", err));
@@ -65,16 +65,6 @@ public class EBikeVerticle extends AbstractVerticle {
         }
     }
 
-    private void startHeartbeat() {
-        vertx.setPeriodic(30000, id -> {
-            eurekaRegistration.sendHeartbeat(applicationName, instanceId)
-                    .onFailure(err -> logger.warn("Failed to send heartbeat to Eureka: {}", err.getMessage()));
-        });
-    }
 
-    @Override
-    public void stop(Promise<Void> stopPromise) {
-        eurekaRegistration.deregister(applicationName, instanceId)
-                .onComplete(ar -> stopPromise.complete());
-    }
+
 }

@@ -16,7 +16,7 @@ public class EurekaRegistrationAdapter implements EurekaRegistrationPort {
     private final int eurekaPort;
     private final boolean eurekaEnabled;
     private String instanceId;
-    private Vertx vertx;
+    private final Vertx vertx;
 
     public EurekaRegistrationAdapter(Vertx vertx, JsonObject config) {
         WebClientOptions options = new WebClientOptions()
@@ -41,34 +41,21 @@ public class EurekaRegistrationAdapter implements EurekaRegistrationPort {
                 .put("instance", new JsonObject()
                         .put("instanceId", instanceId)
                         .put("hostName", hostName)
-                        .put("app", applicationName.toUpperCase())
-                        .put("ipAddr", hostName)
+                        .put("app", applicationName)
+                        .put("ipAddr", "127.0.0.1")
+                        .put("vipAddress", applicationName)
                         .put("status", "UP")
                         .put("port", new JsonObject()
                                 .put("$", port)
                                 .put("@enabled", true))
-                        .put("securePort", new JsonObject()
-                                .put("$", 443)
-                                .put("@enabled", false))
-                        .put("healthCheckUrl", "http://" + hostName + ":" + port + "/health")
-                        .put("statusPageUrl", "http://" + hostName + ":" + port + "/info")
-                        .put("homePageUrl", "http://" + hostName + ":" + port + "/")
-                        .put("vipAddress", applicationName.toLowerCase())
-                        .put("secureVipAddress", applicationName.toLowerCase())
-                        .put("countryId", 1)
+                        .put("healthCheckUrl", "http://" + applicationName + ":" + port + "/health")
+                        .put("statusPageUrl", "http://" + applicationName + ":" + port + "/info")
+                        .put("homePageUrl", "http://" + applicationName + ":" + port + "/")
                         .put("dataCenterInfo", new JsonObject()
                                 .put("@class", "com.netflix.appinfo.InstanceInfo$DefaultDataCenterInfo")
-                                .put("name", "MyOwn"))
-                        .put("leaseInfo", new JsonObject()
-                                .put("renewalIntervalInSecs", 30)
-                                .put("durationInSecs", 90)
-                                .put("registrationTimestamp", 0)
-                                .put("lastRenewalTimestamp", 0)
-                                .put("evictionTimestamp", 0)
-                                .put("serviceUpTimestamp", 0))
-                        .put("metadata", new JsonObject()
-                                .put("management.port", String.valueOf(port))));
+                                .put("name", "MyOwn")));
 
+        System.out.println("Registering with Eureka: " + instance.encodePrettily());
         return client.post(eurekaPort, eurekaHost, "/eureka/apps/" + applicationName)
                 .putHeader("Content-Type", "application/json")
                 .sendJsonObject(instance)
@@ -100,6 +87,7 @@ public class EurekaRegistrationAdapter implements EurekaRegistrationPort {
                         "/eureka/apps/" + applicationName + "/" + instanceId)
                 .send()
                 .map(response -> {
+                    System.out.println("/eureka/apps/" + applicationName + "/" + instanceId);
                     if (response.statusCode() == 200 || response.statusCode() == 404) {
                         if (response.statusCode() == 404) {
                             // Re-register if instance not found

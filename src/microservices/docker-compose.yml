@@ -54,7 +54,7 @@ services:
       retries: 3
       start_period: 10s
 
-  ebike-service:
+  ebike-microservice:
     build:
       context: ./ebike_microservice
     ports:
@@ -89,7 +89,7 @@ services:
     depends_on:
       eureka-server:
         condition: service_healthy
-      ebike-service:
+      ebike-microservice:
         condition: service_healthy
     environment:
       - EUREKA_CLIENT_SERVICEURL_DEFAULTZONE=http://eureka-server:8761/eureka/

@@ -38,7 +38,8 @@ public class Main {
         vertx.deployVerticle(new EBikeVerticle(
                 controller,
                 eurekaAdapter,
-                "ebike-service",
+                config.getHostName(),
+                config.getHostName(),
                 config.getPort()
         )).onSuccess(id -> {
             logger.info("EBike service started successfully on port {" + config.getPort()+"}");
