@@ -14,6 +14,7 @@ public class Main {
 
         EBikeRepository bikeRepository = new EBikeRepositoryImpl();
         EventPublisher eventPublisher = new EventPublisherImpl(vertx);
+
         // Create service
         RestMapServiceAPI service = new RestMapServiceAPIImpl(bikeRepository, eventPublisher);
 

@@ -51,7 +51,7 @@ public class MapServiceVerticle extends AbstractVerticle {
         // Define REST endpoints
         router.put("/updateEBike").handler(ctx -> {
             JsonObject body = ctx.body().asJsonObject();
-            String bikeName = body.getString("bikeName");
+            String bikeName = body.getString("id");
             double x = body.getDouble("x");
             double y = body.getDouble("y");
             EBikeState state = EBikeState.valueOf(body.getString("state"));
