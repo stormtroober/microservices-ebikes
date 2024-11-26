@@ -10,6 +10,8 @@ public interface EBikeRepository {
 
     CompletableFuture<EBike> getBike(String bikeName);
 
+    CompletableFuture<List<EBike>> getAllBikes();
+
     CompletableFuture<Void> assignBikeToUser(String username, EBike bike);
 
     CompletableFuture<Void> unassignBikeFromUser(String username, EBike bike);

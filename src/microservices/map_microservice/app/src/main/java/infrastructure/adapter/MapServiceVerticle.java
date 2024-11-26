@@ -101,6 +101,8 @@ public class MapServiceVerticle extends AbstractVerticle {
                         webSocket.writeTextMessage(message.body().toString());
                     });
 
+                    mapService.getAllBikes();
+
                     // Cleanup on WebSocket close
                     webSocket.closeHandler(v -> {
                         consumer.unregister();

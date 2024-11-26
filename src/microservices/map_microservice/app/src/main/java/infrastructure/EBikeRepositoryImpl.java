@@ -5,6 +5,7 @@ import application.ports.EBikeRepository;
 import domain.model.EBike;
 import domain.model.EBikeState;
 
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 import java.util.concurrent.CompletableFuture;
@@ -29,6 +30,11 @@ public class EBikeRepositoryImpl implements EBikeRepository {
         } else {
             return CompletableFuture.failedFuture(new IllegalArgumentException("Bike not found"));
         }
+    }
+
+    @Override
+    public CompletableFuture<List<EBike>> getAllBikes() {
+        return CompletableFuture.supplyAsync(() -> new ArrayList<>(bikes.values()));
     }
 
     @Override

@@ -6,6 +6,7 @@ import domain.model.EBike;
 import application.ports.EventPublisher;
 import application.ports.EBikeRepository;
 
+import java.util.List;
 import java.util.concurrent.CompletableFuture;
 
 public class RestMapServiceAPIImpl implements RestMapServiceAPI {
@@ -50,6 +51,13 @@ public class RestMapServiceAPIImpl implements RestMapServiceAPI {
     public CompletableFuture<Void> notifyStopRide(String username, String bikeName) {
         return bikeRepository.getBike(bikeName)
                 .thenCompose(bike -> bikeRepository.unassignBikeFromUser(username, bike));
+    }
+
+    @Override
+    public CompletableFuture<Void> getAllBikes() {
+        return bikeRepository.getAllBikes().thenAccept(bikes -> {
+            bikes.forEach(eventPublisher::publishBikeUpdate);
+        });
     }
 
 
