@@ -1,8 +1,8 @@
 import application.RestMapServiceAPIImpl;
 import application.ports.RestMapServiceAPI;
-import infrastructure.MicroservicesCommunication;
+import infrastructure.adapter.MicroservicesCommunication;
 import infrastructure.eventpublisher.EventPublisherImpl;
-import infrastructure.MapServiceVerticle;
+import infrastructure.adapter.MapServiceVerticle;
 import infrastructure.repository.EBikeRepository;
 import infrastructure.repository.EBikeRepositoryImpl;
 import io.vertx.core.Vertx;
@@ -17,9 +17,9 @@ public class Main {
         RestMapServiceAPI service = new RestMapServiceAPIImpl(bikeRepository, new EventPublisherImpl(vertx));
 
         // Deploy single verticle with both API and Eureka registration
-        vertx.deployVerticle(new MapServiceVerticle(service, "map-microservice", 8087));
+        vertx.deployVerticle(new MapServiceVerticle(service, "map-microservice"));
 
         // Deploy verticle for communication with other microservices
-        vertx.deployVerticle(new MicroservicesCommunication(service, 8088));
+        vertx.deployVerticle(new MicroservicesCommunication(service));
     }
 }

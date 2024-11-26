@@ -1,4 +1,4 @@
-package infrastructure;
+package infrastructure.adapter;
 
 import application.ports.RestMapServiceAPI;
 import domain.model.EBike;
@@ -15,9 +15,9 @@ public class MicroservicesCommunication extends AbstractVerticle {
     private final RestMapServiceAPI mapService;
     private final int port;
 
-    public MicroservicesCommunication(RestMapServiceAPI mapService, int port) {
+    public MicroservicesCommunication(RestMapServiceAPI mapService) {
         this.mapService = mapService;
-        this.port = port;
+        this.port = EnvUtils.getEnvOrDefaultInt("COMM_MICROSERVICES_PORT", 8088);
     }
 
     @Override
