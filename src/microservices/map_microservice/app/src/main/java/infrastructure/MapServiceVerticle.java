@@ -166,7 +166,7 @@ public class MapServiceVerticle extends AbstractVerticle {
     private void registerWithEureka() {
         JsonObject instance = new JsonObject()
                 .put("instance", new JsonObject()
-                        .put("hostName", "map-microservice")
+                        .put("hostName", applicationName)
                         .put("app", applicationName)
                         .put("instanceId", instanceId)
                         .put("ipAddr", "127.0.0.1")
@@ -191,6 +191,8 @@ public class MapServiceVerticle extends AbstractVerticle {
     }
 
     private void sendHeartbeat() {
+        var uri = "/eureka/apps/" + applicationName + "/" + instanceId;
+        System.out.println("Sending heartbeat to Eureka: " + uri);
         client.put(8761, "eureka-server", "/eureka/apps/" + applicationName + "/" + instanceId)
                 .send(res -> {
                     if (res.succeeded()) {
