@@ -50,6 +50,7 @@ public class MongoEBikeRepository implements EBikeRepository {
 
         JsonObject query = new JsonObject().put("_id", ebike.getString("id"));
         JsonObject update = new JsonObject().put("$set", ebike);
+        update.remove("id");
 
         mongoClient.findOneAndUpdate(COLLECTION, query, update)
                 .onSuccess(result -> {

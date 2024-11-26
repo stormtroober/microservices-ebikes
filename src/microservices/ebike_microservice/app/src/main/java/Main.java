@@ -1,7 +1,7 @@
 import application.EBikeServiceImpl;
 import infrastructure.adapters.eureka.EurekaRegistrationAdapter;
 import infrastructure.adapters.web.EBikeVerticle;
-import infrastructure.adapters.web.RESTEBikeController;
+import infrastructure.adapters.web.RESTEBikeAdapter;
 import infrastructure.config.ApplicationConfig;
 import infrastructure.persistence.MongoEBikeRepository;
 import io.vertx.core.Vertx;
@@ -26,7 +26,7 @@ public class Main {
         EBikeServiceImpl service = new EBikeServiceImpl(repository);
 
         // Create controller
-        RESTEBikeController controller = new RESTEBikeController(service);
+        RESTEBikeAdapter controller = new RESTEBikeAdapter(service);
 
         // Create Eureka adapter
         EurekaRegistrationAdapter eurekaAdapter = new EurekaRegistrationAdapter(

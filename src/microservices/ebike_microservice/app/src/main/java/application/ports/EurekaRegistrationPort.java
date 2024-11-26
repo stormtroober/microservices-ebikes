@@ -27,12 +27,5 @@ public interface EurekaRegistrationPort {
      */
     Future<Void> sendHeartbeat(String applicationName, String instanceId);
 
-    /**
-     * Deregisters an application instance from Eureka.
-     *
-     * @param applicationName the name of the application
-     * @param instanceId the unique identifier of the application instance
-     * @return a Future representing the result of the deregistration operation
-     */
-    Future<Void> deregister(String applicationName, String instanceId);
+
 }
