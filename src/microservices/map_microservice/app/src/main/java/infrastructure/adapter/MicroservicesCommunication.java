@@ -30,8 +30,11 @@ public class MicroservicesCommunication extends AbstractVerticle {
         // Enable request body handling for PUT/POST requests
         router.route().handler(BodyHandler.create());
 
+        router.get("/health").handler(ctx -> ctx.response().setStatusCode(200).end("OK"));
+
         // Define REST endpoint for updateEBike
         router.put("/updateEBike").handler(ctx -> {
+            System.out.println("Received updateEBike request");
             JsonObject body = ctx.body().asJsonObject();
             try {
                 EBike bike = createEBikeFromJson(body);
@@ -43,6 +46,7 @@ public class MicroservicesCommunication extends AbstractVerticle {
                             return null;
                         });
             } catch (Exception e) {
+                System.err.println("Invalid input data: " + e.getMessage());
                 ctx.response().setStatusCode(400).end("Invalid input data: " + e.getMessage());
             }
         });

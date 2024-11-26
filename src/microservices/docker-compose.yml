@@ -22,7 +22,6 @@ services:
         context: ./map_microservice
       ports:
         - "8087:8087"
-        - "8088:8088"
       networks:
         - eureka-network
       depends_on:
@@ -35,6 +34,12 @@ services:
         - SERVICE_HOST=map-microservice
         - SERVICE_PORT=8087
         - COMM_MICROSERVICES_PORT=8088
+      healthcheck:
+        test: ["CMD-SHELL", "curl -f http://localhost:8087/health || exit 1", "curl -f http://localhost:8088/health || exit 1"]
+        interval: 10s
+        timeout: 5s
+        retries: 3
+        start_period: 10s
 
   mongodb-ebike:
     image: mongo:latest
@@ -71,6 +76,8 @@ services:
       eureka-server:
         condition: service_healthy
       mongodb-ebike:
+        condition: service_healthy
+      map-microservice:
         condition: service_healthy
     environment:
       - MONGO_CONNECTION=mongodb://mongodb-ebike:27017
