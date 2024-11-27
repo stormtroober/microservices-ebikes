@@ -1,6 +1,8 @@
 package application.ports;
 
+import java.util.concurrent.CompletableFuture;
+
 public interface RestRideServiceAPI {
-    void startRide(String userId, String bikeId);
+    CompletableFuture<Void> startRide(String userId, String bikeId);
     void stopRide(String userId);
 }

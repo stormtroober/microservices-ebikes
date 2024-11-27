@@ -27,7 +27,7 @@ public class RideServiceVerticle extends AbstractVerticle {
         this.eurekaInstanceId = eurekaInstanceId;
         this.port = 8092;
         this.eurekaPort = 8761;
-        this.eurekaHost = "eureka-service";
+        this.eurekaHost = "eureka-server";
     }
 
     public RideServiceVerticle(RestRideServiceAPI rideService, String eurekaApplicationName) {
@@ -45,6 +45,26 @@ public class RideServiceVerticle extends AbstractVerticle {
 
         router.get("/health").handler(ctx -> ctx.response().setStatusCode(200).end("OK"));
 
+        router.post("/startRide").handler(ctx -> {
+            JsonObject body = ctx.body().asJsonObject();
+            String user = body.getString("user");
+            String bike = body.getString("bike");
+
+            rideService.startRide(user, bike).thenAccept(v -> {
+                ctx.response().setStatusCode(200).end("Ride started");
+                }).exceptionally(ex -> {
+                    ctx.response().setStatusCode(500).end(ex.getMessage());
+                    return null;
+                });
+        });
+
+        // Define /stopRide endpoint
+        router.post("/stopRide").handler(ctx -> {
+            JsonObject body = ctx.body().asJsonObject();
+            String username = body.getString("username");
+
+            rideService.stopRide(username);
+        });
         // Start the server
         server.requestHandler(router).listen(port, result -> {
             if (result.succeeded()) {
@@ -74,6 +94,8 @@ public class RideServiceVerticle extends AbstractVerticle {
                                 .put("@class", "com.netflix.appinfo.InstanceInfo$DefaultDataCenterInfo")
                                 .put("name", "MyOwn")));
         System.out.println("Registering with Eureka: " + instance.encodePrettily());
+        System.out.println("Eureka host: " + eurekaHost + " Eureka port: " + eurekaPort);
+        System.out.println("Eureka app name: " + eurekaApplicationName);
 
         client.post(eurekaPort, eurekaHost, "/eureka/apps/" + eurekaApplicationName)
                 .sendJsonObject(instance, res -> {

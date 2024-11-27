@@ -92,6 +92,26 @@ services:
       retries: 3
       start_period: 10s
 
+  ride-microservice:
+    build:
+      context: ./ride_microservice
+    ports:
+      - "8092:8092"
+    networks:
+      - eureka-network
+    depends_on:
+      eureka-server:
+        condition: service_healthy
+    environment:
+      - EUREKA_HOST=eureka-server
+      - EUREKA_PORT=8761
+    healthcheck:
+      test: [ "CMD", "curl", "-f", "http://localhost:8092/health" ]
+      interval: 10s
+      timeout: 5s
+      retries: 3
+      start_period: 10s
+
   api-gateway:
     build:
       context: ./eureka-apigateway  # Path to your API Gateway Dockerfile

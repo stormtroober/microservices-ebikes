@@ -4,6 +4,8 @@ import application.ports.RestRideServiceAPI;
 import domain.model.*;
 import io.vertx.core.Vertx;
 
+import java.util.concurrent.CompletableFuture;
+
 public class RestRideServiceAPIImpl implements RestRideServiceAPI {
 
     private RideRepository rideRepository;
@@ -15,7 +17,7 @@ public class RestRideServiceAPIImpl implements RestRideServiceAPI {
     }
 
     @Override
-    public void startRide(String userId, String bikeId) {
+    public CompletableFuture<Void> startRide(String userId, String bikeId) {
         //Retrieve User from UserService (through adapter)
         //Retrieve Bike from BikeService (through adapter)
         //Create Ride and Start It
@@ -27,7 +29,10 @@ public class RestRideServiceAPIImpl implements RestRideServiceAPI {
         EBike ebike1 = new EBike("ebike1", 0, 0, EBikeState.AVAILABLE, 100); // 100% battery and starting position at (0,0)
         Ride ride1 = new Ride("ride1", user, ebike1);
         rideRepository.addRide(ride1);
+        CompletableFuture<Void> future = new CompletableFuture<>();
         rideRepository.getRideSimulation(ride1.getId()).startSimulation();
+        future.complete(null);
+        return future;
     }
 
     @Override

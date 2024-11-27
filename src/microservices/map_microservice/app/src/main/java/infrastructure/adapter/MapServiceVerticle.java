@@ -161,7 +161,8 @@ public class MapServiceVerticle extends AbstractVerticle {
                                 .put("@class", "com.netflix.appinfo.InstanceInfo$DefaultDataCenterInfo")
                                 .put("name", "MyOwn")));
         System.out.println("Registering with Eureka: " + instance.encodePrettily());
-
+        System.out.println("Eureka host: " + eurekaHost + " Eureka port: " + eurekaPort);
+        System.out.println("Eureka app name: " + eurekaApplicationName);
         client.post(eurekaPort, eurekaHost, "/eureka/apps/" + eurekaApplicationName)
                 .sendJsonObject(instance, res -> {
                     if (res.succeeded()) {
