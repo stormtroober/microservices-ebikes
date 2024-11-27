@@ -1,6 +1,7 @@
 import application.EBikeServiceImpl;
 import infrastructure.adapters.eureka.EurekaRegistrationAdapter;
 import infrastructure.adapters.map.MapCommunicationAdapter;
+import infrastructure.adapters.ride.RideCommunicationAdapter;
 import infrastructure.adapters.web.EBikeVerticle;
 import infrastructure.adapters.web.RESTEBikeAdapter;
 import infrastructure.config.ApplicationConfig;
@@ -20,36 +21,36 @@ public class Main {
         // Create MongoDB client
         MongoClient mongoClient = MongoClient.create(vertx, config.getMongoConfig());
 
-        MapCommunicationAdapter mapCommunicationAdapter = new MapCommunicationAdapter(
-                vertx,
-                config.getMapMicroserviceUrl()
-        );
+        // Create MapCommunicationAdapter
+        String microserviceUrl = "http://map-microservice:8088"; // Adjust the URL as needed
+        MapCommunicationAdapter mapCommunicationAdapter = new MapCommunicationAdapter(vertx, microserviceUrl);
+
         // Create repository
         MongoEBikeRepository repository = new MongoEBikeRepository(mongoClient);
 
         // Create service
         EBikeServiceImpl service = new EBikeServiceImpl(repository, mapCommunicationAdapter);
 
-        // Create controller
-        RESTEBikeAdapter controller = new RESTEBikeAdapter(service);
-
+        // Create controllers
+        RESTEBikeAdapter restEBikeAdapter = new RESTEBikeAdapter(service);
+        RideCommunicationAdapter rideCommunicationAdapter = new RideCommunicationAdapter(service, 8082, vertx); // Port for RideCommunicationAdapter
+        // Deploy RideCommunicationAdapter
+        rideCommunicationAdapter.init();
         // Create Eureka adapter
         EurekaRegistrationAdapter eurekaAdapter = new EurekaRegistrationAdapter(
                 vertx,
                 config.getEurekaConfig()
         );
 
-
-
-        // Deploy verticle
+        // Deploy EBikeVerticle
         vertx.deployVerticle(new EBikeVerticle(
-                controller,
+                restEBikeAdapter,
                 eurekaAdapter,
                 config.getHostName(),
                 config.getHostName(),
                 config.getPort()
         )).onSuccess(id -> {
-            logger.info("EBike service started successfully on port {" + config.getPort()+"}");
+            logger.info("EBike service started successfully on port {" + config.getPort() + "}");
             if (!config.isEurekaEnabled()) {
                 logger.info("Running in standalone mode (Eureka disabled)");
             }
@@ -58,5 +59,7 @@ public class Main {
             vertx.close();
             System.exit(1);
         });
+
+
     }
 }

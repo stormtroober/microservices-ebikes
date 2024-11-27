@@ -17,9 +17,7 @@ public class RESTEBikeAdapter {
 
     public void configureRoutes(Router router) {
         router.post("/api/ebikes/create").handler(this::createEBike);
-        router.get("/api/ebikes/:id").handler(this::getEBike);
         router.put("/api/ebikes/:id/recharge").handler(this::rechargeEBike);
-        router.put("/api/ebikes/:id/update").handler(this::updateEBike);
         router.get("/api/ebikes").handler(this::getAllEBikes);
         router.get("/health").handler(this::healthCheck);
     }
@@ -47,27 +45,6 @@ public class RESTEBikeAdapter {
         }
     }
 
-    private void getEBike(RoutingContext ctx) {
-        String id = ctx.pathParam("id");
-        if (id == null || id.trim().isEmpty()) {
-            sendError(ctx, 400, "Invalid id");
-            return;
-        }
-
-        ebikeService.getEBike(id)
-                .thenAccept(optionalEBike -> {
-                    if (optionalEBike.isPresent()) {
-                        sendResponse(ctx, 200, optionalEBike.get());
-                    } else {
-                        ctx.response().setStatusCode(404).end();
-                    }
-                })
-                .exceptionally(e -> {
-                    handleError(ctx, e);
-                    return null;
-                });
-    }
-
     private void rechargeEBike(RoutingContext ctx) {
         String id = ctx.pathParam("id");
         if (id == null || id.trim().isEmpty()) {
@@ -87,29 +64,6 @@ public class RESTEBikeAdapter {
                     handleError(ctx, e);
                     return null;
                 });
-    }
-
-    private void updateEBike(RoutingContext ctx) {
-        try {
-            JsonObject body = ctx.body().asJsonObject();
-            String id = ctx.pathParam("id");
-            body.put("id", id);
-
-            ebikeService.updateEBike(body)
-                    .thenAccept(result -> {
-                        if (result != null) {
-                            sendResponse(ctx, 200, result);
-                        } else {
-                            ctx.response().setStatusCode(404).end();
-                        }
-                    })
-                    .exceptionally(e -> {
-                        handleError(ctx, e);
-                        return null;
-                    });
-        } catch (Exception e) {
-            handleError(ctx, new RuntimeException("Invalid JSON format"));
-        }
     }
 
     private void getAllEBikes(RoutingContext ctx) {
