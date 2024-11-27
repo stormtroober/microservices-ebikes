@@ -52,4 +52,8 @@ public class ApplicationConfig {
                 .put("eurekaPort", eurekaPort)
                 .put("eurekaEnabled", eurekaEnabled);
     }
+
+    public String getMapMicroserviceUrl() {
+        return "http://map-microservice:8088";
+    }
 }
