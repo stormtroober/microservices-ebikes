@@ -2,6 +2,7 @@ package domain.model;
 
 import io.vertx.core.Vertx;
 import io.vertx.core.eventbus.EventBus;
+import io.vertx.core.json.JsonObject;
 
 import java.util.concurrent.CompletableFuture;
 
@@ -91,8 +92,16 @@ public class RideSimulation {
             bike.decreaseBattery(1);
             user.decreaseCredit(1);
 
+            JsonObject updateMsg = new JsonObject()
+                    .put("id", bike.getId())
+                    .put("state", bike.getState().toString())
+                    .put("location", new JsonObject()
+                            .put("x", bike.getLocation().x())
+                            .put("y", bike.getLocation().y()))
+                    .put("batteryLevel", bike.getBatteryLevel());
+
             // Publish updated ride information
-            eventBus.publish(RIDE_UPDATE_ADDRESS, ride.toString());
+            eventBus.publish(RIDE_UPDATE_ADDRESS, updateMsg);
         }
     }
 
