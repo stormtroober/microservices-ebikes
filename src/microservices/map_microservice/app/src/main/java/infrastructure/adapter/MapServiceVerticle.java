@@ -65,32 +65,6 @@ public class MapServiceVerticle extends AbstractVerticle {
                     });
         });
 
-        router.post("/notifyStartRide").handler(ctx -> {
-            JsonObject body = ctx.body().asJsonObject();
-            String username = body.getString("username");
-            String bikeName = body.getString("bikeName");
-
-            mapService.notifyStartRide(username, bikeName)
-                    .thenAccept(v -> ctx.response().setStatusCode(200).end("OK"))
-                    .exceptionally(ex -> {
-                        ctx.response().setStatusCode(500).end(ex.getMessage());
-                        return null;
-                    });
-        });
-
-        router.post("/notifyStopRide").handler(ctx -> {
-            JsonObject body = ctx.body().asJsonObject();
-            String username = body.getString("username");
-            String bikeName = body.getString("bikeName");
-
-            mapService.notifyStopRide(username, bikeName)
-                    .thenAccept(v -> ctx.response().setStatusCode(200).end("OK"))
-                    .exceptionally(ex -> {
-                        ctx.response().setStatusCode(500).end(ex.getMessage());
-                        return null;
-                    });
-        });
-
         router.route("/observeAllBikes").handler(ctx -> {
             ctx.request().toWebSocket().onComplete(webSocketAsyncResult -> {
                 if (webSocketAsyncResult.succeeded()) {

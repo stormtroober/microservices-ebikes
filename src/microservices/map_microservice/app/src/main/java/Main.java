@@ -1,7 +1,7 @@
 import application.RestMapServiceAPIImpl;
 import application.ports.EventPublisher;
 import application.ports.RestMapServiceAPI;
-import infrastructure.adapter.MicroservicesCommunication;
+import infrastructure.adapter.BikeUpdateAdapter;
 import infrastructure.EventPublisherImpl;
 import infrastructure.adapter.MapServiceVerticle;
 import application.ports.EBikeRepository;
@@ -22,6 +22,6 @@ public class Main {
         vertx.deployVerticle(new MapServiceVerticle(service, "map-microservice"));
 
         // Deploy verticle for communication with other microservices
-        vertx.deployVerticle(new MicroservicesCommunication(service));
+        vertx.deployVerticle(new BikeUpdateAdapter(service));
     }
 }

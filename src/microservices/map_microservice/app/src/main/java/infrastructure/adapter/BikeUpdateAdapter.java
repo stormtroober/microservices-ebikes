@@ -4,7 +4,6 @@ import application.ports.RestMapServiceAPI;
 import domain.model.EBike;
 import domain.model.EBikeFactory;
 import domain.model.EBikeState;
-import domain.model.P2d;
 import io.vertx.core.AbstractVerticle;
 import io.vertx.core.http.HttpServer;
 import io.vertx.core.json.JsonArray;
@@ -12,12 +11,12 @@ import io.vertx.core.json.JsonObject;
 import io.vertx.ext.web.Router;
 import io.vertx.ext.web.handler.BodyHandler;
 
-public class MicroservicesCommunication extends AbstractVerticle {
+public class BikeUpdateAdapter extends AbstractVerticle {
 
     private final RestMapServiceAPI mapService;
     private final int port;
 
-    public MicroservicesCommunication(RestMapServiceAPI mapService) {
+    public BikeUpdateAdapter(RestMapServiceAPI mapService) {
         this.mapService = mapService;
         this.port = EnvUtils.getEnvOrDefaultInt("COMM_MICROSERVICES_PORT", 8088);
     }
