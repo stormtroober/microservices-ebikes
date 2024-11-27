@@ -1,5 +1,6 @@
 import application.EBikeServiceImpl;
 import infrastructure.adapters.eureka.EurekaRegistrationAdapter;
+import infrastructure.adapters.map.MapCommunicationAdapter;
 import infrastructure.adapters.web.EBikeVerticle;
 import infrastructure.adapters.web.RESTEBikeAdapter;
 import infrastructure.config.ApplicationConfig;
@@ -19,11 +20,15 @@ public class Main {
         // Create MongoDB client
         MongoClient mongoClient = MongoClient.create(vertx, config.getMongoConfig());
 
+        MapCommunicationAdapter mapCommunicationAdapter = new MapCommunicationAdapter(
+                vertx,
+                config.getMapMicroserviceUrl()
+        );
         // Create repository
         MongoEBikeRepository repository = new MongoEBikeRepository(mongoClient);
 
         // Create service
-        EBikeServiceImpl service = new EBikeServiceImpl(repository);
+        EBikeServiceImpl service = new EBikeServiceImpl(repository, mapCommunicationAdapter);
 
         // Create controller
         RESTEBikeAdapter controller = new RESTEBikeAdapter(service);
@@ -33,6 +38,8 @@ public class Main {
                 vertx,
                 config.getEurekaConfig()
         );
+
+
 
         // Deploy verticle
         vertx.deployVerticle(new EBikeVerticle(

@@ -2,6 +2,8 @@ package application;
 
 import application.ports.EBikeRepository;
 import application.ports.EBikeServiceAPI;
+import application.ports.MapCommunicationPort;
+import infrastructure.adapters.map.MapCommunicationAdapter;
 import io.vertx.core.json.JsonArray;
 import io.vertx.core.json.JsonObject;
 
@@ -11,9 +13,13 @@ import java.util.concurrent.CompletableFuture;
 public class EBikeServiceImpl implements EBikeServiceAPI {
 
     private final EBikeRepository repository;
+    private final MapCommunicationPort mapCommunicationAdapter;
 
-    public EBikeServiceImpl(EBikeRepository repository) {
+    public EBikeServiceImpl(EBikeRepository repository, MapCommunicationAdapter mapCommunicationAdapter) {
         this.repository = repository;
+        this.mapCommunicationAdapter = mapCommunicationAdapter;
+        mapCommunicationAdapter.init();
+        mapCommunicationAdapter.sendAllUpdates(this.repository.findAll().join());
     }
 
     @Override
@@ -27,7 +33,7 @@ public class EBikeServiceImpl implements EBikeServiceAPI {
                 .put("state", "AVAILABLE")
                 .put("batteryLevel", 100)
                 .put("location", new JsonObject().put("x", x).put("y", y));
-
+        mapCommunicationAdapter.sendUpdate(ebike);
         return repository.save(ebike).thenApply(v -> ebike);
     }
 
@@ -44,6 +50,7 @@ public class EBikeServiceImpl implements EBikeServiceAPI {
                     if (optionalEbike.isPresent()) {
                         JsonObject ebike = optionalEbike.get();
                         ebike.put("batteryLevel", 100).put("state", "AVAILABLE");
+                        mapCommunicationAdapter.sendUpdate(ebike);
                         return repository.update(ebike).thenApply(v -> ebike);
                     }
                     return CompletableFuture.completedFuture(null);
@@ -68,7 +75,7 @@ public class EBikeServiceImpl implements EBikeServiceAPI {
         if (ebike.containsKey("location")) {
             ebike.put("location", ebike.getJsonObject("location"));
         }
-
+        mapCommunicationAdapter.sendUpdate(ebike);
         return repository.update(ebike).thenApply(v -> ebike);
     }
 

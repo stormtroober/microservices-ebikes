@@ -1,7 +1,7 @@
 package infrastructure.persistence;
 
 import application.ports.EBikeRepository;
-import io.vertx.core.Future;
+import infrastructure.adapters.map.MapCommunicationAdapter;
 import io.vertx.core.json.JsonObject;
 import io.vertx.core.json.JsonArray;
 import io.vertx.ext.mongo.MongoClient;

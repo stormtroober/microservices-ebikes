@@ -37,7 +37,16 @@ public class MicroservicesCommunication extends AbstractVerticle {
             System.out.println("Received updateEBike request");
             JsonObject body = ctx.body().asJsonObject();
             try {
-                EBike bike = createEBikeFromJson(body);
+                String bikeName = body.getString("id");
+                JsonObject location = body.getJsonObject("location");
+                double x = location.getDouble("x");
+                double y = location.getDouble("y");
+                EBikeState state = EBikeState.valueOf(body.getString("state"));
+                int batteryLevel = body.getInteger("batteryLevel");
+
+                EBikeFactory factory = EBikeFactory.getInstance();
+                EBike bike = factory.createEBike(bikeName, (float) x, (float) y, state, batteryLevel);
+
                 // Process the update request
                 mapService.updateEBike(bike)
                         .thenAccept(v -> ctx.response().setStatusCode(200).end("EBike updated successfully"))
@@ -67,6 +76,8 @@ public class MicroservicesCommunication extends AbstractVerticle {
                 });
                 ctx.response().setStatusCode(200).end("EBikes updated successfully");
             } catch (Exception e) {
+                System.err.println("Error processing request: " + e.getMessage());
+                e.printStackTrace();
                 ctx.response().setStatusCode(400).end("Invalid input data: " + e.getMessage());
             }
         });
@@ -83,8 +94,9 @@ public class MicroservicesCommunication extends AbstractVerticle {
 
     private EBike createEBikeFromJson(JsonObject body) {
         String bikeName = body.getString("id");
-        double x = body.getDouble("x");
-        double y = body.getDouble("y");
+        JsonObject location = body.getJsonObject("location");
+        double x = location.getDouble("x");
+        double y = location.getDouble("y");
         EBikeState state = EBikeState.valueOf(body.getString("state"));
         int batteryLevel = body.getInteger("batteryLevel");
 
