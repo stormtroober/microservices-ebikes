@@ -1,6 +1,6 @@
 package infrastructure.adapter.microservices_notifiers;
 
-import application.ports.EbikeCommunicationPort;
+import application.ports.UserCommunicationPort;
 import io.vertx.core.AbstractVerticle;
 import io.vertx.core.Promise;
 import io.vertx.core.Vertx;
@@ -9,15 +9,15 @@ import io.vertx.ext.web.client.WebClient;
 
 import java.util.concurrent.CompletableFuture;
 
-public class EBikeCommunicationAdapter extends AbstractVerticle implements EbikeCommunicationPort {
+public class UserCommunicationAdapter extends AbstractVerticle implements UserCommunicationPort {
     private final WebClient webClient;
-    private final String ebikeServiceUrl;
-    private static final String RIDE_UPDATE_ADDRESS = "ride.updates.ebike";
+    private final String userServiceUrl;
+    private static final String RIDE_UPDATE_ADDRESS = "ride.updates.user";
     private final Vertx vertx;
 
-    public EBikeCommunicationAdapter(Vertx vertx, String ebikeServiceUrl) {
+    public UserCommunicationAdapter(Vertx vertx, String userServiceUrl) {
         this.webClient = WebClient.create(vertx);
-        this.ebikeServiceUrl = ebikeServiceUrl;
+        this.userServiceUrl = userServiceUrl;
         this.vertx = vertx;
     }
 
@@ -37,42 +37,42 @@ public class EBikeCommunicationAdapter extends AbstractVerticle implements Ebike
 
     public void init() {
         vertx.deployVerticle(this).onSuccess(id -> {
-            System.out.println("EBikeCommunicationAdapter deployed successfully with ID: " + id);
+            System.out.println("UserCommunicationAdapter deployed successfully with ID: " + id);
         }).onFailure(err -> {
-            System.err.println("Failed to deploy EBikeCommunicationAdapter: " + err.getMessage());
+            System.err.println("Failed to deploy UserCommunicationAdapter: " + err.getMessage());
         });
     }
 
     @Override
-    public void sendUpdate(JsonObject ebike) {
-        webClient.putAbs(ebikeServiceUrl + "/api/ebikes/" + ebike.getString("id") + "/update")
-                .sendJsonObject(ebike, ar -> {
+    public void sendUpdate(JsonObject user) {
+        webClient.putAbs(userServiceUrl + "/api/users/" + user.getString("id") + "/update")
+                .sendJsonObject(user, ar -> {
                     if (ar.succeeded()) {
-                        System.out.println("EBike update sent successfully");
+                        System.out.println("User update sent successfully");
                     } else {
-                        System.err.println("Failed to send EBike update: " + ar.cause().getMessage());
+                        System.err.println("Failed to send User update: " + ar.cause().getMessage());
                     }
                 });
     }
 
     @Override
-    public CompletableFuture<JsonObject> getEbike(String id) {
-        System.out.println("Sending request to ebike-microservice -> getEbike("+id+")");
+    public CompletableFuture<JsonObject> getUser(String id) {
+        System.out.println("Sending request to user-microservice -> getUser(" + id + ")");
         CompletableFuture<JsonObject> future = new CompletableFuture<>();
 
-        webClient.getAbs(ebikeServiceUrl + "/api/ebikes/" + id)
+        webClient.getAbs(userServiceUrl + "/api/users/" + id)
                 .send()
                 .onSuccess(response -> {
                     if (response.statusCode() == 200) {
-                        System.out.println("EBike received successfully");
+                        System.out.println("User received successfully");
                         future.complete(response.bodyAsJsonObject());
                     } else {
-                        System.err.println("Failed to get EBike: " + response.statusCode());
-                        future.completeExceptionally(new RuntimeException("Failed to get Ebike: " + response.statusCode()));
+                        System.err.println("Failed to get User: " + response.statusCode());
+                        future.completeExceptionally(new RuntimeException("Failed to get User: " + response.statusCode()));
                     }
                 })
                 .onFailure(err -> {
-                    System.err.println("Failed to get EBike: " + err.getMessage());
+                    System.err.println("Failed to get User: " + err.getMessage());
                     future.completeExceptionally(err);
                 });
 

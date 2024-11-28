@@ -1,20 +1,16 @@
 package domain.model;
 
 public class User {
-    public enum UserType { ADMIN, USER }
 
     private final String id;
-    private final UserType type;
     private volatile int credit;
 
-    public User(String id, UserType type, int credit) {
+    public User(String id, int credit) {
         this.id = id;
-        this.type = type;
         this.credit = credit; // Default credit
     }
 
     public String getId() { return id; }
-    public UserType getType() { return type; }
 
     public int getCredit() { return credit; }
 
@@ -28,6 +24,6 @@ public class User {
 
     @Override
     public String toString() {
-        return String.format("User{id='%s', type='%s', credit=%d}", id, type, credit);
+        return String.format("User{id='%s', type='%s', credit=%d}", id, credit);
     }
 }
