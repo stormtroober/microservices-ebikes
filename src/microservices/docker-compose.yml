@@ -112,6 +112,30 @@ services:
       retries: 3
       start_period: 10s
 
+  user-microservice:
+    build:
+      context: ./user_microservice
+    ports:
+      - "8082:8082"
+    networks:
+      - eureka-network
+    depends_on:
+      eureka-server:
+        condition: service_healthy
+      mongodb-ebike:
+        condition: service_healthy
+    environment:
+      - EUREKA_HOST=eureka-server
+      - EUREKA_PORT=8761
+      - SERVICE_HOST=user-microservice
+      - SERVICE_PORT=8082
+    healthcheck:
+      test: [ "CMD", "curl", "-f", "http://localhost:8082/health" ]
+      interval: 10s
+      timeout: 5s
+      retries: 3
+      start_period: 10s
+
   api-gateway:
     build:
       context: ./eureka-apigateway  # Path to your API Gateway Dockerfile
@@ -122,7 +146,9 @@ services:
     depends_on:
       eureka-server:
         condition: service_healthy
-      ebike-microservice:
+#      ebike-microservice:
+#        condition: service_healthy
+      user-microservice:
         condition: service_healthy
     environment:
       - EUREKA_CLIENT_SERVICEURL_DEFAULTZONE=http://eureka-server:8761/eureka/
