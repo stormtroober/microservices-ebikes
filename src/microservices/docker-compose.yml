@@ -146,9 +146,13 @@ services:
     depends_on:
       eureka-server:
         condition: service_healthy
-#      ebike-microservice:
-#        condition: service_healthy
+      ebike-microservice:
+        condition: service_healthy
       user-microservice:
+        condition: service_healthy
+      map-microservice:
+        condition: service_healthy
+      ride-microservice:
         condition: service_healthy
     environment:
       - EUREKA_CLIENT_SERVICEURL_DEFAULTZONE=http://eureka-server:8761/eureka/
