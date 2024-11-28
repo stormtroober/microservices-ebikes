@@ -12,7 +12,8 @@ public class RideSimulation {
     private final Vertx vertx;
     private volatile boolean stopped = false;
     private long lastTimeChangedDir = System.currentTimeMillis();
-    private static final String RIDE_UPDATE_ADDRESS = "ride.updates";
+    private static final String RIDE_UPDATE_ADDRESS_EBIKE = "ride.updates.ebike";
+    private static final String RIDE_UPDATE_ADDRESS_USER = "ride.updates.user";
 
     public RideSimulation(Ride ride, Vertx vertx) {
         this.ride = ride;
@@ -92,7 +93,7 @@ public class RideSimulation {
             bike.decreaseBattery(1);
             user.decreaseCredit(1);
 
-            JsonObject updateMsg = new JsonObject()
+            JsonObject ebikeUpdateMsg = new JsonObject()
                     .put("id", bike.getId())
                     .put("state", bike.getState().toString())
                     .put("location", new JsonObject()
@@ -100,8 +101,12 @@ public class RideSimulation {
                             .put("y", bike.getLocation().y()))
                     .put("batteryLevel", bike.getBatteryLevel());
 
+            JsonObject userUpdateMsg = new JsonObject()
+                    .put("id", user.getId())
+                    .put("credit", user.getCredit());
             // Publish updated ride information
-            eventBus.publish(RIDE_UPDATE_ADDRESS, updateMsg);
+            eventBus.publish(RIDE_UPDATE_ADDRESS_EBIKE, ebikeUpdateMsg);
+            eventBus.publish(RIDE_UPDATE_ADDRESS_USER, userUpdateMsg);
         }
     }
 
@@ -113,7 +118,8 @@ public class RideSimulation {
         JsonObject completionMessage = new JsonObject()
                 .put("status", "completed")
                 .put("message", "Simulation completed");
-        eventBus.publish(RIDE_UPDATE_ADDRESS, completionMessage);
+        eventBus.publish(RIDE_UPDATE_ADDRESS_EBIKE, completionMessage);
+        eventBus.publish(RIDE_UPDATE_ADDRESS_USER, completionMessage);
     }
 
     public void stopSimulation() {
@@ -126,7 +132,7 @@ public class RideSimulation {
         stopped = true;
         if(ride.getEbike().getState() == EBikeState.IN_USE){
             ride.getEbike().setState(EBikeState.AVAILABLE);
-            eventBus.publish(RIDE_UPDATE_ADDRESS, ride.toString());
+            eventBus.publish(RIDE_UPDATE_ADDRESS_EBIKE, ride.toString());
         }
     }
 }

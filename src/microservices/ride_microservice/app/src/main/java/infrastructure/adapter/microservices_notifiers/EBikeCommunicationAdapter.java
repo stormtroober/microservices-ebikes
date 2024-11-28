@@ -12,7 +12,7 @@ import java.util.concurrent.CompletableFuture;
 public class EBikeCommunicationAdapter extends AbstractVerticle implements EbikeCommunicationPort {
     private final WebClient webClient;
     private final String ebikeServiceUrl;
-    private static final String RIDE_UPDATE_ADDRESS = "ride.updates";
+    private static final String RIDE_UPDATE_ADDRESS = "ride.updates.ebike";
     private final Vertx vertx;
 
     public EBikeCommunicationAdapter(Vertx vertx, String ebikeServiceUrl) {
