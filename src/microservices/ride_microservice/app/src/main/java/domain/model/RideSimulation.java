@@ -14,6 +14,8 @@ public class RideSimulation {
     private long lastTimeChangedDir = System.currentTimeMillis();
     private static final String RIDE_UPDATE_ADDRESS_EBIKE = "ride.updates.ebike";
     private static final String RIDE_UPDATE_ADDRESS_USER = "ride.updates.user";
+    private static final int CREDIT_DECREASE = 1;
+    private static final int BATTERY_DECREASE = 1;
 
     public RideSimulation(Ride ride, Vertx vertx) {
         this.ride = ride;
@@ -90,8 +92,8 @@ public class RideSimulation {
             }
 
             // Decrease battery and user credit
-            bike.decreaseBattery(1);
-            user.decreaseCredit(1);
+            bike.decreaseBattery(BATTERY_DECREASE);
+            user.decreaseCredit(CREDIT_DECREASE);
 
             JsonObject ebikeUpdateMsg = new JsonObject()
                     .put("id", bike.getId())
@@ -102,7 +104,7 @@ public class RideSimulation {
                     .put("batteryLevel", bike.getBatteryLevel());
 
             JsonObject userUpdateMsg = new JsonObject()
-                    .put("id", user.getId())
+                    .put("username", user.getId())
                     .put("credit", user.getCredit());
             // Publish updated ride information
             eventBus.publish(RIDE_UPDATE_ADDRESS_EBIKE, ebikeUpdateMsg);

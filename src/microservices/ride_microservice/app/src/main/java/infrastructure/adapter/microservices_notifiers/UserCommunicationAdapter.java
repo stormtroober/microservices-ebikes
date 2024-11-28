@@ -26,7 +26,7 @@ public class UserCommunicationAdapter extends AbstractVerticle implements UserCo
         vertx.eventBus().consumer(RIDE_UPDATE_ADDRESS, message -> {
             if (message.body() instanceof JsonObject) {
                 JsonObject update = (JsonObject) message.body();
-                if (update.containsKey("id")) {
+                if (update.containsKey("username")) {
                     sendUpdate(update);
                 }
             }
