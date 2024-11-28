@@ -1,4 +1,4 @@
-package infrastructure.adapter;
+package infrastructure.adapter.microservices_notifiers;
 
 import application.ports.EbikeCommunicationPort;
 import io.vertx.core.AbstractVerticle;
@@ -24,8 +24,12 @@ public class EBikeCommunicationAdapter extends AbstractVerticle implements Ebike
     @Override
     public void start(Promise<Void> startPromise) {
         vertx.eventBus().consumer(RIDE_UPDATE_ADDRESS, message -> {
-            JsonObject ebikeUpdate = (JsonObject) message.body();
-            sendUpdate(ebikeUpdate);
+            if (message.body() instanceof JsonObject) {
+                JsonObject update = (JsonObject) message.body();
+                if (update.containsKey("id")) {
+                    sendUpdate(update);
+                }
+            }
         });
 
         startPromise.complete();

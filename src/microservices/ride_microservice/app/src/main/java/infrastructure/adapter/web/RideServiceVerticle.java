@@ -1,4 +1,4 @@
-package infrastructure.adapter;
+package infrastructure.adapter.web;
 
 import application.ports.RestRideServiceAPI;
 import io.vertx.core.AbstractVerticle;
