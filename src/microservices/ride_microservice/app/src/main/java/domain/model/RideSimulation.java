@@ -106,9 +106,14 @@ public class RideSimulation {
     }
 
     private void completeSimulation() {
-        // Emit the completion of the simulation
-        System.out.println("Ride completed---------------");
-        eventBus.publish(RIDE_UPDATE_ADDRESS, "Simulation completed");
+        // Instead of publishing a string
+        // eventBus.publish(RIDE_UPDATE_ADDRESS, "Simulation completed");
+
+        // Publish a JsonObject
+        JsonObject completionMessage = new JsonObject()
+                .put("status", "completed")
+                .put("message", "Simulation completed");
+        eventBus.publish(RIDE_UPDATE_ADDRESS, completionMessage);
     }
 
     public void stopSimulation() {
