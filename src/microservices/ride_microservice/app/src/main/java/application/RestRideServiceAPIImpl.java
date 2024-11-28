@@ -29,6 +29,7 @@ public class RestRideServiceAPIImpl implements RestRideServiceAPI {
         this.userCommunicationAdapter.init();
     }
     private CompletableFuture<EBike> checkEbike(String bikeId) {
+        System.out.println("Checking ebike: " + bikeId);
         return ebikeCommunicationAdapter.getEbike(bikeId)
                 .thenApply(ebikeJson -> {
                     if (ebikeJson == null) {
@@ -48,6 +49,7 @@ public class RestRideServiceAPIImpl implements RestRideServiceAPI {
     }
 
     private CompletableFuture<User> checkUser(String userId) {
+        System.out.println("Checking user: " + userId);
         return userCommunicationAdapter.getUser(userId)
                 .thenApply(userJson -> {
                     if (userJson == null) {
@@ -55,7 +57,7 @@ public class RestRideServiceAPIImpl implements RestRideServiceAPI {
                         return null;
                     }
 
-                    return new User(userJson.getString("id"), userJson.getInteger("balance"));
+                    return new User(userJson.getString("username"), userJson.getInteger("credit"));
                 });
     }
 
@@ -72,7 +74,7 @@ public class RestRideServiceAPIImpl implements RestRideServiceAPI {
                 if (ebike == null || user == null) {
                     return CompletableFuture.failedFuture(new RuntimeException("EBike or User not found"));
                 }
-
+                System.out.println("Starting ride for user: " + userId + " and bike: " + bikeId);
                 Ride ride = new Ride("ride-" + userId + "-" + bikeId, user, ebike);
                 rideRepository.addRide(ride);
                 rideRepository.getRideSimulation(ride.getId()).startSimulation().whenComplete((result, throwable) -> {
