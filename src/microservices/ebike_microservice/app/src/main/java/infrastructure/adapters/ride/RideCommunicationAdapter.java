@@ -53,6 +53,7 @@ public class RideCommunicationAdapter extends AbstractVerticle {
 
     private void getEBike(RoutingContext ctx) {
         String id = ctx.pathParam("id");
+        System.out.println("Receive request from rides-microservice -> getEBike(" + id + ")");
         if (id == null || id.trim().isEmpty()) {
             sendError(ctx, 400, "Invalid id");
             return;
@@ -61,8 +62,11 @@ public class RideCommunicationAdapter extends AbstractVerticle {
         ebikeService.getEBike(id)
                 .thenAccept(optionalEBike -> {
                     if (optionalEBike.isPresent()) {
+                        System.out.println("EBike found with id: " + id);
+                        System.out.println("Sending response to rides-microservice -> " + optionalEBike.get());
                         sendResponse(ctx, 200, optionalEBike.get());
                     } else {
+                        System.out.println("EBike not found with id: " + id);
                         ctx.response().setStatusCode(404).end();
                     }
                 })
