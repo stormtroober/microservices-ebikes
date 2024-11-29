@@ -43,7 +43,7 @@ public class MapServiceVerticle extends AbstractVerticle {
         HttpServer server = vertx.createHttpServer();
         Router router = Router.router(vertx);
 
-        // Enable request body handling for PUT/POST requests
+        // Enable request body handling for PUT/POST
         router.route().handler(BodyHandler.create());
 
         router.get("/health").handler(ctx -> ctx.response().setStatusCode(200).end("OK"));
@@ -92,9 +92,7 @@ public class MapServiceVerticle extends AbstractVerticle {
         });
 
         router.route("/observeUserBikes").handler(ctx -> {
-            System.out.println("User connected");
             String username = ctx.queryParam("username").stream().findFirst().orElse(null);
-            System.out.println("User " + username + " connected");
             if (username == null) {
                 ctx.response().setStatusCode(400).end("Missing username parameter");
                 return;
@@ -112,6 +110,8 @@ public class MapServiceVerticle extends AbstractVerticle {
                     var userConsumer = vertx.eventBus().consumer(username, message -> {
                         webSocket.writeTextMessage(message.body().toString());
                     });
+
+                    mapService.getAllBikesForUser(username);
 
                     // Cleanup on WebSocket close
                     webSocket.closeHandler(v -> {
