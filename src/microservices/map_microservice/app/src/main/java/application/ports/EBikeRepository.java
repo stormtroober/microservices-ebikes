@@ -19,4 +19,6 @@ public interface EBikeRepository {
     CompletableFuture<List<EBike>> getAvailableBikes();
 
     CompletableFuture<String> isBikeAssigned(EBike bike);
+
+    CompletableFuture<List<EBike>> getBikesAssignedToUser(String username);
 }

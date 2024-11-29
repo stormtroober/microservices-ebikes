@@ -4,18 +4,26 @@ import application.ports.RestMapServiceAPI;
 import domain.model.EBike;
 import domain.model.EBikeState;
 import domain.model.P2d;
+import infrastructure.MetricsManager;
+import io.micrometer.prometheus.PrometheusConfig;
+import io.micrometer.prometheus.PrometheusMeterRegistry;
 import io.vertx.core.AbstractVerticle;
+import io.vertx.core.Vertx;
+import io.vertx.core.VertxOptions;
 import io.vertx.core.http.HttpServer;
 import io.vertx.core.json.JsonObject;
 import io.vertx.ext.web.Router;
 import io.vertx.ext.web.client.WebClient;
 import io.vertx.ext.web.handler.BodyHandler;
+import io.vertx.micrometer.MicrometerMetricsOptions;
+import io.vertx.micrometer.VertxPrometheusOptions;
 
 import java.util.UUID;
 import java.util.concurrent.TimeUnit;
 
 public class MapServiceVerticle extends AbstractVerticle {
 
+    //private final PrometheusMeterRegistry registry;
     private final String eurekaApplicationName;
     private final String eurekaInstanceId;
     private final int port;
@@ -23,6 +31,7 @@ public class MapServiceVerticle extends AbstractVerticle {
     private final String eurekaHost;
     private WebClient client;
     private final RestMapServiceAPI mapService;
+    private final MetricsManager metricsManager;
 
     public MapServiceVerticle(RestMapServiceAPI mapService, String eurekaApplicationName, String eurekaInstanceId) {
         this.mapService = mapService;
@@ -31,6 +40,7 @@ public class MapServiceVerticle extends AbstractVerticle {
         this.port = EnvUtils.getEnvOrDefaultInt("SERVICE_PORT", 8087);
         this.eurekaPort = EnvUtils.getEnvOrDefaultInt("EUREKA_PORT", 8761);
         this.eurekaHost = EnvUtils.getEnvOrDefaultString("EUREKA_HOST", "eureka-service");
+        this.metricsManager = MetricsManager.getInstance();
     }
 
     public MapServiceVerticle(RestMapServiceAPI mapService, String eurekaApplicationName) {
@@ -39,12 +49,21 @@ public class MapServiceVerticle extends AbstractVerticle {
 
     @Override
     public void start() {
+        configureMetrics();
+
         client = WebClient.create(vertx);
         HttpServer server = vertx.createHttpServer();
         Router router = Router.router(vertx);
 
-        // Enable request body handling for PUT/POST requests
+        // Enable request body handling for PUT/POST
         router.route().handler(BodyHandler.create());
+
+        // Add Prometheus metrics endpoint
+        router.get("/metrics").handler(ctx -> {
+            ctx.response()
+                    .putHeader("Content-Type", "text/plain")
+                    .end(metricsManager.getMetrics());
+        });
 
         router.get("/health").handler(ctx -> ctx.response().setStatusCode(200).end("OK"));
 
@@ -92,9 +111,7 @@ public class MapServiceVerticle extends AbstractVerticle {
         });
 
         router.route("/observeUserBikes").handler(ctx -> {
-            System.out.println("User connected");
             String username = ctx.queryParam("username").stream().findFirst().orElse(null);
-            System.out.println("User " + username + " connected");
             if (username == null) {
                 ctx.response().setStatusCode(400).end("Missing username parameter");
                 return;
@@ -112,6 +129,8 @@ public class MapServiceVerticle extends AbstractVerticle {
                     var userConsumer = vertx.eventBus().consumer(username, message -> {
                         webSocket.writeTextMessage(message.body().toString());
                     });
+
+                    mapService.getAllBikesForUser(username);
 
                     // Cleanup on WebSocket close
                     webSocket.closeHandler(v -> {
@@ -142,6 +161,22 @@ public class MapServiceVerticle extends AbstractVerticle {
                 System.err.println("Failed to start HTTP server: " + result.cause().getMessage());
             }
         });
+    }
+
+    private void configureMetrics() {
+        VertxPrometheusOptions prometheusOptions = new VertxPrometheusOptions()
+                .setEnabled(true)
+                .setStartEmbeddedServer(false)
+                .setEmbeddedServerOptions(null);
+
+        MicrometerMetricsOptions metricsOptions = new MicrometerMetricsOptions()
+                .setPrometheusOptions(prometheusOptions)
+                .setEnabled(true)
+                .setMicrometerRegistry(metricsManager.getRegistry());
+
+        // Set the metrics options
+        VertxOptions options = new VertxOptions().setMetricsOptions(metricsOptions);
+        vertx = Vertx.vertx(options);
     }
 
     private void registerWithEureka() {
