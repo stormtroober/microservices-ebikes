@@ -27,7 +27,6 @@ public class RESTUserAdapter {
         router.get("/health").handler(this::healthCheck);
         router.route("/observeAllUsers").handler(this::observeAllUsers);
         router.route("/observeUser/:username").handler(this::observeUser);
-        router.get("/api/users").handler(this::getAllUsers);
     }
 
     private void signIn(RoutingContext ctx) {
@@ -123,15 +122,6 @@ public class RESTUserAdapter {
         sendResponse(ctx, 200, health);
     }
 
-    private void getAllUsers(RoutingContext ctx) {
-        userService.getAllUsers()
-                .thenAccept(users -> sendResponse(ctx, 200, users))
-                .exceptionally(e -> {
-                    handleError(ctx, e);
-                    return null;
-                });
-    }
-
     private void observeAllUsers(RoutingContext ctx) {
         ctx.request().toWebSocket().onComplete(webSocketAsyncResult -> {
             if (webSocketAsyncResult.succeeded()) {
@@ -139,6 +129,8 @@ public class RESTUserAdapter {
                 var consumer = vertx.eventBus().consumer("users.update", message -> {
                     webSocket.writeTextMessage(message.body().toString());
                 });
+
+                userService.getAllUsers();
 
                 webSocket.closeHandler(v -> consumer.unregister());
                 webSocket.exceptionHandler(err -> consumer.unregister());
