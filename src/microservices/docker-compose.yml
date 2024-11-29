@@ -102,6 +102,12 @@ services:
     depends_on:
       eureka-server:
         condition: service_healthy
+      ebike-microservice:
+        condition: service_healthy
+      user-microservice:
+        condition: service_healthy
+      map-microservice:
+        condition: service_healthy
     environment:
       - EUREKA_HOST=eureka-server
       - EUREKA_PORT=8761

@@ -22,7 +22,6 @@ public class RESTUserAdapter {
     public void configureRoutes(Router router) {
         router.post("/api/users/signin").handler(this::signIn);
         router.post("/api/users/signup").handler(this::signUp);
-        router.get("/api/users/:username").handler(this::getUser);
         router.patch("/api/users/:username/recharge").handler(this::rechargeCredit);
         router.get("/health").handler(this::healthCheck);
         router.route("/observeAllUsers").handler(this::observeAllUsers);
@@ -71,26 +70,7 @@ public class RESTUserAdapter {
         }
     }
 
-    private void getUser(RoutingContext ctx){
-        try{
-            String username = ctx.pathParam("username");
 
-            userService.getUserByUsername(username)
-                    .thenAccept(optionalUser -> {
-                        if (optionalUser.isPresent()) {
-                            sendResponse(ctx, 200, optionalUser.get());
-                        } else {
-                            ctx.response().setStatusCode(404).end();
-                        }
-                    })
-                    .exceptionally(e -> {
-                        handleError(ctx, e);
-                        return null;
-                    });
-        } catch (Exception e) {
-            handleError(ctx, new RuntimeException("Invalid JSON format"));
-        }
-    }
 
     private void rechargeCredit(RoutingContext ctx){
         JsonObject body = ctx.body().asJsonObject();

@@ -51,7 +51,14 @@ public class UserServiceImpl implements UserServiceAPI {
 
     @Override
     public CompletableFuture<JsonObject> updateUser(JsonObject user) {
+        System.out.println("Updating user: " + user);
         String username = user.getString("username");
+        if (username == null || username.trim().isEmpty()) {
+            CompletableFuture<JsonObject> future = new CompletableFuture<>();
+            future.completeExceptionally(new IllegalArgumentException("Invalid username"));
+            return future;
+        }
+
         return repository.findByUsername(username).thenCompose(optionalUser -> {
             if (optionalUser.isPresent()) {
                 JsonObject existingUser = optionalUser.get();
@@ -65,7 +72,9 @@ public class UserServiceImpl implements UserServiceAPI {
                     return existingUser;
                 });
             } else {
-                throw new RuntimeException("User not found");
+                CompletableFuture<JsonObject> future = new CompletableFuture<>();
+                future.completeExceptionally(new RuntimeException("User not found"));
+                return future;
             }
         });
     }

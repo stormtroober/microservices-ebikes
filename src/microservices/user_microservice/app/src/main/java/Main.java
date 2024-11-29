@@ -3,6 +3,7 @@ import application.ports.UserEventPublisher;
 import application.ports.UserServiceAPI;
 import infrastructure.UserEventPublisherImpl;
 import infrastructure.adapters.eureka.EurekaRegistrationAdapter;
+import infrastructure.adapters.ride.RideCommunicationAdapter;
 import infrastructure.adapters.web.RESTUserAdapter;
 import infrastructure.adapters.web.UserVerticle;
 import infrastructure.config.ApplicationConfig;
@@ -40,6 +41,8 @@ public class Main {
                 config.getEurekaConfig()
         );
 
+        RideCommunicationAdapter rideAdapter = new RideCommunicationAdapter(service, 8083, vertx);
+        rideAdapter.init();
         // Deploy verticle
         vertx.deployVerticle(new UserVerticle(
                 controller,

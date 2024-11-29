@@ -1,4 +1,4 @@
-package infrastructure.adapter;
+package infrastructure.adapter.microservices_notifiers;
 
 import application.ports.EbikeCommunicationPort;
 import io.vertx.core.AbstractVerticle;
@@ -12,7 +12,7 @@ import java.util.concurrent.CompletableFuture;
 public class EBikeCommunicationAdapter extends AbstractVerticle implements EbikeCommunicationPort {
     private final WebClient webClient;
     private final String ebikeServiceUrl;
-    private static final String RIDE_UPDATE_ADDRESS = "ride.updates";
+    private static final String RIDE_UPDATE_ADDRESS = "ride.updates.ebike";
     private final Vertx vertx;
 
     public EBikeCommunicationAdapter(Vertx vertx, String ebikeServiceUrl) {
@@ -24,8 +24,12 @@ public class EBikeCommunicationAdapter extends AbstractVerticle implements Ebike
     @Override
     public void start(Promise<Void> startPromise) {
         vertx.eventBus().consumer(RIDE_UPDATE_ADDRESS, message -> {
-            JsonObject ebikeUpdate = (JsonObject) message.body();
-            sendUpdate(ebikeUpdate);
+            if (message.body() instanceof JsonObject) {
+                JsonObject update = (JsonObject) message.body();
+                if (update.containsKey("id")) {
+                    sendUpdate(update);
+                }
+            }
         });
 
         startPromise.complete();
@@ -64,12 +68,12 @@ public class EBikeCommunicationAdapter extends AbstractVerticle implements Ebike
                         future.complete(response.bodyAsJsonObject());
                     } else {
                         System.err.println("Failed to get EBike: " + response.statusCode());
-                        future.complete(null);
+                        future.completeExceptionally(new RuntimeException("Failed to get Ebike: " + response.statusCode()));
                     }
                 })
                 .onFailure(err -> {
                     System.err.println("Failed to get EBike: " + err.getMessage());
-                    future.complete(null);
+                    future.completeExceptionally(err);
                 });
 
         return future;
