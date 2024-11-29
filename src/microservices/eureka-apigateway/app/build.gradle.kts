@@ -17,6 +17,12 @@ dependencies {
 
     // Spring Boot Starter
     implementation("org.springframework.boot:spring-boot-starter")
+
+    // Spring Boot Actuator (to expose metrics and health endpoints)
+    implementation("org.springframework.boot:spring-boot-starter-actuator")
+
+    // Micrometer Prometheus Registry (to enable Prometheus integration)
+    implementation("io.micrometer:micrometer-registry-prometheus")
 }
 
 extra["springCloudVersion"] = "2023.0.3"
@@ -27,13 +33,10 @@ dependencyManagement {
     }
 }
 
-
 repositories {
-    // Use Maven Central for resolving dependencies.
     mavenCentral()
 }
 
-// Apply a specific Java toolchain to ease working on different environments.
 java {
     toolchain {
         languageVersion = JavaLanguageVersion.of(21)

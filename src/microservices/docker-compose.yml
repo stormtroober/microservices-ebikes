@@ -1,4 +1,3 @@
-
 services:
   eureka-server:
     build:
@@ -12,7 +11,7 @@ services:
       - EUREKA_CLIENT_FETCH_REGISTRY=false
     healthcheck:
       test: ["CMD", "curl", "-f", "http://localhost:8761/actuator/health"]
-      interval: 10s
+      interval: 5s
       timeout: 5s
       retries: 3
       start_period: 10s
@@ -60,10 +59,10 @@ services:
           memory: 1G
     healthcheck:
       test: mongosh --eval 'db.runCommand("ping").ok' localhost:27017/test --quiet
-      interval: 10s
+      interval: 5s
       timeout: 5s
       retries: 3
-      start_period: 10s
+      start_period: 5s
 
   ebike-microservice:
     build:
@@ -87,10 +86,10 @@ services:
       - SERVICE_PORT=8080
     healthcheck:
       test: [ "CMD", "curl", "-f", "http://localhost:8080/health" ]
-      interval: 10s
+      interval: 5s
       timeout: 5s
       retries: 3
-      start_period: 10s
+      start_period: 5s
 
   ride-microservice:
     build:
@@ -113,10 +112,10 @@ services:
       - EUREKA_PORT=8761
     healthcheck:
       test: [ "CMD", "curl", "-f", "http://localhost:8092/health" ]
-      interval: 10s
+      interval: 5s
       timeout: 5s
       retries: 3
-      start_period: 10s
+      start_period: 5s
 
   user-microservice:
     build:
@@ -137,10 +136,10 @@ services:
       - SERVICE_PORT=8082
     healthcheck:
       test: [ "CMD", "curl", "-f", "http://localhost:8082/health" ]
-      interval: 10s
+      interval: 5s
       timeout: 5s
       retries: 3
-      start_period: 10s
+      start_period: 5s
 
   api-gateway:
     build:
@@ -163,6 +162,25 @@ services:
     environment:
       - EUREKA_CLIENT_SERVICEURL_DEFAULTZONE=http://eureka-server:8761/eureka/
       - SPRING_APPLICATION_NAME=api-gateway  # Gateway service name
+    healthcheck:
+      test: [ "CMD", "curl", "-f", "http://localhost:8081/actuator/health" ]
+      interval: 5s
+      timeout: 5s
+      retries: 3
+      start_period: 5s
+
+  prometheus:
+    image: prom/prometheus:latest
+    ports:
+      - "9090:9090"  # Prometheus runs on port 9090
+    networks:
+      - eureka-network
+    volumes:
+      - ./prometheus.yml:/etc/prometheus/prometheus.yml  # Mount Prometheus configuration file
+    depends_on:
+      api-gateway:
+        condition: service_healthy
+
 
 networks:
   eureka-network:
