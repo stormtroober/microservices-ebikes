@@ -55,6 +55,8 @@ public class RESTUserAdapter {
 
     private void signUp(RoutingContext ctx) {
         try {
+            System.out.println("Sign up received");
+            System.out.println(ctx.body().toString());
             JsonObject body = ctx.body().asJsonObject();
             String username = body.getString("username");
             String type = body.getString("type");
