@@ -52,12 +52,12 @@ public class MainView extends JFrame implements ActionListener {
     public void actionPerformed(ActionEvent e) {
         if (e.getSource() == loginButton) {
             new Thread(() -> {
-                LoginDialog loginDialog = new LoginDialog(this, vertx);
+                LoginDialog loginDialog = new LoginDialog(this, this.vertx);
                 loginDialog.setVisible(true);
             }).start();
         } else if (e.getSource() == registerButton) {
             new Thread(() -> {
-                RegisterDialog registerDialog = new RegisterDialog(this, vertx);
+                RegisterDialog registerDialog = new RegisterDialog(this, this.vertx);
                 registerDialog.setVisible(true);
             }).start();
         }

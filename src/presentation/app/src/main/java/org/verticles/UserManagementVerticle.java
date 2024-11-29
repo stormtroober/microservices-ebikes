@@ -1,4 +1,3 @@
-// UserManagementVerticle.java
 package org.verticles;
 
 import io.vertx.core.AbstractVerticle;
@@ -26,23 +25,18 @@ public class UserManagementVerticle extends AbstractVerticle {
 
     @Override
     public void start() {
-
         // Handle login requests
         vertx.eventBus().consumer("user.login", message -> {
             String username = (String) message.body();
             JsonObject requestPayload = new JsonObject().put("username", username);
 
-//
-//            JsonObject user = new JsonObject()
-//                    .put("username", username)
-//                    .put("type", type.toString())
-//                    .put("credit", credit);
             webClient.post(8081, "localhost", "/USER-MICROSERVICE/api/users/signin")
                     .sendJsonObject(requestPayload, ar -> {
                         if (ar.succeeded() && ar.result().statusCode() == 200) {
                             JsonObject response = ar.result().bodyAsJsonObject();
                             System.out.println("Login successful");
                             System.out.println(response.encodePrettily());
+                            message.reply(response);
                         } else {
                             message.fail(500, "Failed to connect to API: " + (ar.cause() != null ? ar.cause().getMessage() : "Unknown error"));
                         }

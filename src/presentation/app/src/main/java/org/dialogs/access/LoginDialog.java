@@ -1,9 +1,10 @@
-// LoginDialog.java
 package org.dialogs.access;
 
 import io.vertx.core.Vertx;
 import io.vertx.core.json.JsonObject;
 import org.dialogs.AbstractDialog;
+import org.models.UserViewModel;
+import org.views.AdminView;
 
 import javax.swing.*;
 import java.awt.event.ActionEvent;
@@ -33,15 +34,16 @@ public class LoginDialog extends AbstractDialog {
                 vertx.eventBus().request("user.login", username, reply -> {
                     if (reply.succeeded()) {
                         JsonObject result = (JsonObject) reply.result().body();
-                        String role = result.getString("role");
+                        String role = result.getString("type");
 
                         SwingUtilities.invokeLater(() -> {
-                            if ("admin".equals(role)) {
+                            if ("ADMIN".equals(role)) {
                                 JOptionPane.showMessageDialog(this, "Admin login successful");
-                                // SwingUtilities.invokeLater(() -> new AdminView(vertx).display());
-                            } else if ("user".equals(role)) {
+                                UserViewModel user = new UserViewModel(result.getString("username"), result.getInteger("credit"), result.getString("type").equals("ADMIN"));
+                                new AdminView(user, this.vertx).display();
+                            } else if ("USER".equals(role)) {
                                 JOptionPane.showMessageDialog(this, "User login successful");
-                                // SwingUtilities.invokeLater(() -> new UserView(vertx).display());
+                                // new UserView(vertx).display();
                             }
                             dispose();
                         });
