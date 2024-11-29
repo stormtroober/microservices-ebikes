@@ -62,15 +62,17 @@ public class RESTUserAdapter {
            userService.signUp(username, User.UserType.valueOf(type))
                     .thenAccept(result -> sendResponse(ctx, 201, result))
                     .exceptionally(e -> {
-                        handleError(ctx, e);
+                        if (e.getCause() instanceof RuntimeException && e.getCause().getMessage().equals("User already exists")) {
+                            sendError(ctx, 409, "User already exists");
+                        } else {
+                            handleError(ctx, e);
+                        }
                         return null;
                     });
         } catch (Exception e) {
             handleError(ctx, new RuntimeException("Invalid JSON format"));
         }
     }
-
-
 
     private void rechargeCredit(RoutingContext ctx){
         JsonObject body = ctx.body().asJsonObject();

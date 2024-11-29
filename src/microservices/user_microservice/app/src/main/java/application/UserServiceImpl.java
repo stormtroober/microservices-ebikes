@@ -35,13 +35,25 @@ public class UserServiceImpl implements UserServiceAPI {
 
     @Override
     public CompletableFuture<JsonObject> signUp(String username, User.UserType type) {
-        int credit = 100;
-        JsonObject user = new JsonObject()
-                .put("username", username)
-                .put("type", type.toString())
-                .put("credit", credit);
+        return repository.findByUsername(username).thenCompose(optionalUser -> {
+            if (optionalUser.isPresent()) {
+                CompletableFuture<JsonObject> future = new CompletableFuture<>();
+                future.completeExceptionally(new RuntimeException("User already exists"));
+                return future;
+            } else {
+                int credit = 100;
+                JsonObject user = new JsonObject()
+                        .put("username", username)
+                        .put("type", type.toString())
+                        .put("credit", credit);
 
-        return repository.save(user).thenApply(v -> user);
+                return repository.save(user).thenApply(v -> {
+                    UserEventPublisher.publishUserUpdate(user);
+                    UserEventPublisher.publishAllUsersUpdates(user);
+                    return user;
+                });
+            }
+        });
     }
 
     @Override
