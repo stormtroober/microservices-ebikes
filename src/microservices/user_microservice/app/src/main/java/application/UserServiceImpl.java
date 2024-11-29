@@ -2,6 +2,7 @@ package application;
 
 import application.ports.UserServiceAPI;
 import application.ports.UserRepository;
+import application.ports.UserEventPublisher;
 
 import domain.model.User;
 import io.vertx.core.json.JsonObject;
@@ -13,9 +14,11 @@ import java.util.concurrent.CompletableFuture;
 public class UserServiceImpl implements UserServiceAPI {
 
     private final UserRepository repository;
+    private final UserEventPublisher UserEventPublisher;
 
-    public UserServiceImpl(UserRepository repository) {
+    public UserServiceImpl(UserRepository repository, UserEventPublisher UserEventPublisher) {
         this.repository = repository;
+        this.UserEventPublisher = UserEventPublisher;
     }
 
     @Override
@@ -32,13 +35,25 @@ public class UserServiceImpl implements UserServiceAPI {
 
     @Override
     public CompletableFuture<JsonObject> signUp(String username, User.UserType type) {
-        int credit = 100;
-        JsonObject user = new JsonObject()
-                .put("username", username)
-                .put("type", type.toString())
-                .put("credit", credit);
+        return repository.findByUsername(username).thenCompose(optionalUser -> {
+            if (optionalUser.isPresent()) {
+                CompletableFuture<JsonObject> future = new CompletableFuture<>();
+                future.completeExceptionally(new RuntimeException("User already exists"));
+                return future;
+            } else {
+                int credit = 100;
+                JsonObject user = new JsonObject()
+                        .put("username", username)
+                        .put("type", type.toString())
+                        .put("credit", credit);
 
-        return repository.save(user).thenApply(v -> user);
+                return repository.save(user).thenApply(v -> {
+                    UserEventPublisher.publishUserUpdate(user);
+                    UserEventPublisher.publishAllUsersUpdates(user);
+                    return user;
+                });
+            }
+        });
     }
 
     @Override
@@ -63,7 +78,11 @@ public class UserServiceImpl implements UserServiceAPI {
                     int newCredit = user.getInteger("credit");
                     existingUser.put("credit", newCredit);
                 }
-                return repository.update(existingUser).thenApply(v -> existingUser);
+                return repository.update(existingUser).thenApply(v -> {
+                    UserEventPublisher.publishUserUpdate(existingUser);
+                    UserEventPublisher.publishAllUsersUpdates(existingUser);
+                    return existingUser;
+                });
             } else {
                 CompletableFuture<JsonObject> future = new CompletableFuture<>();
                 future.completeExceptionally(new RuntimeException("User not found"));
@@ -79,7 +98,11 @@ public class UserServiceImpl implements UserServiceAPI {
                 JsonObject user = optionalUser.get();
                 int currentCredit = user.getInteger("credit");
                 user.put("credit", currentCredit + creditToAdd);
-                return repository.update(user).thenApply(v -> user);
+                return repository.update(user).thenApply(v -> {
+                    UserEventPublisher.publishUserUpdate(user);
+                    UserEventPublisher.publishAllUsersUpdates(user);
+                    return user;
+                });
             }
             return CompletableFuture.completedFuture(null);
         });
@@ -92,7 +115,11 @@ public class UserServiceImpl implements UserServiceAPI {
                 JsonObject user = optionalUser.get();
                 int newCredit = Math.max(user.getInteger("credit") - creditToDecrease, 0);
                 user.put("credit", newCredit);
-                return repository.update(user).thenApply(v -> user);
+                return repository.update(user).thenApply(v ->{
+                    UserEventPublisher.publishUserUpdate(user);
+                    UserEventPublisher.publishAllUsersUpdates(user);
+                    return user;
+                });
             }
             return CompletableFuture.completedFuture(null);
         });
@@ -100,6 +127,9 @@ public class UserServiceImpl implements UserServiceAPI {
 
     @Override
     public CompletableFuture<JsonArray> getAllUsers() {
-        return repository.findAll();
+        return repository.findAll().thenApply(users -> {
+            users.forEach(user -> UserEventPublisher.publishAllUsersUpdates((JsonObject) user));
+            return users;
+        });
     }
 }

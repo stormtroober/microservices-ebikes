@@ -1,5 +1,7 @@
 import application.UserServiceImpl;
+import application.ports.UserEventPublisher;
 import application.ports.UserServiceAPI;
+import infrastructure.UserEventPublisherImpl;
 import infrastructure.adapters.eureka.EurekaRegistrationAdapter;
 import infrastructure.adapters.ride.RideCommunicationAdapter;
 import infrastructure.adapters.web.RESTUserAdapter;
@@ -24,8 +26,11 @@ public class Main {
         // Create repository
         MongoUserRepository repository = new MongoUserRepository(mongoClient);
 
+        // Create event publisher
+        UserEventPublisher UserEventPublisher = new UserEventPublisherImpl(vertx);
+
         // Create service
-        UserServiceAPI service = new UserServiceImpl(repository);
+        UserServiceAPI service = new UserServiceImpl(repository, UserEventPublisher);
 
         // Create controller
         RESTUserAdapter controller = new RESTUserAdapter(service, vertx);

@@ -26,7 +26,6 @@ public class RESTUserAdapter {
         router.get("/health").handler(this::healthCheck);
         router.route("/observeAllUsers").handler(this::observeAllUsers);
         router.route("/observeUser/:username").handler(this::observeUser);
-        router.get("/api/users").handler(this::getAllUsers);
     }
 
     private void signIn(RoutingContext ctx) {
@@ -56,6 +55,8 @@ public class RESTUserAdapter {
 
     private void signUp(RoutingContext ctx) {
         try {
+            System.out.println("Sign up received");
+            System.out.println(ctx.body().toString());
             JsonObject body = ctx.body().asJsonObject();
             String username = body.getString("username");
             String type = body.getString("type");
@@ -63,15 +64,17 @@ public class RESTUserAdapter {
            userService.signUp(username, User.UserType.valueOf(type))
                     .thenAccept(result -> sendResponse(ctx, 201, result))
                     .exceptionally(e -> {
-                        handleError(ctx, e);
+                        if (e.getCause() instanceof RuntimeException && e.getCause().getMessage().equals("User already exists")) {
+                            sendError(ctx, 409, "User already exists");
+                        } else {
+                            handleError(ctx, e);
+                        }
                         return null;
                     });
         } catch (Exception e) {
             handleError(ctx, new RuntimeException("Invalid JSON format"));
         }
     }
-
-
 
     private void rechargeCredit(RoutingContext ctx){
         JsonObject body = ctx.body().asJsonObject();
@@ -103,15 +106,6 @@ public class RESTUserAdapter {
         sendResponse(ctx, 200, health);
     }
 
-    private void getAllUsers(RoutingContext ctx) {
-        userService.getAllUsers()
-                .thenAccept(users -> sendResponse(ctx, 200, users))
-                .exceptionally(e -> {
-                    handleError(ctx, e);
-                    return null;
-                });
-    }
-
     private void observeAllUsers(RoutingContext ctx) {
         ctx.request().toWebSocket().onComplete(webSocketAsyncResult -> {
             if (webSocketAsyncResult.succeeded()) {
@@ -119,6 +113,8 @@ public class RESTUserAdapter {
                 var consumer = vertx.eventBus().consumer("users.update", message -> {
                     webSocket.writeTextMessage(message.body().toString());
                 });
+
+                userService.getAllUsers();
 
                 webSocket.closeHandler(v -> consumer.unregister());
                 webSocket.exceptionHandler(err -> consumer.unregister());
