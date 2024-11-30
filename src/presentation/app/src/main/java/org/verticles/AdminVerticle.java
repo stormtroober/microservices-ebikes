@@ -33,6 +33,7 @@ public class AdminVerticle extends AbstractVerticle {
         // Connect to user updates WebSocket
         httpClient.webSocket(8081, "localhost", "/USER-MICROSERVICE/observeAllUsers")
             .onSuccess(ws -> {
+                System.out.println("Connected to user updates WebSocket");
                 userWebSocket = ws;
                 ws.textMessageHandler(this::handleUserUpdate);
             });
@@ -42,11 +43,24 @@ public class AdminVerticle extends AbstractVerticle {
             .onSuccess(ws -> {
                 bikeWebSocket = ws;
                 ws.textMessageHandler(this::handleBikeUpdate);
+
+                webClient.get(8081, "localhost", "/EBIKE-MICROSERVICE/api/ebikes")
+                    .send(ar -> {
+                        if (ar.succeeded() && ar.result().statusCode() == 200) {
+                            ar.result().bodyAsJsonArray().forEach(bike -> {
+                                handleBikeUpdate(bike.toString());
+                            });
+                        } else {
+                            System.out.println("Failed to fetch bikes: " +
+                                (ar.cause() != null ? ar.cause().getMessage() : "Unknown error"));
+                        }
+                    });
             });
     }
 
     private void handleUserUpdate(String message) {
         JsonObject update = new JsonObject(message);
+        System.out.println("Received user update: " + update);
         vertx.eventBus().publish("admin.user.update", update);
     }
 

@@ -8,6 +8,7 @@ import javax.swing.*;
 import java.awt.*;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
+import java.util.ArrayList;
 import java.util.List;
 
 public abstract class AbstractView extends JFrame {
@@ -52,6 +53,7 @@ public abstract class AbstractView extends JFrame {
         topPanel.add(logoutButton, BorderLayout.EAST);
 
         this.actualUser = actualUser;
+        this.eBikes = new ArrayList<>();
     }
 
     protected void addTopPanelButton(String text, ActionListener actionListener) {

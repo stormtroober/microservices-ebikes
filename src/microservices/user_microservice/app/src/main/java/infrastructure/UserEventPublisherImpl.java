@@ -14,8 +14,8 @@ public class UserEventPublisherImpl implements  UserEventPublisher{
     }
 
     @Override
-    public void publishUserUpdate(JsonObject user) {
-        vertx.eventBus().publish("user.update." + user.getString("username"), user);
+    public void publishUserUpdate(String username, JsonObject user) {
+        vertx.eventBus().publish(username, user );
     }
 
     @Override

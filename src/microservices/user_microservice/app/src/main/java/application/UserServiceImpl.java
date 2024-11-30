@@ -48,7 +48,7 @@ public class UserServiceImpl implements UserServiceAPI {
                         .put("credit", credit);
 
                 return repository.save(user).thenApply(v -> {
-                    UserEventPublisher.publishUserUpdate(user);
+                    UserEventPublisher.publishUserUpdate(username, user);
                     UserEventPublisher.publishAllUsersUpdates(user);
                     return user;
                 });
@@ -79,7 +79,7 @@ public class UserServiceImpl implements UserServiceAPI {
                     existingUser.put("credit", newCredit);
                 }
                 return repository.update(existingUser).thenApply(v -> {
-                    UserEventPublisher.publishUserUpdate(existingUser);
+                    UserEventPublisher.publishUserUpdate(username, existingUser);
                     UserEventPublisher.publishAllUsersUpdates(existingUser);
                     return existingUser;
                 });
@@ -99,7 +99,7 @@ public class UserServiceImpl implements UserServiceAPI {
                 int currentCredit = user.getInteger("credit");
                 user.put("credit", currentCredit + creditToAdd);
                 return repository.update(user).thenApply(v -> {
-                    UserEventPublisher.publishUserUpdate(user);
+                    UserEventPublisher.publishUserUpdate(username, user);
                     UserEventPublisher.publishAllUsersUpdates(user);
                     return user;
                 });
@@ -116,7 +116,7 @@ public class UserServiceImpl implements UserServiceAPI {
                 int newCredit = Math.max(user.getInteger("credit") - creditToDecrease, 0);
                 user.put("credit", newCredit);
                 return repository.update(user).thenApply(v ->{
-                    UserEventPublisher.publishUserUpdate(user);
+                    UserEventPublisher.publishUserUpdate(username, user);
                     UserEventPublisher.publishAllUsersUpdates(user);
                     return user;
                 });
@@ -128,7 +128,7 @@ public class UserServiceImpl implements UserServiceAPI {
     @Override
     public CompletableFuture<JsonArray> getAllUsers() {
         return repository.findAll().thenApply(users -> {
-            users.forEach(user -> UserEventPublisher.publishAllUsersUpdates((JsonObject) user));
+            //users.forEach(user -> UserEventPublisher.publishAllUsersUpdates((JsonObject) user));
             return users;
         });
     }

@@ -4,13 +4,13 @@ import io.vertx.core.Vertx;
 import io.vertx.core.json.JsonObject;
 import org.dialogs.admin.AddEBikeDialog;
 import org.dialogs.admin.RechargeBikeDialog;
+import org.models.EBikeViewModel;
 import org.models.UserViewModel;
 import org.verticles.AdminVerticle;
 
 import javax.swing.*;
 import java.awt.*;
 import java.util.ArrayList;
-import java.util.Collection;
 import java.util.List;
 
 public class AdminView extends AbstractView {
@@ -49,19 +49,36 @@ public class AdminView extends AbstractView {
 
     }
 
-
     private void observeAllBikes() {
         vertx.eventBus().consumer("admin.bike.update", message -> {
             JsonObject update = (JsonObject) message.body();
-            // Update bike data and refresh view
-            System.out.println("Received bike update: " + update);
+
+            String id = update.getString("id");
+            Integer batteryLevel = update.getInteger("batteryLevel");
+            String stateStr = update.getString("state");
+            JsonObject location = update.getJsonObject("location");
+            Double x = location.getDouble("x");
+            Double y = location.getDouble("y");
+            EBikeViewModel.EBikeState state = EBikeViewModel.EBikeState.valueOf(stateStr);
+
+            EBikeViewModel bike = new EBikeViewModel(id, x, y, batteryLevel, state);
+            eBikes.add(bike);
             refreshView();
         });
     }
 
+
     private void observeAllUsers() {
         vertx.eventBus().consumer("admin.user.update", message -> {
             JsonObject update = (JsonObject) message.body();
+            String username = update.getString("username");
+            String type = update.getString("type");
+            Integer credit = update.getInteger("credit");
+
+            if (type.equals("USER") && userList.stream().noneMatch(user -> user.id().equals(username))) {
+                UserViewModel user = new UserViewModel(username, credit , false);
+                userList.add(user);
+            }
             System.out.println("Received user update: " + update);
             refreshView();
         });

@@ -110,12 +110,15 @@ public class RESTUserAdapter {
         ctx.request().toWebSocket().onComplete(webSocketAsyncResult -> {
             if (webSocketAsyncResult.succeeded()) {
                 var webSocket = webSocketAsyncResult.result();
+                userService.getAllUsers().thenAccept(users -> {
+                    for (int i = 0; i < users.size(); i++) {
+                        JsonObject user = users.getJsonObject(i);
+                        webSocket.writeTextMessage(user.encode());
+                    }
+                });
                 var consumer = vertx.eventBus().consumer("users.update", message -> {
                     webSocket.writeTextMessage(message.body().toString());
                 });
-
-                userService.getAllUsers();
-
                 webSocket.closeHandler(v -> consumer.unregister());
                 webSocket.exceptionHandler(err -> consumer.unregister());
             } else {
@@ -129,7 +132,7 @@ public class RESTUserAdapter {
         ctx.request().toWebSocket().onComplete(webSocketAsyncResult -> {
             if (webSocketAsyncResult.succeeded()) {
                 var webSocket = webSocketAsyncResult.result();
-                var consumer = vertx.eventBus().consumer("user.update." + username, message -> {
+                var consumer = vertx.eventBus().consumer(username, message -> {
                     webSocket.writeTextMessage(message.body().toString());
                 });
 
