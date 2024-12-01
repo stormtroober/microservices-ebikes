@@ -1,0 +1,39 @@
+= Report
+:toc:
+:toclevels: 2
+:sectnums:
+:doctype: book
+:pdf-theme: report-theme.yml
+:source-highlighter: rouge
+:rouge-style: github
+:xrefstyle: short
+:toc: macro
+
+Università di Bologna · Campus di Cesena
+
+Corso di Laurea Magistrale in Ingegneria e Scienze Informatiche
+
+
+'''
+
+|=======
+|[.normalize]#Alessandro Becci# |[.normalize]#0001125114# |[.normalize]#alessandro.becci@studio.unibo.it#
+|[.normalize]#Luca Tonelli# |[.normalize]#0001126379# |[.normalize]#luca.tonelli11@studio.unibo.it#
+|[.normalize]#Ludovico Nollino# |[.normalize]#0001148295# |[.normalize]#ludovico.nollino@studio.unibo.it#
+|=======
+
+toc::[]
+
+
+== Domain Driven Development
+include::ddd.adoc[]
+
+== Descrizione dei microservizi
+include::single_microservices_description.adoc[]
+
+== Descrizione dell'architettura dei microservizi
+include::microservices_architecture_description.adoc[]
+
+== Validazione dell'architettura proposta
+include::validation_architecture.adoc[]
+
