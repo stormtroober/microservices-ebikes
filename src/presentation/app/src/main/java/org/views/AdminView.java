@@ -75,7 +75,7 @@ public class AdminView extends AbstractView {
             String type = update.getString("type");
             Integer credit = update.getInteger("credit");
 
-            if (type.equals("USER") && userList.stream().noneMatch(user -> user.id().equals(username))) {
+            if (type.equals("USER") && userList.stream().noneMatch(user -> user.username().equals(username))) {
                 UserViewModel user = new UserViewModel(username, credit , false);
                 userList.add(user);
             }
@@ -111,7 +111,7 @@ public class AdminView extends AbstractView {
         g2.drawString("ALL USERS: ", 10, dy);
         dy += 15;
         for (UserViewModel user : userList) {
-            g2.drawString("User ID: " + user.id() + " - Credit: " + user.credit(), 10, dy);
+            g2.drawString("User ID: " + user.username() + " - Credit: " + user.credit(), 10, dy);
             dy += 15;
         }
     }

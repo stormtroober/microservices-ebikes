@@ -5,6 +5,7 @@ import io.vertx.core.json.JsonObject;
 import org.dialogs.AbstractDialog;
 import org.models.UserViewModel;
 import org.views.AdminView;
+import org.views.UserView;
 
 import javax.swing.*;
 import java.awt.event.ActionEvent;
@@ -43,7 +44,8 @@ public class LoginDialog extends AbstractDialog {
                                 new AdminView(user, this.vertx).display();
                             } else if ("USER".equals(role)) {
                                 JOptionPane.showMessageDialog(this, "User login successful");
-                                // new UserView(vertx).display();
+                                UserViewModel user = new UserViewModel(result.getString("username"), result.getInteger("credit"), result.getString("type").equals("USER"));
+                                new UserView(user, this.vertx).display();
                             }
                             dispose();
                         });
