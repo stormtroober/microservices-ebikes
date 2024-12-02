@@ -40,11 +40,11 @@ public class LoginDialog extends AbstractDialog {
                         SwingUtilities.invokeLater(() -> {
                             if ("ADMIN".equals(role)) {
                                 JOptionPane.showMessageDialog(this, "Admin login successful");
-                                UserViewModel user = new UserViewModel(result.getString("username"), result.getInteger("credit"), result.getString("type").equals("ADMIN"));
+                                UserViewModel user = new UserViewModel(result.getString("username"), result.getInteger("credit"), true);
                                 new AdminView(user, this.vertx).display();
                             } else if ("USER".equals(role)) {
                                 JOptionPane.showMessageDialog(this, "User login successful");
-                                UserViewModel user = new UserViewModel(result.getString("username"), result.getInteger("credit"), result.getString("type").equals("USER"));
+                                UserViewModel user = new UserViewModel(result.getString("username"), result.getInteger("credit"), false);
                                 new UserView(user, this.vertx).display();
                             }
                             dispose();
