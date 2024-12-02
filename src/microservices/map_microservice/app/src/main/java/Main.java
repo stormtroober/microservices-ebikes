@@ -6,6 +6,7 @@ import infrastructure.EventPublisherImpl;
 import infrastructure.adapter.MapServiceVerticle;
 import application.ports.EBikeRepository;
 import infrastructure.EBikeRepositoryImpl;
+import infrastructure.adapter.RideUpdateAdapter;
 import io.vertx.core.Vertx;
 
 public class Main {
@@ -23,5 +24,7 @@ public class Main {
 
         // Deploy verticle for communication with other microservices
         vertx.deployVerticle(new BikeUpdateAdapter(service));
+
+        vertx.deployVerticle(new RideUpdateAdapter(service));
     }
 }
