@@ -13,7 +13,6 @@ public class UserVerticle extends AbstractVerticle {
     private final HttpClient httpClient;
     private WebSocket userWebSocket;
     private WebSocket bikeWebSocket;
-    private WebSocket rideWebSocket;
     private final Vertx vertx;
     private final String username;
 
@@ -74,10 +73,6 @@ public class UserVerticle extends AbstractVerticle {
         vertx.eventBus().publish("user.update." + username, update);
     }
 
-    private void handleRideUpdate(String message) {
-        System.out.println("Received ride update: " + message);
-    }
-
     private void handleBikeUpdate(String message) {
         JsonObject update = new JsonObject(message);
         //System.out.println("Received bike update: " + message);
@@ -101,15 +96,42 @@ public class UserVerticle extends AbstractVerticle {
                     }
                 });
         });
+
+        vertx.eventBus().consumer("user.ride.start." + username, message -> {
+            JsonObject rideDetails = (JsonObject) message.body();
+            System.out.println("Starting ride: " + rideDetails.encodePrettily());
+            webClient.post(8081, "localhost", "/RIDE-MICROSERVICE/startRide")
+                .sendJsonObject(rideDetails, ar -> {
+                    if (ar.succeeded() && ar.result().statusCode() == 200) {
+                        System.out.println("Ride started successfully");
+                        message.reply(ar.result().bodyAsJsonObject());
+                    } else {
+                        message.fail(500, "Failed to start ride: " +
+                            (ar.cause() != null ? ar.cause().getMessage() : "Unknown error"));
+                    }
+                });
+        });
+
+        vertx.eventBus().consumer("user.ride.stop." + username, message -> {
+            JsonObject rideDetails = (JsonObject) message.body();
+            System.out.println("Stopping ride: " + rideDetails.encodePrettily());
+            webClient.post(8081, "localhost", "/RIDE-MICROSERVICE/stopRide")
+                .sendJsonObject(rideDetails, ar -> {
+                    if (ar.succeeded() && ar.result().statusCode() == 200) {
+                        System.out.println("Ride stopped successfully");
+                        message.reply(ar.result().bodyAsJsonObject());
+                    } else {
+                        message.fail(500, "Failed to stop ride: " +
+                            (ar.cause() != null ? ar.cause().getMessage() : "Unknown error"));
+                    }
+                });
+        });
     }
 
     @Override
     public void stop() {
         if (userWebSocket != null) {
             userWebSocket.close();
-        }
-        if (rideWebSocket != null) {
-            rideWebSocket.close();
         }
         if (bikeWebSocket != null) {
             bikeWebSocket.close();

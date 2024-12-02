@@ -134,18 +134,23 @@ package org.views;
 import io.vertx.core.Vertx;
 import io.vertx.core.json.JsonObject;
 import org.dialogs.user.RechargeCreditDialog;
+import org.dialogs.user.StartRideDialog;
 import org.models.EBikeViewModel;
 import org.models.UserViewModel;
+import org.models.RideViewModel;
 import org.verticles.UserVerticle;
 
 import javax.swing.*;
 import java.awt.*;
+import java.util.Optional;
 
 public class UserView extends AbstractView {
 
     private final UserVerticle verticle;
     private final Vertx vertx;
     private JButton rideButton;
+    private Optional<RideViewModel> ongoingRide = Optional.empty();
+
 
     public UserView(UserViewModel user, Vertx vertx) {
         super("User View", user);
@@ -174,19 +179,28 @@ public class UserView extends AbstractView {
     }
 
     private void toggleRide() {
-
+        if (ongoingRide.isPresent()) {
+            stopRide();
+        } else {
+            startRide();
+        }
     }
 
     private void updateRideButtonState() {
-        rideButton.setText("Start Ride");
+        rideButton.setText(ongoingRide.isPresent() ? "Stop Ride" : "Start Ride");
     }
 
     private void startRide() {
-        // Start ride logic
+        StartRideDialog startRideDialog = new StartRideDialog(UserView.this, vertx, actualUser);
+        startRideDialog.setVisible(true);
     }
 
     private void stopRide() {
-        // Stop ride logic
+        ongoingRide.ifPresent(ride -> {
+            vertx.eventBus().send("user.ride.stop" + actualUser.username(), new JsonObject().put("username", actualUser.username()));
+            updateVisualizerPanel();
+            updateRideButtonState();
+        });
     }
 
     private void observeAvailableBikes() {
