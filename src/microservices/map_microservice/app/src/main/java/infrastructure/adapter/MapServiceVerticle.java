@@ -2,15 +2,15 @@ package infrastructure.adapter;
 
 import application.ports.RestMapServiceAPI;
 import domain.model.EBike;
+import domain.model.EBikeFactory;
 import domain.model.EBikeState;
-import domain.model.P2d;
 import infrastructure.MetricsManager;
-import io.micrometer.prometheus.PrometheusConfig;
-import io.micrometer.prometheus.PrometheusMeterRegistry;
+import java.util.List;
 import io.vertx.core.AbstractVerticle;
 import io.vertx.core.Vertx;
 import io.vertx.core.VertxOptions;
 import io.vertx.core.http.HttpServer;
+import io.vertx.core.json.JsonArray;
 import io.vertx.core.json.JsonObject;
 import io.vertx.ext.web.Router;
 import io.vertx.ext.web.client.WebClient;
@@ -20,6 +20,7 @@ import io.vertx.micrometer.VertxPrometheusOptions;
 
 import java.util.UUID;
 import java.util.concurrent.TimeUnit;
+import java.util.stream.Collectors;
 
 public class MapServiceVerticle extends AbstractVerticle {
 
@@ -49,7 +50,7 @@ public class MapServiceVerticle extends AbstractVerticle {
 
     @Override
     public void start() {
-        configureMetrics();
+        //configureMetrics();
 
         client = WebClient.create(vertx);
         HttpServer server = vertx.createHttpServer();
@@ -67,31 +68,22 @@ public class MapServiceVerticle extends AbstractVerticle {
 
         router.get("/health").handler(ctx -> ctx.response().setStatusCode(200).end("OK"));
 
-        // Define REST endpoints
-        router.put("/updateEBike").handler(ctx -> {
-            JsonObject body = ctx.body().asJsonObject();
-            String bikeName = body.getString("id");
-            double x = body.getDouble("x");
-            double y = body.getDouble("y");
-            EBikeState state = EBikeState.valueOf(body.getString("state"));
-            int batteryLevel = body.getInteger("batteryLevel");
-
-            mapService.updateEBike(new EBike(bikeName, new P2d(x, y), state, batteryLevel))
-                    .thenAccept(v -> ctx.response().setStatusCode(200).end("OK"))
-                    .exceptionally(ex -> {
-                        ctx.response().setStatusCode(500).end(ex.getMessage());
-                        return null;
-                    });
-        });
-
         router.route("/observeAllBikes").handler(ctx -> {
+            metricsManager.incrementMethodCounter("observeAllBikes");  // Increment for method call
+
             ctx.request().toWebSocket().onComplete(webSocketAsyncResult -> {
                 if (webSocketAsyncResult.succeeded()) {
                     var webSocket = webSocketAsyncResult.result();
 
+                    // Increment WebSocket connection success count
+                    metricsManager.incrementMethodCounter("observeAllBikes_connection_success");
+
                     // Listen to EventBus and send updates to this WebSocket
                     var consumer = vertx.eventBus().consumer("bikes.update", message -> {
                         webSocket.writeTextMessage(message.body().toString());
+
+                        // Track messages sent via WebSocket
+                        metricsManager.incrementMethodCounter("observeAllBikes_message_sent");
                     });
 
                     mapService.getAllBikes();
@@ -99,53 +91,87 @@ public class MapServiceVerticle extends AbstractVerticle {
                     // Cleanup on WebSocket close
                     webSocket.closeHandler(v -> {
                         consumer.unregister();
+                        // Track WebSocket disconnection
+                        metricsManager.incrementMethodCounter("observeAllBikes_connection_closed");
                     });
 
-                    webSocket.exceptionHandler(err ->  {
+                    webSocket.exceptionHandler(err -> {
                         consumer.unregister();
+                        // Track WebSocket exception errors
+                        metricsManager.incrementMethodCounter("observeAllBikes_connection_error");
                     });
                 } else {
                     ctx.response().setStatusCode(500).end("WebSocket Upgrade Failed");
+                    // Track WebSocket connection failure
+                    metricsManager.incrementMethodCounter("observeAllBikes_connection_failed");
                 }
             });
         });
 
+
         router.route("/observeUserBikes").handler(ctx -> {
             String username = ctx.queryParam("username").stream().findFirst().orElse(null);
+
             if (username == null) {
                 ctx.response().setStatusCode(400).end("Missing username parameter");
                 return;
             }
+
+            // Increment for method call
+            metricsManager.incrementMethodCounter("observeUserBikes");
+
             ctx.request().toWebSocket().onComplete(webSocketAsyncResult -> {
                 if (webSocketAsyncResult.succeeded()) {
                     var webSocket = webSocketAsyncResult.result();
                     System.out.println("User " + username + " connected");
+
+                    // Increment WebSocket connection success count
+                    metricsManager.incrementMethodCounter("observeUserBikes_connection_success");
+
                     // Listen to global bike updates
                     var globalConsumer = vertx.eventBus().consumer("available_bikes", message -> {
                         webSocket.writeTextMessage(message.body().toString());
+
+                        // Increment for message sent over WebSocket
+                        metricsManager.incrementMethodCounter("observeUserBikes_message_sent");
                     });
 
                     // Listen to user-specific bike updates
                     var userConsumer = vertx.eventBus().consumer(username, message -> {
                         webSocket.writeTextMessage(message.body().toString());
+
+                        // Increment for message sent over WebSocket
+                        metricsManager.incrementMethodCounter("observeUserBikes_message_sent");
                     });
 
-                    mapService.getAllBikesForUser(username);
+                    mapService.getAllBikes(username);
 
                     // Cleanup on WebSocket close
                     webSocket.closeHandler(v -> {
-                        ctx.response().setStatusCode(200).end("WebSocket Closed succesfully");
+                        ctx.response().setStatusCode(200).end("WebSocket Closed successfully");
+
+                        // Track WebSocket disconnection
+                        metricsManager.incrementMethodCounter("observeUserBikes_connection_closed");
+
                         globalConsumer.unregister();
                         userConsumer.unregister();
                     });
 
+                    // Track WebSocket exception errors
                     webSocket.exceptionHandler(err -> {
                         ctx.response().setStatusCode(500).end("WebSocket Failed");
+
+                        // Track WebSocket exception
+                        metricsManager.incrementMethodCounter("observeUserBikes_connection_error");
+
                         globalConsumer.unregister();
                         userConsumer.unregister();
                     });
                 } else {
-                    ctx.response().setStatusCode(500).end("WebSocket Failed");
+                    ctx.response().setStatusCode(500).end("WebSocket Upgrade Failed");
+
+                    // Track WebSocket connection failure
+                    metricsManager.incrementMethodCounter("observeUserBikes_connection_failed");
                 }
             });
         });
@@ -161,22 +187,6 @@ public class MapServiceVerticle extends AbstractVerticle {
                 System.err.println("Failed to start HTTP server: " + result.cause().getMessage());
             }
         });
-    }
-
-    private void configureMetrics() {
-        VertxPrometheusOptions prometheusOptions = new VertxPrometheusOptions()
-                .setEnabled(true)
-                .setStartEmbeddedServer(false)
-                .setEmbeddedServerOptions(null);
-
-        MicrometerMetricsOptions metricsOptions = new MicrometerMetricsOptions()
-                .setPrometheusOptions(prometheusOptions)
-                .setEnabled(true)
-                .setMicrometerRegistry(metricsManager.getRegistry());
-
-        // Set the metrics options
-        VertxOptions options = new VertxOptions().setMetricsOptions(metricsOptions);
-        vertx = Vertx.vertx(options);
     }
 
     private void registerWithEureka() {

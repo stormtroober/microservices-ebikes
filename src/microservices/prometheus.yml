@@ -11,3 +11,14 @@ scrape_configs:
     metrics_path: '/metrics'
     static_configs:
       - targets: ['map-microservice:8087']
+
+
+  - job_name: 'map-bikeadapter'
+    metrics_path: '/metrics'
+    static_configs:
+      - targets: ['map-microservice:8088']
+
+  - job_name: 'map-rideadapter'
+    metrics_path: '/metrics'
+    static_configs:
+      - targets: [ 'map-microservice:8089' ]
