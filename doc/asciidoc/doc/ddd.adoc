@@ -1,0 +1,23 @@
+Il sistema è stato progettato seguendo il paradigma DDD (Domain Driven Design),
+partendo dall'analisi del dominio e dalla definizione dell'Ubiquitous Language.
+
+Il domain-model individuato è descritto dall'immagine sottostante.
+
+image::../png/Domain_Model.png[]
+
+=== Ubiquitous Language
+
+L'uqibuitous language è stato definito in modo da rendere il sistema comprensibile e utilizzato per
+la definizione degli artefatti utili per definire: requisiti, attributi di qualità, bounded context e context map.
+
+[cols="1,1", options="header"]
+|===
+|Termine |Descrizione
+|Admin |Un individuo che può registrarsi, accedere, con privilegi speciali che può gestire biciclette,
+visualizza tutti gli utenti registrati e monitora lo stato e la posizione di tutte le bici sulla mappa.
+|User |Un individuo che può registrarsi, accedere, visualizzare le biciclette disponibili, avviare e interrompere le corse,
+ricaricare il credito del proprio account e visualizzare il saldo del credito.
+|E-Bike |Una bici elettrica che può avere stati diversi a seconda del livello della batteria e dell'utilizzo.
+|Ride | Una sessione in cui un utente utilizza una bicicletta per un periodo specifico.
+|Map | Una rappresentazione dell'area in cui si trovano tutte le biciclette. La mappa mostra entrambi
+bici disponibili e non disponibili per gli amministratori ma solo bici disponibili per gli utenti.

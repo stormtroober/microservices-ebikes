@@ -39,19 +39,10 @@ public class UserVerticle extends AbstractVerticle {
             .onSuccess(ws -> {
                 System.out.println("Connected to user updates WebSocket: " + username);
                 userWebSocket = ws;
-                ws.writeTextMessage("i'm online", write -> {
-                    if (write.succeeded()) {
-                        System.out.println("Message sent successfully");
-                    } else {
-                        System.out.println("Failed to send message: " + write.cause().getMessage());
-                    }
-                });
                 ws.textMessageHandler(this::handleUserUpdate);
                 ws.exceptionHandler(err -> {
                     System.out.println("WebSocket error: " + err.getMessage());
                 });
-            }).onFailure(err -> {
-                System.out.println("Failed to connect to user updates WebSocket: " + err.getMessage());
             });
 
         httpClient.webSocket(8081, "localhost", "/MAP-MICROSERVICE/observeUserBikes")
@@ -77,16 +68,10 @@ public class UserVerticle extends AbstractVerticle {
     }
 
     private void handleUserUpdate(String message) {
-        System.out.println("[handleUserUpdate] Raw message: " + message);
-        System.out.println("Received user update raw message: " + message); // Log
-        try {
-            JsonObject update = new JsonObject(message);
-            String username = update.getString("username");
-            System.out.println("Processed user update: " + update.encodePrettily());
-            vertx.eventBus().publish("user.update." + username, update);
-        } catch (Exception e) {
-            System.err.println("Error processing user update: " + e.getMessage());
-        }
+        JsonObject update = new JsonObject(message);
+        String username = update.getString("username");
+        System.out.println("Processed user update: " + update.encodePrettily());
+        vertx.eventBus().publish("user.update." + username, update);
     }
 
     private void handleRideUpdate(String message) {
@@ -102,16 +87,13 @@ public class UserVerticle extends AbstractVerticle {
     @Override
     public void start() {
 
-        vertx.eventBus().consumer("user.ride.start", message -> {
-            System.out.println("Received start ride request: " + message.body());
-            rideWebSocket.writeTextMessage(message.body().toString());
-        });
-
-        vertx.eventBus().consumer("user.update.recharge", message -> {
+        vertx.eventBus().consumer("user.update.recharge" + username, message -> {
             JsonObject creditDetails = (JsonObject) message.body();
-            webClient.put(8081, "localhost", "/USER-MICROSERVICE/api/users/" + username + "recharge")
+            System.out.println("Recharging credit: " + creditDetails.encodePrettily());
+            webClient.patch(8081, "localhost", "/USER-MICROSERVICE/api/users/" + username + "/recharge")
                 .sendJsonObject(creditDetails, ar -> {
                     if (ar.succeeded() && ar.result().statusCode() == 200) {
+                        System.out.println("Credit recharged successfully");
                         message.reply(ar.result().bodyAsJsonObject());
                     } else {
                         message.fail(500, "Failed to recharge credit: " +

@@ -95,7 +95,6 @@ public abstract class AbstractView extends JFrame {
     }
 
     private void paintUserView(Graphics2D g2) {
-        System.out.println("Painting user view");
         int centerX = centralPanel.getWidth() / 2;
         int centerY = centralPanel.getHeight() / 2;
         int dy = 20;
