@@ -49,7 +49,6 @@ import io.vertx.core.Vertx;
 import io.vertx.core.json.JsonObject;
 import org.dialogs.AbstractDialog;
 import org.models.UserViewModel;
-import org.views.AdminView;
 
 import javax.swing.*;
 import java.awt.event.ActionEvent;
@@ -79,18 +78,19 @@ public class RechargeCreditDialog extends AbstractDialog {
     public void actionPerformed(ActionEvent e) {
         super.actionPerformed(e);
         if (e.getSource() == confirmButton) {
-            String creditAmount = creditAmountField.getText();
+            String creditToAdd = creditAmountField.getText();
 
             JsonObject creditDetails = new JsonObject()
                     .put("username", user.username())
-                    .put("creditAmount", Integer.parseInt(creditAmount));
+                    .put("creditToAdd", Integer.parseInt(creditToAdd));
 
-            vertx.eventBus().request("user.update.recharge", creditDetails, reply -> {
+            vertx.eventBus().request("user.update.recharge" + user.username(), creditDetails, reply -> {
                 if (reply.succeeded()) {
                     JOptionPane.showMessageDialog(this, "Credit recharged successfully");
                     vertx.eventBus().publish("user.update.recharge", reply.result().body());
                 } else {
                     JOptionPane.showMessageDialog(this, "Error recharging Credit: " + reply.cause().getMessage());
+                    System.out.println("Error recharging Credit: " + reply.cause().getMessage());
                 }
                 dispose();
             });

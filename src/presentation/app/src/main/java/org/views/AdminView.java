@@ -12,10 +12,11 @@ import javax.swing.*;
 import java.awt.*;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.concurrent.CopyOnWriteArrayList;
 
 public class AdminView extends AbstractView {
 
-    private final List<UserViewModel> userList = new ArrayList<>();
+    private final List<UserViewModel> userList = new CopyOnWriteArrayList<>();
     private final AdminVerticle verticle;
     private final Vertx vertx;
 
@@ -76,19 +77,29 @@ public class AdminView extends AbstractView {
             Integer credit = update.getInteger("credit");
 
             if (type.equals("USER") && userList.stream().noneMatch(user -> user.username().equals(username))) {
+                System.out.println("Adding user: " + username);
                 UserViewModel user = new UserViewModel(username, credit , false);
                 userList.add(user);
+            } else if (type.equals("USER")) {
+                System.out.println("Updating user: " + username);
+                userList.stream()
+                        .filter(u -> u.username().equals(username))
+                        .findFirst()
+                        .ifPresent(u -> {
+                            userList.remove(u);
+                            userList.add(new UserViewModel(username, credit, false));
+                        });
             }
             System.out.println("Received user update: " + update);
             refreshView();
         });
     }
 
-    private void updateAllUsers(List<UserViewModel> userModels) {
-        userList.clear();
-        userList.addAll(userModels);
-        refreshView();
-    }
+//    private void updateAllUsers(UserViewModel user) {
+//        userList.stream().filter(u -> u.username().equals(user.username()))
+//                .forEach(u -> u.updateCredit(user.credit()));
+//        refreshView();
+//    }
 
 //    private void updateAllBikes(Collection<EBikeDTO> allBikes) {
 //        eBikes = allBikes.stream()

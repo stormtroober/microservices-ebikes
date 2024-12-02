@@ -225,11 +225,6 @@ public class UserView extends AbstractView {
         });
     }
 
-    @Override
-    public void paintUserView(Graphics2D g2) {
-        super.paintUserView(g2);
-    }
-
     private void refreshView() {
         updateVisualizerPanel();
     }
