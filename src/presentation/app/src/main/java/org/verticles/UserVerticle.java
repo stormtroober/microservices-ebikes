@@ -4,6 +4,7 @@ import io.vertx.core.AbstractVerticle;
 import io.vertx.core.Vertx;
 import io.vertx.core.http.HttpClient;
 import io.vertx.core.http.WebSocket;
+import io.vertx.core.json.JsonArray;
 import io.vertx.ext.web.client.WebClient;
 import io.vertx.core.json.JsonObject;
 
@@ -42,25 +43,20 @@ public class UserVerticle extends AbstractVerticle {
                 ws.exceptionHandler(err -> {
                     System.out.println("WebSocket error: " + err.getMessage());
                 });
+            }).onFailure(err -> {
+                System.out.println("Failed to connect to user updates WebSocket: " + err.getMessage());
             });
 
-        httpClient.webSocket(8081, "localhost", "/MAP-MICROSERVICE/observeUserBikes")
+        httpClient.webSocket(8081, "localhost", "/MAP-MICROSERVICE/observeUserBikes?username=" + username)
             .onSuccess(ws -> {
                 System.out.println("Connected to user bikes updates WebSocket");
                 bikeWebSocket = ws;
-                ws.textMessageHandler(this::handleBikeUpdate);
+                ws.textMessageHandler(message ->{
+                        System.out.println("Received bike update: " + message);
+                        vertx.eventBus().publish("user.bike.update."+username, new JsonArray(message));
+                });
 
-                webClient.get(8081, "localhost", "/EBIKE-MICROSERVICE/api/ebikes")
-                    .send(ar -> {
-                        if (ar.succeeded() && ar.result().statusCode() == 200) {
-                            ar.result().bodyAsJsonArray().forEach(bike -> {
-                                handleBikeUpdate(bike.toString());
-                            });
-                        } else {
-                            System.out.println("Failed to fetch bikes: " +
-                                (ar.cause() != null ? ar.cause().getMessage() : "Unknown error"));
-                        }
-                    });
+
             });
 
 
@@ -72,6 +68,11 @@ public class UserVerticle extends AbstractVerticle {
         System.out.println("Processed user update: " + update.encodePrettily());
         vertx.eventBus().publish("user.update." + username, update);
     }
+
+    private void handleRideUpdate(String message) {
+        System.out.println("Received ride update: " + message);
+    }
+
 
     private void handleBikeUpdate(String message) {
         JsonObject update = new JsonObject(message);

@@ -96,7 +96,7 @@ public class AddEBikeDialog extends AbstractDialog {
                 if (reply.succeeded()) {
                     JOptionPane.showMessageDialog(this, "E-Bike added successfully");
                     System.out.println("E-Bike added successfully: " + reply.result().body());
-                    vertx.eventBus().publish("admin.bike.update", reply.result().body());
+
                 } else {
                     JOptionPane.showMessageDialog(this, "Error adding E-Bike: " + reply.cause().getMessage());
                     System.out.println("Error adding E-Bike: " + reply.cause().getMessage());

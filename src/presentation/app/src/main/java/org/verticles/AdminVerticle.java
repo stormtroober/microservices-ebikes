@@ -2,6 +2,7 @@ package org.verticles;
 
 import io.vertx.core.AbstractVerticle;
 import io.vertx.core.Vertx;
+import io.vertx.core.json.JsonArray;
 import io.vertx.core.json.JsonObject;
 import io.vertx.ext.web.client.WebClient;
 import io.vertx.core.http.HttpClient;
@@ -42,19 +43,23 @@ public class AdminVerticle extends AbstractVerticle {
         httpClient.webSocket(8081, "localhost", "/MAP-MICROSERVICE/observeAllBikes")
             .onSuccess(ws -> {
                 bikeWebSocket = ws;
-                ws.textMessageHandler(this::handleBikeUpdate);
+                ws.textMessageHandler(message -> {
+                    System.out.println("Received bike update: " + message);
+                    vertx.eventBus().publish("admin.bike.update", new JsonArray(message));
+                });
 
-                webClient.get(8081, "localhost", "/EBIKE-MICROSERVICE/api/ebikes")
-                    .send(ar -> {
-                        if (ar.succeeded() && ar.result().statusCode() == 200) {
-                            ar.result().bodyAsJsonArray().forEach(bike -> {
-                                handleBikeUpdate(bike.toString());
-                            });
-                        } else {
-                            System.out.println("Failed to fetch bikes: " +
-                                (ar.cause() != null ? ar.cause().getMessage() : "Unknown error"));
-                        }
-                    });
+
+//                webClient.get(8081, "localhost", "/EBIKE-MICROSERVICE/api/ebikes")
+//                    .send(ar -> {
+//                        if (ar.succeeded() && ar.result().statusCode() == 200) {
+//                            ar.result().bodyAsJsonArray().forEach(bike -> {
+//                                handleBikeUpdate(bike.toString());
+//                            });
+//                        } else {
+//                            System.out.println("Failed to fetch bikes: " +
+//                                (ar.cause() != null ? ar.cause().getMessage() : "Unknown error"));
+//                        }
+//                    });
             });
     }
 
@@ -64,10 +69,10 @@ public class AdminVerticle extends AbstractVerticle {
         vertx.eventBus().publish("admin.user.update", update);
     }
 
-    private void handleBikeUpdate(String message) {
-        JsonObject update = new JsonObject(message);
-        vertx.eventBus().publish("admin.bike.update", update);
-    }
+//    private void handleBikeUpdate(String message) {
+//        JsonObject update = new JsonObject(message);
+//        vertx.eventBus().publish("admin.bike.update", update);
+//    }
 
     @Override
     public void start() {

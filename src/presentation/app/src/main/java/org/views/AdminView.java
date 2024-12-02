@@ -1,6 +1,7 @@
 package org.views;
 
 import io.vertx.core.Vertx;
+import io.vertx.core.json.JsonArray;
 import io.vertx.core.json.JsonObject;
 import org.dialogs.admin.AddEBikeDialog;
 import org.dialogs.admin.RechargeBikeDialog;
@@ -52,18 +53,27 @@ public class AdminView extends AbstractView {
 
     private void observeAllBikes() {
         vertx.eventBus().consumer("admin.bike.update", message -> {
-            JsonObject update = (JsonObject) message.body();
+            JsonArray update = (JsonArray) message.body();
+            log("Received bike update: " + update);
+            eBikes.clear();
+            for (int i = 0; i < update.size(); i++) {
+                Object element = update.getValue(i);
+                if (element instanceof String) {
+                    JsonObject bikeObj = new JsonObject((String) element);
+                    String id = bikeObj.getString("bikeName");
+                    Integer batteryLevel = bikeObj.getInteger("batteryLevel");
+                    String stateStr = bikeObj.getString("state");
+                    JsonObject location = bikeObj.getJsonObject("position");
+                    Double x = location.getDouble("x");
+                    Double y = location.getDouble("y");
+                    EBikeViewModel.EBikeState state = EBikeViewModel.EBikeState.valueOf(stateStr);
 
-            String id = update.getString("id");
-            Integer batteryLevel = update.getInteger("batteryLevel");
-            String stateStr = update.getString("state");
-            JsonObject location = update.getJsonObject("location");
-            Double x = location.getDouble("x");
-            Double y = location.getDouble("y");
-            EBikeViewModel.EBikeState state = EBikeViewModel.EBikeState.valueOf(stateStr);
-
-            EBikeViewModel bike = new EBikeViewModel(id, x, y, batteryLevel, state);
-            eBikes.add(bike);
+                    EBikeViewModel bikeModel = new EBikeViewModel(id, x, y, batteryLevel, state);
+                    eBikes.add(bikeModel);
+                } else {
+                    log("Invalid bike data: " + element);
+                }
+            }
             refreshView();
         });
     }
@@ -77,7 +87,6 @@ public class AdminView extends AbstractView {
             Integer credit = update.getInteger("credit");
 
             if (type.equals("USER") && userList.stream().noneMatch(user -> user.username().equals(username))) {
-                System.out.println("Adding user: " + username);
                 UserViewModel user = new UserViewModel(username, credit , false);
                 userList.add(user);
             } else if (type.equals("USER")) {

@@ -5,6 +5,8 @@ import application.ports.RestMapServiceAPI;
 import domain.model.EBike;
 import application.ports.EventPublisher;
 import application.ports.EBikeRepository;
+import domain.model.EBikeState;
+
 import java.util.ArrayList;
 import java.util.List;
 import java.util.concurrent.CompletableFuture;
@@ -29,8 +31,10 @@ public class RestMapServiceAPIImpl implements RestMapServiceAPI {
                     //Publish the update on the global endpoint
                     var bikesInRepo = bikeRepository.getAllBikes().join();
                     eventPublisher.publishBikesUpdate(bikesInRepo);
-
-                    List<EBike> availableBikes = bikeRepository.getAvailableBikes().join();
+                    var availableBikes = bikesInRepo.stream()
+                            .filter(bike -> bike.getState().equals(EBikeState.AVAILABLE))
+                            .toList();
+                    //List<EBike> availableBikes = bikeRepository.getAvailableBikes().join();
                     var usersWithAssignedBikes = bikeRepository.getAllUsersWithAssignedBikes().join();
                     if(!usersWithAssignedBikes.isEmpty()){
                         usersWithAssignedBikes.forEach(username -> {
@@ -83,15 +87,55 @@ public class RestMapServiceAPIImpl implements RestMapServiceAPI {
 
     @Override
     public CompletableFuture<Void> notifyStartRide(String username, String bikeName) {
-        return bikeRepository.getBike(bikeName)
-                .thenCompose(bike -> bikeRepository.assignBikeToUser(username, bike));
+         return bikeRepository.getBike(bikeName)
+                 .thenCompose(bike -> bikeRepository.assignBikeToUser(username, bike))
+                 .thenAccept(v -> {
+                     var bikesInRepo = bikeRepository.getAllBikes().join();
+                     eventPublisher.publishBikesUpdate(bikesInRepo);
+
+                     List<EBike> availableBikes = bikeRepository.getAvailableBikes().join();
+                     var usersWithAssignedBikes = bikeRepository.getAllUsersWithAssignedBikes().join();
+                     if (!usersWithAssignedBikes.isEmpty()) {
+                         usersWithAssignedBikes.forEach(un -> {
+                             List<EBike> userBikes = new ArrayList<>(bikesInRepo.stream()
+                                     .filter(b -> {
+                                         String assignedUser = bikeRepository.isBikeAssigned(b).join();
+                                         return assignedUser != null && assignedUser.equals(un);
+                                     }).toList());
+                             userBikes.addAll(availableBikes);
+                             eventPublisher.publishUserBikesUpdate(userBikes, un);
+                         });
+                     } else {
+                         eventPublisher.publishUserAvailableBikesUpdate(availableBikes);
+                     }
+                 });
     }
 
 
     @Override
     public CompletableFuture<Void> notifyStopRide(String username, String bikeName) {
         return bikeRepository.getBike(bikeName)
-                .thenCompose(bike -> bikeRepository.unassignBikeFromUser(username, bike));
+                .thenCompose(bike -> bikeRepository.unassignBikeFromUser(username, bike))
+                .thenAccept(v -> {
+                    var bikesInRepo = bikeRepository.getAllBikes().join();
+                    eventPublisher.publishBikesUpdate(bikesInRepo);
+
+                    List<EBike> availableBikes = bikeRepository.getAvailableBikes().join();
+                    var usersWithAssignedBikes = bikeRepository.getAllUsersWithAssignedBikes().join();
+                    if (!usersWithAssignedBikes.isEmpty()) {
+                        usersWithAssignedBikes.forEach(un -> {
+                            List<EBike> userBikes = new ArrayList<>(bikesInRepo.stream()
+                                    .filter(b -> {
+                                        String assignedUser = bikeRepository.isBikeAssigned(b).join();
+                                        return assignedUser != null && assignedUser.equals(un);
+                                    }).toList());
+                            userBikes.addAll(availableBikes);
+                            eventPublisher.publishUserBikesUpdate(userBikes, un);
+                        });
+                    } else {
+                        eventPublisher.publishUserAvailableBikesUpdate(availableBikes);
+                    }
+                });
     }
 
     @Override
@@ -103,8 +147,16 @@ public class RestMapServiceAPIImpl implements RestMapServiceAPI {
     public void getAllBikes(String username) {
         List<EBike> availableBikes = bikeRepository.getAvailableBikes().join();
         List<EBike> userBikes = bikeRepository.getAllBikes(username).join();
-        availableBikes.addAll(userBikes);
-        eventPublisher.publishUserBikesUpdate(availableBikes, username);
+        if(!userBikes.isEmpty()){
+            availableBikes.addAll(userBikes);
+            eventPublisher.publishUserBikesUpdate(availableBikes, username);
+        }
+        else{
+            System.out.println("No bikes assigned to user: " + username);
+            System.out.println("Available bikes: " + availableBikes);
+            eventPublisher.publishUserAvailableBikesUpdate(availableBikes);
+        }
+
     }
 
 }
