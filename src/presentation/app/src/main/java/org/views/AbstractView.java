@@ -10,6 +10,7 @@ import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.concurrent.CopyOnWriteArrayList;
 
 public abstract class AbstractView extends JFrame {
 
@@ -53,7 +54,7 @@ public abstract class AbstractView extends JFrame {
         topPanel.add(logoutButton, BorderLayout.EAST);
 
         this.actualUser = actualUser;
-        this.eBikes = new ArrayList<>();
+        this.eBikes = new CopyOnWriteArrayList<>();
     }
 
     protected void addTopPanelButton(String text, ActionListener actionListener) {

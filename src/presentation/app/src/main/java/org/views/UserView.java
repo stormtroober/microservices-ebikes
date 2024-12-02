@@ -19,7 +19,8 @@ public class UserView extends AbstractView {
     private final UserVerticle verticle;
     private final Vertx vertx;
     private JButton rideButton;
-    private Optional<RideViewModel> ongoingRide = Optional.empty();
+    //private final Optional<RideViewModel> ongoingRide = Optional.empty();
+    private boolean isRiding = false;
 
 
     public UserView(UserViewModel user, Vertx vertx) {
@@ -31,9 +32,7 @@ public class UserView extends AbstractView {
         observeAvailableBikes();
         observeUser();
         refreshView();
-
     }
-
 
     private void setupView() {
         topPanel.setLayout(new FlowLayout());
@@ -50,7 +49,7 @@ public class UserView extends AbstractView {
     }
 
     private void toggleRide() {
-        if (ongoingRide.isPresent()) {
+        if (isRiding) {
             stopRide();
         } else {
             startRide();
@@ -58,25 +57,28 @@ public class UserView extends AbstractView {
     }
 
     private void updateRideButtonState() {
-        rideButton.setText(ongoingRide.isPresent() ? "Stop Ride" : "Start Ride");
+        rideButton.setText(isRiding ? "Stop Ride" : "Start Ride");
     }
 
     private void startRide() {
         StartRideDialog startRideDialog = new StartRideDialog(UserView.this, vertx, actualUser);
         startRideDialog.setVisible(true);
+        isRiding = true;
+        updateRideButtonState();
+        refreshView();
     }
 
     private void stopRide() {
-        ongoingRide.ifPresent(ride -> {
-            vertx.eventBus().send("user.ride.stop" + actualUser.username(), new JsonObject().put("username", actualUser.username()));
-            updateVisualizerPanel();
-            updateRideButtonState();
-        });
+        JsonObject rideDetails = new JsonObject().put("username", actualUser.username());
+        vertx.eventBus().send("user.ride.stop." + actualUser.username(), rideDetails);
+        isRiding = false;
+        updateRideButtonState();
+        refreshView();
     }
 
     private void observeAvailableBikes() {
 
-        vertx.eventBus().consumer("user.bike.update."+actualUser.username(), message -> {
+        vertx.eventBus().consumer("user.bike.update."+ actualUser.username(), message -> {
             JsonArray update = (JsonArray) message.body();
             log("Received bike update: " + update);
             eBikes.clear();

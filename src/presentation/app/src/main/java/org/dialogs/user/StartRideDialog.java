@@ -115,7 +115,7 @@ public class StartRideDialog extends AbstractDialog {
         if (e.getSource() == confirmButton) {
             String bikeId = idEBikeField.getText();
             JsonObject rideDetails = new JsonObject()
-                .put("user", user.toString())
+                .put("user", user.username())
                 .put("bike", bikeId);
             vertx.eventBus().request("user.ride.start." + user.username(), rideDetails, ar -> {
                 if (ar.succeeded()) {

@@ -55,11 +55,7 @@ public class UserVerticle extends AbstractVerticle {
                         System.out.println("Received bike update: " + message);
                         vertx.eventBus().publish("user.bike.update."+username, new JsonArray(message));
                 });
-
-
             });
-
-
     }
 
     private void handleUserUpdate(String message) {
@@ -67,17 +63,6 @@ public class UserVerticle extends AbstractVerticle {
         String username = update.getString("username");
         System.out.println("Processed user update: " + update.encodePrettily());
         vertx.eventBus().publish("user.update." + username, update);
-    }
-
-    private void handleRideUpdate(String message) {
-        System.out.println("Received ride update: " + message);
-    }
-
-
-    private void handleBikeUpdate(String message) {
-        JsonObject update = new JsonObject(message);
-        //System.out.println("Received bike update: " + message);
-        vertx.eventBus().publish("user.bike.update", update);
     }
 
     @Override
@@ -105,7 +90,7 @@ public class UserVerticle extends AbstractVerticle {
                 .sendJsonObject(rideDetails, ar -> {
                     if (ar.succeeded() && ar.result().statusCode() == 200) {
                         System.out.println("Ride started successfully");
-                        message.reply(ar.result().bodyAsJsonObject());
+                        message.reply(ar.result().bodyAsString());
                     } else {
                         message.fail(500, "Failed to start ride: " +
                             (ar.cause() != null ? ar.cause().getMessage() : "Unknown error"));
@@ -120,7 +105,7 @@ public class UserVerticle extends AbstractVerticle {
                 .sendJsonObject(rideDetails, ar -> {
                     if (ar.succeeded() && ar.result().statusCode() == 200) {
                         System.out.println("Ride stopped successfully");
-                        message.reply(ar.result().bodyAsJsonObject());
+                        message.reply(ar.result().bodyAsString());
                     } else {
                         message.fail(500, "Failed to stop ride: " +
                             (ar.cause() != null ? ar.cause().getMessage() : "Unknown error"));
