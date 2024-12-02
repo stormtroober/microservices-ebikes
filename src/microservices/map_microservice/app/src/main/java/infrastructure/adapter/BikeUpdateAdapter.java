@@ -70,6 +70,8 @@ public class BikeUpdateAdapter extends AbstractVerticle {
             var timer = metricsManager.startTimer();
 
             JsonArray body = ctx.body().asJsonArray();
+            System.out.println("Received update request for " + body.size() + " EBikes");
+            System.out.println(body.encodePrettily());
             try {
                 List<EBike> bikes = body.stream()
                         .map(obj -> (JsonObject) obj)
