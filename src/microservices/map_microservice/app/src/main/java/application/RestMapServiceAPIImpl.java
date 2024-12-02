@@ -27,13 +27,14 @@ public class RestMapServiceAPIImpl implements RestMapServiceAPI {
                 .toArray(CompletableFuture[]::new))
                 .thenAccept(v -> {
                     //Publish the update on the global endpoint
-                    eventPublisher.publishBikesUpdate(bikes);
+                    var bikesInRepo = bikeRepository.getAllBikes().join();
+                    eventPublisher.publishBikesUpdate(bikesInRepo);
 
                     List<EBike> availableBikes = bikeRepository.getAvailableBikes().join();
                     var usersWithAssignedBikes = bikeRepository.getAllUsersWithAssignedBikes().join();
                     if(!usersWithAssignedBikes.isEmpty()){
                         usersWithAssignedBikes.forEach(username -> {
-                            List<EBike> userBikes = new ArrayList<>(bikes.stream()
+                            List<EBike> userBikes = new ArrayList<>(bikesInRepo.stream()
                                     .filter(bike -> {
                                         String assignedUser = bikeRepository.isBikeAssigned(bike).join();
                                         return assignedUser != null && assignedUser.equals(username);
@@ -59,15 +60,14 @@ public class RestMapServiceAPIImpl implements RestMapServiceAPI {
 
         return bikeRepository.saveBike(bike)
                 .thenAccept(v -> {
-                    // Publish the update on the global endpoint
-                    List<EBike> bikes = List.of(bike);
-                    eventPublisher.publishBikesUpdate(bikes);
+                    var bikesInRepo = bikeRepository.getAllBikes().join();
+                    eventPublisher.publishBikesUpdate(bikesInRepo);
 
                     List<EBike> availableBikes = bikeRepository.getAvailableBikes().join();
                     var usersWithAssignedBikes = bikeRepository.getAllUsersWithAssignedBikes().join();
                     if (!usersWithAssignedBikes.isEmpty()) {
                         usersWithAssignedBikes.forEach(username -> {
-                            List<EBike> userBikes = new ArrayList<>(bikes.stream()
+                            List<EBike> userBikes = new ArrayList<>(bikesInRepo.stream()
                                     .filter(b -> {
                                         String assignedUser = bikeRepository.isBikeAssigned(b).join();
                                         return assignedUser != null && assignedUser.equals(username);

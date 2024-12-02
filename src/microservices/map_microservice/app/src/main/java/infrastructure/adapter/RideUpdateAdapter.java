@@ -32,6 +32,11 @@ public class RideUpdateAdapter extends AbstractVerticle {
         // Enable request body handling for PUT/POST requests
         router.route().handler(BodyHandler.create());
 
+        router.get("/metrics").handler(ctx -> {
+            ctx.response()
+                    .putHeader("Content-Type", "text/plain")
+                    .end(metricsManager.getMetrics());
+        });
         router.get("/health").handler(ctx -> ctx.response().setStatusCode(200).end("OK"));
 
         router.post("/notifyStartRide").handler(ctx -> {

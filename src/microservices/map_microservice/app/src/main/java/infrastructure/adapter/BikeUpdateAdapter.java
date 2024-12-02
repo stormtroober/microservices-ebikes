@@ -38,11 +38,9 @@ public class BikeUpdateAdapter extends AbstractVerticle {
         router.get("/health").handler(ctx -> ctx.response().setStatusCode(200).end("OK"));
 
         // Expose Prometheus metrics
-        router.get("/metrics").handler(ctx -> {
-            ctx.response()
-                    .putHeader("Content-Type", "text/plain")
-                    .end(metricsManager.getMetrics());
-        });
+        router.get("/metrics").handler(ctx -> ctx.response()
+                .putHeader("Content-Type", "text/plain")
+                .end(metricsManager.getMetrics()));
 
         router.put("/updateEBike").handler(ctx -> {
             metricsManager.incrementMethodCounter("updateEBike");
