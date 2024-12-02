@@ -46,10 +46,12 @@ public class UserVerticle extends AbstractVerticle {
                         System.out.println("Failed to send message: " + write.cause().getMessage());
                     }
                 });
-                //ws.textMessageHandler(this::handleUserUpdate);
+                ws.textMessageHandler(this::handleUserUpdate);
                 ws.exceptionHandler(err -> {
                     System.out.println("WebSocket error: " + err.getMessage());
                 });
+            }).onFailure(err -> {
+                System.out.println("Failed to connect to user updates WebSocket: " + err.getMessage());
             });
 
         httpClient.webSocket(8081, "localhost", "/MAP-MICROSERVICE/observeUserBikes")
@@ -71,13 +73,7 @@ public class UserVerticle extends AbstractVerticle {
                     });
             });
 
-        // Connect to ride updates WebSocket
-        httpClient.webSocket(8081, "localhost", "/RIDE-MICROSERVICE/observeRide")
-            .onSuccess(ws -> {
-                System.out.println("Connected to ride updates WebSocket");
-                rideWebSocket = ws;
-                ws.textMessageHandler(this::handleRideUpdate);
-            });
+
     }
 
     private void handleUserUpdate(String message) {

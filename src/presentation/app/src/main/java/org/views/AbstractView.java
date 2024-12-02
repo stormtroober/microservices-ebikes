@@ -23,7 +23,6 @@ public abstract class AbstractView extends JFrame {
 
 
     public AbstractView(String title, UserViewModel actualUser) {
-        System.out.println("Creating AbstractView");
         setTitle(title);
         setSize(800, 600);
         setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
@@ -38,7 +37,6 @@ public abstract class AbstractView extends JFrame {
         centralPanel = new JPanel() {
             @Override
             public void paintComponent(Graphics g) {
-                System.out.println("Painting central panel");
                 super.paintComponent(g);
                 paintCentralPanel(g);
             }
@@ -74,7 +72,6 @@ public abstract class AbstractView extends JFrame {
         g2.setRenderingHint(RenderingHints.KEY_ANTIALIASING, RenderingHints.VALUE_ANTIALIAS_ON);
         g2.setRenderingHint(RenderingHints.KEY_RENDERING, RenderingHints.VALUE_RENDER_QUALITY);
         g2.clearRect(0, 0, this.getWidth(), this.getHeight());
-        System.out.println("-------------------------->"+actualUser.toString());
         if (actualUser.admin()) {
             paintAdminView(g2);
         } else {
