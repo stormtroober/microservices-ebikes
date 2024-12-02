@@ -5,6 +5,8 @@ import application.ports.RestMapServiceAPI;
 import domain.model.EBike;
 import application.ports.EventPublisher;
 import application.ports.EBikeRepository;
+import domain.model.EBikeState;
+
 import java.util.ArrayList;
 import java.util.List;
 import java.util.concurrent.CompletableFuture;
@@ -29,8 +31,10 @@ public class RestMapServiceAPIImpl implements RestMapServiceAPI {
                     //Publish the update on the global endpoint
                     var bikesInRepo = bikeRepository.getAllBikes().join();
                     eventPublisher.publishBikesUpdate(bikesInRepo);
-
-                    List<EBike> availableBikes = bikeRepository.getAvailableBikes().join();
+                    var availableBikes = bikesInRepo.stream()
+                            .filter(bike -> bike.getState().equals(EBikeState.AVAILABLE))
+                            .toList();
+                    //List<EBike> availableBikes = bikeRepository.getAvailableBikes().join();
                     var usersWithAssignedBikes = bikeRepository.getAllUsersWithAssignedBikes().join();
                     if(!usersWithAssignedBikes.isEmpty()){
                         usersWithAssignedBikes.forEach(username -> {
@@ -103,8 +107,16 @@ public class RestMapServiceAPIImpl implements RestMapServiceAPI {
     public void getAllBikes(String username) {
         List<EBike> availableBikes = bikeRepository.getAvailableBikes().join();
         List<EBike> userBikes = bikeRepository.getAllBikes(username).join();
-        availableBikes.addAll(userBikes);
-        eventPublisher.publishUserBikesUpdate(availableBikes, username);
+        if(!userBikes.isEmpty()){
+            availableBikes.addAll(userBikes);
+            eventPublisher.publishUserBikesUpdate(availableBikes, username);
+        }
+        else{
+            System.out.println("No bikes assigned to user: " + username);
+            System.out.println("Available bikes: " + availableBikes);
+            eventPublisher.publishUserAvailableBikesUpdate(availableBikes);
+        }
+
     }
 
 }

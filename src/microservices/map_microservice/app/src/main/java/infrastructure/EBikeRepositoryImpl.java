@@ -45,7 +45,10 @@ public class EBikeRepositoryImpl implements EBikeRepository {
     @Override
     public CompletableFuture<List<EBike>> getAllBikes(String username) {
         return CompletableFuture.supplyAsync(() -> bikes.values().stream()
-                .filter(bike -> bikeAssignments.get(username).equals(bike.getBikeName()))
+                .filter(bike -> {
+                    String assignedBikeName = bikeAssignments.get(username);
+                    return assignedBikeName != null && assignedBikeName.equals(bike.getBikeName());
+                })
                 .collect(Collectors.toList()));
     }
 
