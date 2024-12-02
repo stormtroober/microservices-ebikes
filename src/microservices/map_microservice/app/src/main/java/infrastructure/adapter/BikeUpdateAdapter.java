@@ -11,6 +11,9 @@ import io.vertx.core.json.JsonObject;
 import io.vertx.ext.web.Router;
 import io.vertx.ext.web.handler.BodyHandler;
 
+import java.util.List;
+import java.util.stream.Collectors;
+
 public class BikeUpdateAdapter extends AbstractVerticle {
 
     private final RestMapServiceAPI mapService;
@@ -31,21 +34,10 @@ public class BikeUpdateAdapter extends AbstractVerticle {
 
         router.get("/health").handler(ctx -> ctx.response().setStatusCode(200).end("OK"));
 
-        // Define REST endpoint for updateEBike
         router.put("/updateEBike").handler(ctx -> {
-            System.out.println("Received updateEBike request");
             JsonObject body = ctx.body().asJsonObject();
             try {
-                String bikeName = body.getString("id");
-                JsonObject location = body.getJsonObject("location");
-                double x = location.getDouble("x");
-                double y = location.getDouble("y");
-                EBikeState state = EBikeState.valueOf(body.getString("state"));
-                int batteryLevel = body.getInteger("batteryLevel");
-
-                EBikeFactory factory = EBikeFactory.getInstance();
-                EBike bike = factory.createEBike(bikeName, (float) x, (float) y, state, batteryLevel);
-
+                EBike bike = createEBikeFromJson(body);
                 // Process the update request
                 mapService.updateEBike(bike)
                         .thenAccept(v -> ctx.response().setStatusCode(200).end("EBike updated successfully"))
@@ -59,24 +51,23 @@ public class BikeUpdateAdapter extends AbstractVerticle {
             }
         });
 
-        // Define REST endpoint for updateEBikes
         router.put("/updateEBikes").handler(ctx -> {
             JsonArray body = ctx.body().asJsonArray();
             try {
-                body.forEach(item -> {
-                    JsonObject bikeJson = (JsonObject) item;
-                    EBike bike = createEBikeFromJson(bikeJson);
-                    // Process the update request
-                    mapService.updateEBike(bike)
-                            .exceptionally(ex -> {
-                                ctx.response().setStatusCode(500).end("Failed to update EBike: " + ex.getMessage());
-                                return null;
-                            });
-                });
-                ctx.response().setStatusCode(200).end("EBikes updated successfully");
+                List<EBike> bikes = body.stream()
+                        .map(obj -> (JsonObject) obj)
+                        .map(this::createEBikeFromJson)
+                        .collect(Collectors.toList());
+
+                // Process the update request
+                mapService.updateEBikes(bikes)
+                        .thenAccept(v -> ctx.response().setStatusCode(200).end("EBikes updated successfully"))
+                        .exceptionally(ex -> {
+                            ctx.response().setStatusCode(500).end("Failed to update EBikes: " + ex.getMessage());
+                            return null;
+                        });
             } catch (Exception e) {
-                System.err.println("Error processing request: " + e.getMessage());
-                e.printStackTrace();
+                System.err.println("Invalid input data: " + e.getMessage());
                 ctx.response().setStatusCode(400).end("Invalid input data: " + e.getMessage());
             }
         });

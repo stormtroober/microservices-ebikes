@@ -68,57 +68,6 @@ public class MapServiceVerticle extends AbstractVerticle {
 
         router.get("/health").handler(ctx -> ctx.response().setStatusCode(200).end("OK"));
 
-        router.put("/updateEBikes").handler(ctx -> {
-            JsonArray body = ctx.body().asJsonArray();
-            try {
-                List<EBike> bikes = body.stream()
-                        .map(obj -> (JsonObject) obj)
-                        .map(this::createEBikeFromJson)
-                        .collect(Collectors.toList());
-
-                // Process the update request
-                mapService.updateEBikes(bikes)
-                        .thenAccept(v -> ctx.response().setStatusCode(200).end("EBikes updated successfully"))
-                        .exceptionally(ex -> {
-                            ctx.response().setStatusCode(500).end("Failed to update EBikes: " + ex.getMessage());
-                            return null;
-                        });
-            } catch (Exception e) {
-                System.err.println("Invalid input data: " + e.getMessage());
-                ctx.response().setStatusCode(400).end("Invalid input data: " + e.getMessage());
-            }
-        });
-
-        router.post("/notifyStartRide").handler(ctx -> {
-            JsonObject body = ctx.body().asJsonObject();
-            String username = body.getString("username");
-            String bikeName = body.getString("bikeName");
-
-            mapService.notifyStartRide(username, bikeName)
-                    .thenAccept(v -> ctx.response().setStatusCode(200).end("OK"))
-                    .exceptionally(ex -> {
-                        ctx.response().setStatusCode(500).end(ex.getMessage());
-                        return null;
-                    });
-        });
-
-        router.put("/updateEBike").handler(ctx -> {
-            JsonObject body = ctx.body().asJsonObject();
-            try {
-                EBike bike = createEBikeFromJson(body);
-                // Process the update request
-                mapService.updateEBike(bike)
-                        .thenAccept(v -> ctx.response().setStatusCode(200).end("EBike updated successfully"))
-                        .exceptionally(ex -> {
-                            ctx.response().setStatusCode(500).end("Failed to update EBike: " + ex.getMessage());
-                            return null;
-                        });
-            } catch (Exception e) {
-                System.err.println("Invalid input data: " + e.getMessage());
-                ctx.response().setStatusCode(400).end("Invalid input data: " + e.getMessage());
-            }
-        });
-
         router.route("/observeAllBikes").handler(ctx -> {
             ctx.request().toWebSocket().onComplete(webSocketAsyncResult -> {
                 if (webSocketAsyncResult.succeeded()) {
@@ -165,7 +114,6 @@ public class MapServiceVerticle extends AbstractVerticle {
                         webSocket.writeTextMessage(message.body().toString());
                     });
 
-                    //TODO: retrieve all the correct bikes with username
                     mapService.getAllBikes(username);
 
                     // Cleanup on WebSocket close
