@@ -87,15 +87,55 @@ public class RestMapServiceAPIImpl implements RestMapServiceAPI {
 
     @Override
     public CompletableFuture<Void> notifyStartRide(String username, String bikeName) {
-        return bikeRepository.getBike(bikeName)
-                .thenCompose(bike -> bikeRepository.assignBikeToUser(username, bike));
+         return bikeRepository.getBike(bikeName)
+                 .thenCompose(bike -> bikeRepository.assignBikeToUser(username, bike))
+                 .thenAccept(v -> {
+                     var bikesInRepo = bikeRepository.getAllBikes().join();
+                     eventPublisher.publishBikesUpdate(bikesInRepo);
+
+                     List<EBike> availableBikes = bikeRepository.getAvailableBikes().join();
+                     var usersWithAssignedBikes = bikeRepository.getAllUsersWithAssignedBikes().join();
+                     if (!usersWithAssignedBikes.isEmpty()) {
+                         usersWithAssignedBikes.forEach(un -> {
+                             List<EBike> userBikes = new ArrayList<>(bikesInRepo.stream()
+                                     .filter(b -> {
+                                         String assignedUser = bikeRepository.isBikeAssigned(b).join();
+                                         return assignedUser != null && assignedUser.equals(un);
+                                     }).toList());
+                             userBikes.addAll(availableBikes);
+                             eventPublisher.publishUserBikesUpdate(userBikes, un);
+                         });
+                     } else {
+                         eventPublisher.publishUserAvailableBikesUpdate(availableBikes);
+                     }
+                 });
     }
 
 
     @Override
     public CompletableFuture<Void> notifyStopRide(String username, String bikeName) {
         return bikeRepository.getBike(bikeName)
-                .thenCompose(bike -> bikeRepository.unassignBikeFromUser(username, bike));
+                .thenCompose(bike -> bikeRepository.unassignBikeFromUser(username, bike))
+                .thenAccept(v -> {
+                    var bikesInRepo = bikeRepository.getAllBikes().join();
+                    eventPublisher.publishBikesUpdate(bikesInRepo);
+
+                    List<EBike> availableBikes = bikeRepository.getAvailableBikes().join();
+                    var usersWithAssignedBikes = bikeRepository.getAllUsersWithAssignedBikes().join();
+                    if (!usersWithAssignedBikes.isEmpty()) {
+                        usersWithAssignedBikes.forEach(un -> {
+                            List<EBike> userBikes = new ArrayList<>(bikesInRepo.stream()
+                                    .filter(b -> {
+                                        String assignedUser = bikeRepository.isBikeAssigned(b).join();
+                                        return assignedUser != null && assignedUser.equals(un);
+                                    }).toList());
+                            userBikes.addAll(availableBikes);
+                            eventPublisher.publishUserBikesUpdate(userBikes, un);
+                        });
+                    } else {
+                        eventPublisher.publishUserAvailableBikesUpdate(availableBikes);
+                    }
+                });
     }
 
     @Override
