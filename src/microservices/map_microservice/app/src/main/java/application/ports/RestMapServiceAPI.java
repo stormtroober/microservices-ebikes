@@ -2,10 +2,13 @@ package application.ports;
 
 import domain.model.EBike;
 
+import java.util.List;
 import java.util.concurrent.CompletableFuture;
 
 public interface RestMapServiceAPI {
     CompletableFuture<Void> updateEBike(EBike bike);
+
+    CompletableFuture<Void> updateEBikes(List<EBike> bikes);
 
     CompletableFuture<Void> notifyStartRide(String username, String bikeName);
 
@@ -13,5 +16,5 @@ public interface RestMapServiceAPI {
 
     void getAllBikes();
 
-    void getAllBikesForUser(String username);
+    void getAllBikes(String username);
 }

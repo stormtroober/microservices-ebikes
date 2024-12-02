@@ -2,8 +2,10 @@ package application.ports;
 
 import domain.model.EBike;
 
+import java.util.List;
+
 public interface EventPublisher {
-    void publishBikeUpdate(EBike bike);
-    void publishBikeUserUpdate(String username, EBike bike);
-    void publishBikeUserUpdate(EBike bike);
+    void publishBikesUpdate(List<EBike> bikes);
+    void publishUserBikesUpdate(List<EBike> bikes, String username);
+    void publishUserAvailableBikesUpdate(List<EBike> bikes);
 }

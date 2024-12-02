@@ -33,8 +33,20 @@ public class EBikeRepositoryImpl implements EBikeRepository {
     }
 
     @Override
+    public CompletableFuture<List<String>> getAllUsersWithAssignedBikes() {
+        return CompletableFuture.supplyAsync(() -> new ArrayList<>(bikeAssignments.keySet()));
+    }
+
+    @Override
     public CompletableFuture<List<EBike>> getAllBikes() {
         return CompletableFuture.supplyAsync(() -> new ArrayList<>(bikes.values()));
+    }
+
+    @Override
+    public CompletableFuture<List<EBike>> getAllBikes(String username) {
+        return CompletableFuture.supplyAsync(() -> bikes.values().stream()
+                .filter(bike -> bikeAssignments.get(username).equals(bike.getBikeName()))
+                .collect(Collectors.toList()));
     }
 
     @Override
@@ -83,23 +95,6 @@ public class EBikeRepositoryImpl implements EBikeRepository {
                 }
             }
             return null;
-        });
-    }
-
-    @Override
-    public CompletableFuture<List<EBike>> getBikesAssignedToUser(String username) {
-        return CompletableFuture.supplyAsync(() -> {
-            System.out.println(bikes.values());
-            List<EBike> assignedBikes = new ArrayList<>();
-            for (Map.Entry<String, String> entry : bikeAssignments.entrySet()) {
-                if (entry.getKey().equals(username)) {
-                    EBike bike = bikes.get(entry.getValue());
-                    if (bike != null) {
-                        assignedBikes.add(bike);
-                    }
-                }
-            }
-            return assignedBikes;
         });
     }
 }

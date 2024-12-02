@@ -2,15 +2,15 @@ package infrastructure.adapter;
 
 import application.ports.RestMapServiceAPI;
 import domain.model.EBike;
+import domain.model.EBikeFactory;
 import domain.model.EBikeState;
-import domain.model.P2d;
 import infrastructure.MetricsManager;
-import io.micrometer.prometheus.PrometheusConfig;
-import io.micrometer.prometheus.PrometheusMeterRegistry;
+import java.util.List;
 import io.vertx.core.AbstractVerticle;
 import io.vertx.core.Vertx;
 import io.vertx.core.VertxOptions;
 import io.vertx.core.http.HttpServer;
+import io.vertx.core.json.JsonArray;
 import io.vertx.core.json.JsonObject;
 import io.vertx.ext.web.Router;
 import io.vertx.ext.web.client.WebClient;
@@ -20,6 +20,7 @@ import io.vertx.micrometer.VertxPrometheusOptions;
 
 import java.util.UUID;
 import java.util.concurrent.TimeUnit;
+import java.util.stream.Collectors;
 
 public class MapServiceVerticle extends AbstractVerticle {
 
@@ -49,7 +50,7 @@ public class MapServiceVerticle extends AbstractVerticle {
 
     @Override
     public void start() {
-        configureMetrics();
+        //configureMetrics();
 
         client = WebClient.create(vertx);
         HttpServer server = vertx.createHttpServer();
@@ -67,21 +68,55 @@ public class MapServiceVerticle extends AbstractVerticle {
 
         router.get("/health").handler(ctx -> ctx.response().setStatusCode(200).end("OK"));
 
-        // Define REST endpoints
-        router.put("/updateEBike").handler(ctx -> {
-            JsonObject body = ctx.body().asJsonObject();
-            String bikeName = body.getString("id");
-            double x = body.getDouble("x");
-            double y = body.getDouble("y");
-            EBikeState state = EBikeState.valueOf(body.getString("state"));
-            int batteryLevel = body.getInteger("batteryLevel");
+        router.put("/updateEBikes").handler(ctx -> {
+            JsonArray body = ctx.body().asJsonArray();
+            try {
+                List<EBike> bikes = body.stream()
+                        .map(obj -> (JsonObject) obj)
+                        .map(this::createEBikeFromJson)
+                        .collect(Collectors.toList());
 
-            mapService.updateEBike(new EBike(bikeName, new P2d(x, y), state, batteryLevel))
+                // Process the update request
+                mapService.updateEBikes(bikes)
+                        .thenAccept(v -> ctx.response().setStatusCode(200).end("EBikes updated successfully"))
+                        .exceptionally(ex -> {
+                            ctx.response().setStatusCode(500).end("Failed to update EBikes: " + ex.getMessage());
+                            return null;
+                        });
+            } catch (Exception e) {
+                System.err.println("Invalid input data: " + e.getMessage());
+                ctx.response().setStatusCode(400).end("Invalid input data: " + e.getMessage());
+            }
+        });
+
+        router.post("/notifyStartRide").handler(ctx -> {
+            JsonObject body = ctx.body().asJsonObject();
+            String username = body.getString("username");
+            String bikeName = body.getString("bikeName");
+
+            mapService.notifyStartRide(username, bikeName)
                     .thenAccept(v -> ctx.response().setStatusCode(200).end("OK"))
                     .exceptionally(ex -> {
                         ctx.response().setStatusCode(500).end(ex.getMessage());
                         return null;
                     });
+        });
+
+        router.put("/updateEBike").handler(ctx -> {
+            JsonObject body = ctx.body().asJsonObject();
+            try {
+                EBike bike = createEBikeFromJson(body);
+                // Process the update request
+                mapService.updateEBike(bike)
+                        .thenAccept(v -> ctx.response().setStatusCode(200).end("EBike updated successfully"))
+                        .exceptionally(ex -> {
+                            ctx.response().setStatusCode(500).end("Failed to update EBike: " + ex.getMessage());
+                            return null;
+                        });
+            } catch (Exception e) {
+                System.err.println("Invalid input data: " + e.getMessage());
+                ctx.response().setStatusCode(400).end("Invalid input data: " + e.getMessage());
+            }
         });
 
         router.route("/observeAllBikes").handler(ctx -> {
@@ -130,7 +165,8 @@ public class MapServiceVerticle extends AbstractVerticle {
                         webSocket.writeTextMessage(message.body().toString());
                     });
 
-                    mapService.getAllBikesForUser(username);
+                    //TODO: retrieve all the correct bikes with username
+                    mapService.getAllBikes(username);
 
                     // Cleanup on WebSocket close
                     webSocket.closeHandler(v -> {
@@ -161,6 +197,19 @@ public class MapServiceVerticle extends AbstractVerticle {
                 System.err.println("Failed to start HTTP server: " + result.cause().getMessage());
             }
         });
+    }
+
+
+    private EBike createEBikeFromJson(JsonObject body) {
+        String bikeName = body.getString("id");
+        JsonObject location = body.getJsonObject("location");
+        double x = location.getDouble("x");
+        double y = location.getDouble("y");
+        EBikeState state = EBikeState.valueOf(body.getString("state"));
+        int batteryLevel = body.getInteger("batteryLevel");
+
+        EBikeFactory factory = EBikeFactory.getInstance();
+        return factory.createEBike(bikeName, (float) x, (float) y, state, batteryLevel);
     }
 
     private void configureMetrics() {

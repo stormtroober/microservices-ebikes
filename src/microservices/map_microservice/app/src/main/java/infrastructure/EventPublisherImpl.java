@@ -3,7 +3,10 @@ package infrastructure;
 import application.ports.EventPublisher;
 import domain.model.EBike;
 import io.vertx.core.Vertx;
+import io.vertx.core.json.JsonArray;
 import io.vertx.core.json.JsonObject;
+
+import java.util.List;
 
 public class EventPublisherImpl implements EventPublisher {
     private final Vertx vertx;
@@ -13,21 +16,24 @@ public class EventPublisherImpl implements EventPublisher {
     }
 
     @Override
-    public void publishBikeUpdate(EBike bike) {
-        String bikeJson = convertBikeToJson(bike);
-        vertx.eventBus().publish("bikes.update", bikeJson);
+    public void publishBikesUpdate(List<EBike> bikes) {
+        JsonArray bikesJson = new JsonArray();
+        bikes.forEach(bike -> bikesJson.add(convertBikeToJson(bike)));
+        vertx.eventBus().publish("bikes.update", bikesJson.encode());
     }
 
     @Override
-    public void publishBikeUserUpdate(String username, EBike bike) {
-        String bikeJson = convertBikeToJson(bike);
-        vertx.eventBus().publish(username, bikeJson);
+    public void publishUserBikesUpdate(List<EBike> bikes, String username) {
+        JsonArray bikesJson = new JsonArray();
+        bikes.forEach(bike -> bikesJson.add(convertBikeToJson(bike)));
+        vertx.eventBus().publish(username, bikesJson.encode());
     }
 
     @Override
-    public void publishBikeUserUpdate(EBike bike) {
-        String bikeJson = convertBikeToJson(bike);
-        vertx.eventBus().publish("available_bikes", bikeJson);
+    public void publishUserAvailableBikesUpdate(List<EBike> bikes) {
+        JsonArray bikesJson = new JsonArray();
+        bikes.forEach(bike -> bikesJson.add(convertBikeToJson(bike)));
+        vertx.eventBus().publish("available_bikes", bikesJson.encode());
     }
 
     private String convertBikeToJson(EBike bike) {
