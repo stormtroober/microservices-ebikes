@@ -16,7 +16,7 @@ public class Main {
 
         RideRepository rideRepository = new RideRepositoryImpl(vertx);
         String ebikeServiceUrl = "http://ebike-microservice:8082"; // Adjust the URL as needed
-        String mapServiceUrl = "http://map-microservice:8088";
+        String mapServiceUrl = "http://map-microservice:8089";
         String userServiceUrl = "http://user-microservice:8083";
 
         EbikeCommunicationPort ebikeCommunicationAdapter = new EBikeCommunicationAdapter(vertx, ebikeServiceUrl);
