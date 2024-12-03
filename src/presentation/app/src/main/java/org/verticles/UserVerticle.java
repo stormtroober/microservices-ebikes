@@ -53,8 +53,12 @@ public class UserVerticle extends AbstractVerticle {
                 bikeWebSocket = ws;
                 ws.textMessageHandler(message ->{
                         System.out.println("Received bike update: " + message);
-                        vertx.eventBus().publish("user.bike.update."+username, new JsonArray(message));
+                        if(!message.contains("rideStatus"))
+                            vertx.eventBus().publish("user.bike.update."+username, new JsonArray(message));
+                        else
+                            vertx.eventBus().publish("user.ride.update."+username, new JsonObject(message));
                 });
+
             });
     }
 
@@ -87,15 +91,23 @@ public class UserVerticle extends AbstractVerticle {
             JsonObject rideDetails = (JsonObject) message.body();
             System.out.println("Starting ride: " + rideDetails.encodePrettily());
             webClient.post(8081, "localhost", "/RIDE-MICROSERVICE/startRide")
-                .sendJsonObject(rideDetails, ar -> {
-                    if (ar.succeeded() && ar.result().statusCode() == 200) {
-                        System.out.println("Ride started successfully");
-                        message.reply(ar.result().bodyAsString());
-                    } else {
-                        message.fail(500, "Failed to start ride: " +
-                            (ar.cause() != null ? ar.cause().getMessage() : "Unknown error"));
-                    }
-                });
+                    .sendJsonObject(rideDetails, ar -> {
+                        if (ar.succeeded()) {
+                            if (ar.result().statusCode() == 200) {
+                                System.out.println("Ride started successfully");
+                                message.reply(ar.result().bodyAsString());
+                            } else {
+                                // Extract error message from response
+                                JsonObject errorResponse = ar.result().bodyAsJsonObject();
+                                String errorMessage = errorResponse != null ?
+                                        errorResponse.getString("error") : "Unknown error";
+                                message.fail(ar.result().statusCode(), errorMessage);
+                            }
+                        } else {
+                            message.fail(500, "Failed to start ride: " +
+                                    (ar.cause() != null ? ar.cause().getMessage() : "Unknown error"));
+                        }
+                    });
         });
 
         vertx.eventBus().consumer("user.ride.stop." + username, message -> {

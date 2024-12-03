@@ -31,7 +31,9 @@ public class UserView extends AbstractView {
         this.verticle.init();
         observeAvailableBikes();
         observeUser();
+        observeRideUpdate();
         refreshView();
+
     }
 
     private void setupView() {
@@ -42,8 +44,10 @@ public class UserView extends AbstractView {
         buttonPanel.add(rideButton);
 
         addTopPanelButton("Recharge Credit", e -> {
-            RechargeCreditDialog rechargeCreditDialog = new RechargeCreditDialog(UserView.this, vertx, actualUser);
-            rechargeCreditDialog.setVisible(true);
+            SwingUtilities.invokeLater(() -> {
+                RechargeCreditDialog rechargeCreditDialog = new RechargeCreditDialog(UserView.this, vertx, actualUser);
+                rechargeCreditDialog.setVisible(true);
+            });
         });
         updateRideButtonState();
     }
@@ -56,24 +60,52 @@ public class UserView extends AbstractView {
         }
     }
 
+    public void setRiding(boolean isRiding) {
+        this.isRiding = isRiding;
+        updateRideButtonState();
+    }
+
     private void updateRideButtonState() {
         rideButton.setText(isRiding ? "Stop Ride" : "Start Ride");
     }
 
     private void startRide() {
-        StartRideDialog startRideDialog = new StartRideDialog(UserView.this, vertx, actualUser);
-        startRideDialog.setVisible(true);
-        isRiding = true;
-        updateRideButtonState();
-        refreshView();
+        SwingUtilities.invokeLater(() -> {
+            StartRideDialog startRideDialog = new StartRideDialog(UserView.this, vertx, actualUser);
+            startRideDialog.setVisible(true);
+            refreshView();
+        });
     }
 
     private void stopRide() {
-        JsonObject rideDetails = new JsonObject().put("username", actualUser.username());
-        vertx.eventBus().send("user.ride.stop." + actualUser.username(), rideDetails);
-        isRiding = false;
-        updateRideButtonState();
-        refreshView();
+        SwingUtilities.invokeLater(() -> {
+            JsonObject rideDetails = new JsonObject().put("username", actualUser.username());
+            vertx.eventBus().request("user.ride.stop." + actualUser.username(), rideDetails, ar -> {
+                SwingUtilities.invokeLater(() -> {
+                    if (ar.succeeded()) {
+                        JOptionPane.showMessageDialog(this, "Ride stopped");
+                        setRiding(false);
+                    } else {
+                        JOptionPane.showMessageDialog(this, "Error stopping ride: " + ar.cause().getMessage());
+                    }
+                });
+            });
+            refreshView();
+        });
+    }
+
+    private void observeRideUpdate() {
+        vertx.eventBus().consumer("user.ride.update." + actualUser.username(), message -> {
+            JsonObject update = (JsonObject) message.body();
+            log("Received ride update: " + update);
+            if (update.containsKey("rideStatus")) {
+                String status = update.getString("rideStatus");
+                if(status.equals("stopped")){
+                    setRiding(false);
+                }
+                refreshView();
+            }
+        });
     }
 
     private void observeAvailableBikes() {
