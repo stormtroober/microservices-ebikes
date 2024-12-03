@@ -142,5 +142,10 @@ public class MapServiceIntegrationTest {
         public void publishUserAvailableBikesUpdate(List<EBike> bikes) {
             // No-op for testing
         }
+
+        @Override
+        public void publishStopRide(String username) {
+
+        }
     }
 }

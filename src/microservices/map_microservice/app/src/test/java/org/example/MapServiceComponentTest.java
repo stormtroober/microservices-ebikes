@@ -188,6 +188,11 @@ public class MapServiceComponentTest {
             lastPublishedBikes.addAll(bikes);
         }
 
+        @Override
+        public void publishStopRide(String username) {
+
+        }
+
         public List<EBike> getLastPublishedBikes() {
             return new ArrayList<>(lastPublishedBikes);
         }
