@@ -85,6 +85,7 @@ public class RestRideServiceAPIImpl implements RestRideServiceAPI {
                 rideRepository.getRideSimulation(ride.getId()).startSimulation().whenComplete((result, throwable) -> {
                     if (throwable == null) {
                         mapCommunicationAdapter.notifyEndRide(bikeId, userId);
+                        rideRepository.removeRide(ride);
                     } else {
                         System.err.println("Error during ride simulation: " + throwable.getMessage());
                     }
@@ -107,6 +108,7 @@ public class RestRideServiceAPIImpl implements RestRideServiceAPI {
                                 .put("id", rideSimulation.getRide().getEbike().getId())
                                 .put("state", rideSimulation.getRide().getEbike().getState().toString()));
                         mapCommunicationAdapter.notifyEndRide(rideSimulation.getRide().getEbike().getId(), userId);
+                        rideRepository.removeRide(rideSimulation.getRide());
                     }
                     return CompletableFuture.completedFuture(null);
                 });
