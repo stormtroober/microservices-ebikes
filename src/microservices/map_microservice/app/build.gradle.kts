@@ -11,6 +11,10 @@ plugins {
     application
 }
 
+tasks.test {
+    useJUnitPlatform()
+}
+
 java {
     // Use Java 21.
     sourceCompatibility = JavaVersion.VERSION_21
@@ -26,6 +30,8 @@ dependencies {
     implementation("io.vertx:vertx-core:4.4.0")
     implementation("io.vertx:vertx-web:4.4.0")
     implementation("io.vertx:vertx-web-client:4.4.0")
+
+    testImplementation("org.junit.jupiter:junit-jupiter:5.9.2")
 
     // Add Micrometer and Prometheus dependencies
     implementation("io.micrometer:micrometer-core:1.12.3")
