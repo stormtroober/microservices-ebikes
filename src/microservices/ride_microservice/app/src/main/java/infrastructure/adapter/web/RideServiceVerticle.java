@@ -64,20 +64,34 @@ public class RideServiceVerticle extends AbstractVerticle {
             rideService.startRide(user, bike).thenAccept(v -> {
                 ctx.response().setStatusCode(200).end("Ride started");
                 metricsManager.recordTimer(timer, "startRide");
-                }).exceptionally(ex -> {
-                    ctx.response().setStatusCode(500).end(ex.getMessage());
-                    metricsManager.recordError(timer, "startRide", ex);
-                    return null;
-                });
+            }).exceptionally(ex -> {
+                // Send both status code and error message
+                ctx.response()
+                        .setStatusCode(400)  // Use 400 for client errors
+                        .putHeader("Content-Type", "application/json")
+                        .end(new JsonObject()
+                                .put("error", ex.getMessage())
+                                .encode());
+                metricsManager.recordError(timer, "startRide", ex);
+                return null;
+            });
         });
 
-        // Define /stopRide endpoint
-        //TODO: add metrics and implement completableFuture in rideService
         router.post("/stopRide").handler(ctx -> {
+            metricsManager.incrementMethodCounter("stopRide");
+            var timer = metricsManager.startTimer();
+
             JsonObject body = ctx.body().asJsonObject();
             String username = body.getString("username");
 
-            rideService.stopRide(username);
+            rideService.stopRide(username).thenAccept(v -> {
+                ctx.response().setStatusCode(200).end("Ride stopped");
+                metricsManager.recordTimer(timer, "stopRide");
+            }).exceptionally(ex -> {
+                ctx.response().setStatusCode(500).end(ex.getMessage());
+                metricsManager.recordError(timer, "stopRide", ex);
+                return null;
+            });
         });
         // Start the server
         server.requestHandler(router).listen(port, result -> {

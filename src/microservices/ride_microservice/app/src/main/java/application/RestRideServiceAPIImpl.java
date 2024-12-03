@@ -8,7 +8,6 @@ import domain.model.*;
 import io.vertx.core.Vertx;
 import io.vertx.core.json.JsonObject;
 
-import java.util.Optional;
 import java.util.concurrent.CompletableFuture;
 
 public class RestRideServiceAPIImpl implements RestRideServiceAPI {
@@ -73,6 +72,12 @@ public class RestRideServiceAPIImpl implements RestRideServiceAPI {
 
                 if (ebike == null || user == null) {
                     return CompletableFuture.failedFuture(new RuntimeException("EBike or User not found"));
+                } else if (ebike.getState() != EBikeState.AVAILABLE) {
+                    return CompletableFuture.failedFuture(new RuntimeException("EBike is not available"));
+                } else if (user.getCredit() == 0) {
+                    return CompletableFuture.failedFuture(new RuntimeException("User has no credit"));
+                } else if (ebike.getBatteryLevel() == 0){
+                    return CompletableFuture.failedFuture(new RuntimeException("EBike has no battery"));
                 }
                 System.out.println("Starting ride for user: " + userId + " and bike: " + bikeId);
                 Ride ride = new Ride("ride-" + userId + "-" + bikeId, user, ebike);
@@ -93,12 +98,17 @@ public class RestRideServiceAPIImpl implements RestRideServiceAPI {
     }
 
     @Override
-    public void stopRide(String userId) {
-        RideSimulation rideSimulation = rideRepository.getRideSimulationByUserId(userId);
-        if (rideSimulation != null) {
-            rideSimulation.stopSimulationManually();
-            ebikeCommunicationAdapter.sendUpdate(new JsonObject().put("id", rideSimulation.getRide().getEbike().getId()).put("state", rideSimulation.getRide().getEbike().getState().toString()));
-            mapCommunicationAdapter.notifyEndRide(rideSimulation.getRide().getEbike().getId(), userId);
-        }
+    public CompletableFuture<Void> stopRide(String userId) {
+        return CompletableFuture.supplyAsync(() -> rideRepository.getRideSimulationByUserId(userId))
+                .thenCompose(rideSimulation -> {
+                    if (rideSimulation != null) {
+                        rideSimulation.stopSimulationManually();
+                        ebikeCommunicationAdapter.sendUpdate(new JsonObject()
+                                .put("id", rideSimulation.getRide().getEbike().getId())
+                                .put("state", rideSimulation.getRide().getEbike().getState().toString()));
+                        mapCommunicationAdapter.notifyEndRide(rideSimulation.getRide().getEbike().getId(), userId);
+                    }
+                    return CompletableFuture.completedFuture(null);
+                });
     }
 }
