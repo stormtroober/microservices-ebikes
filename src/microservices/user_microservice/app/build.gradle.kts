@@ -33,6 +33,11 @@ dependencies {
     testImplementation("org.junit.jupiter:junit-jupiter:5.9.2")
     testImplementation("io.vertx:vertx-junit5")
     testImplementation("org.mockito:mockito-core:5.3.1")
+
+    // Add Micrometer and Prometheus dependencies
+    implementation("io.micrometer:micrometer-core:1.12.3")
+    implementation("io.micrometer:micrometer-registry-prometheus:1.12.3")
+    implementation("io.vertx:vertx-micrometer-metrics:4.4.0")
 }
 
 tasks.test {

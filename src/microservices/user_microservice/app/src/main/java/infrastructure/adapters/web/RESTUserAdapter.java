@@ -2,6 +2,7 @@ package infrastructure.adapters.web;
 
 import application.ports.UserServiceAPI;
 import domain.model.User;
+import infrastructure.MetricsManager;
 import io.vertx.core.Vertx;
 import io.vertx.core.json.JsonObject;
 import io.vertx.ext.web.Router;
@@ -13,10 +14,12 @@ public class RESTUserAdapter {
     private static final Logger logger = LoggerFactory.getLogger(RESTUserAdapter.class);
     private final UserServiceAPI userService;
     private final Vertx vertx;
+    private final MetricsManager metricsManager;
 
     public RESTUserAdapter(UserServiceAPI userService, Vertx vertx) {
         this.userService = userService;
         this.vertx = vertx;
+        this.metricsManager = MetricsManager.getInstance();
     }
 
     public void configureRoutes(Router router) {
@@ -26,34 +29,51 @@ public class RESTUserAdapter {
         router.get("/health").handler(this::healthCheck);
         router.route("/observeAllUsers").handler(this::observeAllUsers);
         router.route("/observeUser/:username").handler(this::observeUser);
+        router.get("/metrics").handler(this::metrics);
+    }
+
+    private void metrics(RoutingContext routingContext) {
+        routingContext.response()
+                .putHeader("Content-Type", "text/plain")
+                .end(metricsManager.getMetrics());
     }
 
     private void signIn(RoutingContext ctx) {
+        metricsManager.incrementMethodCounter("signIn");
+        var timer = metricsManager.startTimer();
         try {
             JsonObject body = ctx.body().asJsonObject();
             String username = body.getString("username");
 
             if (username == null || username.trim().isEmpty()) {
                 sendError(ctx, 400, "Invalid username");
+                metricsManager.recordError(timer, "signIn", new RuntimeException("Invalid username"));
                 return;
             }
 
             userService.signIn(username)
-                    .thenAccept(result -> sendResponse(ctx, 200, result))
+                    .thenAccept(result -> {
+                        sendResponse(ctx, 200, result);
+                        metricsManager.recordTimer(timer, "signIn");
+                    })
                     .exceptionally(e -> {
                         if (e.getCause() instanceof RuntimeException && e.getCause().getMessage().equals("User not found")) {
                             sendError(ctx, 404, "User not found");
                         } else {
                             handleError(ctx, e);
                         }
+                        metricsManager.recordError(timer, "signIn", e);
                         return null;
                     });
         } catch (Exception e) {
             handleError(ctx, new RuntimeException("Invalid JSON format"));
+            metricsManager.recordError(timer, "signIn", e);
         }
     }
 
     private void signUp(RoutingContext ctx) {
+        metricsManager.incrementMethodCounter("signUp");
+        var timer = metricsManager.startTimer();
         try {
             System.out.println("Sign up received");
             System.out.println(ctx.body().toString());
@@ -62,25 +82,33 @@ public class RESTUserAdapter {
             String type = body.getString("type");
 
            userService.signUp(username, User.UserType.valueOf(type))
-                    .thenAccept(result -> sendResponse(ctx, 201, result))
+                    .thenAccept(result -> {
+                        sendResponse(ctx, 201, result);
+                        metricsManager.recordTimer(timer, "signUp");
+                    })
                     .exceptionally(e -> {
                         if (e.getCause() instanceof RuntimeException && e.getCause().getMessage().equals("User already exists")) {
                             sendError(ctx, 409, "User already exists");
                         } else {
                             handleError(ctx, e);
                         }
+                        metricsManager.recordError(timer, "signUp", e);
                         return null;
                     });
         } catch (Exception e) {
             handleError(ctx, new RuntimeException("Invalid JSON format"));
+            metricsManager.recordError(timer, "signUp", e);
         }
     }
 
     private void rechargeCredit(RoutingContext ctx){
+        metricsManager.incrementMethodCounter("rechargeCredit");
+        var timer = metricsManager.startTimer();
         JsonObject body = ctx.body().asJsonObject();
         String username = ctx.pathParam("username");
         if (username == null || username.trim().isEmpty()) {
             sendError(ctx, 400, "Invalid username");
+            metricsManager.recordError(timer, "rechargeCredit", new RuntimeException("Invalid username"));
             return;
         }
         int creditToAdd = body.getInteger("creditToAdd");
@@ -89,12 +117,15 @@ public class RESTUserAdapter {
                 .thenAccept(result -> {
                     if (result != null) {
                         sendResponse(ctx, 200, result);
+                        metricsManager.recordTimer(timer, "rechargeCredit");
                     } else {
                         ctx.response().setStatusCode(404).end();
-                        }
+                        metricsManager.recordError(timer, "rechargeCredit", new RuntimeException("User not found"));
+                    }
                 })
                 .exceptionally(e -> {
                     handleError(ctx, e);
+                    metricsManager.recordError(timer, "rechargeCredit", e);
                     return null;
                 });
     }

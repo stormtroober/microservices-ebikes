@@ -46,7 +46,7 @@ public class UserVerticle extends AbstractVerticle {
                 .listen(port)
                 .onSuccess(server -> {
                     registerWithEureka();
-                    logger.info("HTTP server started on port {}", port);
+                    logger.info("RestUserAdapter HTTP server started on port {}", port);
                     startPromise.complete();
                 })
                 .onFailure(startPromise::fail);

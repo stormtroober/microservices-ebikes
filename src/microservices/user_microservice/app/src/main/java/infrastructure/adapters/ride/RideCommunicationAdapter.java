@@ -2,6 +2,7 @@ package infrastructure.adapters.ride;
 
 import application.UserServiceImpl;
 import application.ports.UserServiceAPI;
+import infrastructure.MetricsManager;
 import io.vertx.core.AbstractVerticle;
 import io.vertx.core.Promise;
 import io.vertx.core.Vertx;
@@ -17,11 +18,13 @@ public class RideCommunicationAdapter extends AbstractVerticle {
     private final UserServiceAPI userService;
     private final int port;
     private final Vertx vertx;
+    private final MetricsManager metricsManager;
 
     public RideCommunicationAdapter(UserServiceAPI userService, int port, Vertx vertx) {
         this.userService = userService;
         this.port = port;
         this.vertx = vertx;
+        this.metricsManager = MetricsManager.getInstance();
     }
 
     @Override
@@ -32,16 +35,23 @@ public class RideCommunicationAdapter extends AbstractVerticle {
         // Configure routes
         router.get("/api/users/:username").handler(this::getUser);
         router.put("/api/users/:id/update").handler(this::updateUser);
+        router.get("/metrics").handler(this::metrics);
 
         // Start HTTP server
         vertx.createHttpServer()
                 .requestHandler(router)
                 .listen(port)
                 .onSuccess(server -> {
-                    logger.info("HTTP server started on port {}", port);
+                    logger.info("RideCommunicationAdapter HTTP server started on port {}", port);
                     startPromise.complete();
                 })
                 .onFailure(startPromise::fail);
+    }
+
+    private void metrics(RoutingContext routingContext) {
+        routingContext.response()
+                .putHeader("Content-Type", "text/plain")
+                .end(metricsManager.getMetrics());
     }
 
     public void init() {
@@ -53,10 +63,13 @@ public class RideCommunicationAdapter extends AbstractVerticle {
     }
 
     private void getUser(RoutingContext ctx){
+        metricsManager.incrementMethodCounter("getUser");
+        var timer = metricsManager.startTimer();
         try{
             String username = ctx.pathParam("username");
             if (username == null || username.trim().isEmpty()) {
                 sendError(ctx, 400, "Invalid username");
+                metricsManager.recordError(timer, "getUser", new RuntimeException("Invalid username"));
                 return;
             }
             userService.getUserByUsername(username)
@@ -65,17 +78,21 @@ public class RideCommunicationAdapter extends AbstractVerticle {
                             logger.info("User found with username: " + username);
                             logger.info("Sending response to rides-microservice -> " + optionalUser.get());
                             sendResponse(ctx, 200, optionalUser.get());
+                            metricsManager.recordTimer(timer, "getUser");
                         } else {
                             logger.error("User not found with username: " + username);
                             ctx.response().setStatusCode(404).end();
+                            metricsManager.recordError(timer, "getUser", new RuntimeException("User not found"));
                         }
                     })
                     .exceptionally(e -> {
                         handleError(ctx, e);
+                        metricsManager.recordError(timer, "getUser", e);
                         return null;
                     });
         } catch (Exception e) {
             handleError(ctx, new RuntimeException("Invalid JSON format"));
+            metricsManager.recordError(timer, "getUser", e);
         }
     }
 
@@ -109,6 +126,8 @@ public class RideCommunicationAdapter extends AbstractVerticle {
 //    }
 
     private void updateUser(RoutingContext ctx) {
+        metricsManager.incrementMethodCounter("updateUser");
+        var timer = metricsManager.startTimer();
         try {
             JsonObject user = ctx.body().asJsonObject();
             userService.updateUser(user)
@@ -116,17 +135,21 @@ public class RideCommunicationAdapter extends AbstractVerticle {
                         if (updatedUser != null) {
                             logger.info("User updated: " + updatedUser);
                             sendResponse(ctx, 200, updatedUser);
+                            metricsManager.recordTimer(timer, "updateUser");
                         } else {
                             logger.error("User not found: " + user.getString("username"));
                             sendError(ctx, 404, "User not found");
+                            metricsManager.recordError(timer, "updateUser", new RuntimeException("User not found"));
                         }
                     })
                     .exceptionally(e -> {
                         handleError(ctx, e);
+                        metricsManager.recordError(timer, "updateUser", e);
                         return null;
                     });
         } catch (Exception e) {
             handleError(ctx, new RuntimeException("Invalid JSON format"));
+            metricsManager.recordError(timer, "updateUser", e);
         }
     }
 

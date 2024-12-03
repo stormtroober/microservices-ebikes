@@ -37,3 +37,13 @@ scrape_configs:
     metrics_path: '/metrics'
     static_configs:
       - targets: [ 'ride-microservice:8092' ]
+
+  - job_name: 'user-microservice'
+    metrics_path: '/metrics'
+    static_configs:
+      - targets: [ 'user-microservice:8082' ]
+
+  - job_name: 'user-rideadapter'
+    metrics_path: '/metrics'
+    static_configs:
+      - targets: [ 'user-microservice:8083' ]
