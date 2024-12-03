@@ -18,6 +18,11 @@ extra["springCloudVersion"] = "2023.0.3"
 
 dependencies {
     implementation("org.springframework.cloud:spring-cloud-starter-netflix-eureka-server")
+    // Spring Boot Actuator (to expose metrics and health endpoints)
+    implementation("org.springframework.boot:spring-boot-starter-actuator")
+
+    // Micrometer Prometheus Registry (to enable Prometheus integration)
+    implementation("io.micrometer:micrometer-registry-prometheus")
 }
 
 dependencyManagement {

@@ -7,6 +7,11 @@ scrape_configs:
     static_configs:
       - targets: ['api-gateway:8081']
 
+  - job_name: 'service-discovery'
+    static_configs:
+      - targets: ['eureka-server:8761']
+    metrics_path: '/actuator/prometheus'
+
   # Map microservice
   - job_name: 'map-microservice'
     metrics_path: '/metrics'
