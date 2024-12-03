@@ -12,7 +12,7 @@ import java.util.concurrent.ExecutionException;
 
 import static org.junit.jupiter.api.Assertions.*;
 
-public class EBikeRepositoryTest {
+public class EBikeUnitRepositoryTest {
     private EBikeRepositoryImpl repository;
     private EBike bike1;
     private EBike bike2;

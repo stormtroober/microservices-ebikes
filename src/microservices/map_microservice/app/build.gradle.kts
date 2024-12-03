@@ -37,6 +37,7 @@ dependencies {
     implementation("io.micrometer:micrometer-core:1.12.3")
     implementation("io.micrometer:micrometer-registry-prometheus:1.12.3")
     implementation("io.vertx:vertx-micrometer-metrics:4.4.0")
+    testImplementation("io.vertx:vertx-junit5:4.4.0")
 }
 
 // Apply a specific Java toolchain to ease working on different environments.
