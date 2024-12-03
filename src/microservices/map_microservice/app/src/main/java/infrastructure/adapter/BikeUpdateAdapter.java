@@ -51,17 +51,20 @@ public class BikeUpdateAdapter extends AbstractVerticle {
                 EBike bike = createEBikeFromJson(body);
                 // Process the update request
                 mapService.updateEBike(bike)
-                        .thenAccept(v -> ctx.response().setStatusCode(200).end("EBike updated successfully"))
-                        .whenComplete((result, throwable) -> {
-                            metricsManager.recordTimer(timer, "updateEBike");
-                        })
+                        .thenAccept(v -> {
+                                    ctx.response().setStatusCode(200).end("EBike updated successfully");
+                                    metricsManager.recordTimer(timer, "updateEBike");
+                                }
+                        )
                         .exceptionally(ex -> {
                             ctx.response().setStatusCode(500).end("Failed to update EBike: " + ex.getMessage());
+                            metricsManager.recordError(timer, "updateEBike", ex);
                             return null;
                         });
             } catch (Exception e) {
                 System.err.println("Invalid input data: " + e.getMessage());
                 ctx.response().setStatusCode(400).end("Invalid input data: " + e.getMessage());
+                metricsManager.recordError(timer, "updateEBike", e);
             }
         });
 
@@ -80,17 +83,19 @@ public class BikeUpdateAdapter extends AbstractVerticle {
 
                 // Process the update request
                 mapService.updateEBikes(bikes)
-                        .thenAccept(v -> ctx.response().setStatusCode(200).end("EBikes updated successfully"))
-                        .whenComplete((result, throwable) -> {
+                        .thenAccept(v -> {
+                            ctx.response().setStatusCode(200).end("EBikes updated successfully");
                             metricsManager.recordTimer(timer, "updateEBikes");
                         })
                         .exceptionally(ex -> {
                             ctx.response().setStatusCode(500).end("Failed to update EBikes: " + ex.getMessage());
+                            metricsManager.recordError(timer, "updateEBikes", ex);
                             return null;
                         });
             } catch (Exception e) {
                 System.err.println("Invalid input data: " + e.getMessage());
                 ctx.response().setStatusCode(400).end("Invalid input data: " + e.getMessage());
+                metricsManager.recordError(timer, "updateEBikes", e);
             }
         });
 

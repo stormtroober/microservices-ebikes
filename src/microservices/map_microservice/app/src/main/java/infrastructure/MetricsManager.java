@@ -39,4 +39,13 @@ public class MetricsManager {
     public void incrementMethodCounter(String methodName) {
         registry.counter("map_service_method_calls", "method", methodName).increment();
     }
+
+    public void recordError(Timer.Sample sample, String methodName, Throwable error) {
+        sample.stop(Timer.builder("map_service_method_duration")
+                .description("Time taken for map service method execution")
+                .tag("method", methodName)
+                .tag("error", error.getClass().getSimpleName())
+                .register(registry));
+        registry.counter("map_service_method_errors", "method", methodName, "error", error.getClass().getSimpleName()).increment();
+    }
 }

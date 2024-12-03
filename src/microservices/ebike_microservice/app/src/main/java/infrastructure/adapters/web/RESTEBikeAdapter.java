@@ -1,6 +1,7 @@
 package infrastructure.adapters.web;
 
 import application.ports.EBikeServiceAPI;
+import infrastructure.MetricsManager;
 import io.vertx.core.json.JsonObject;
 import io.vertx.ext.web.Router;
 import io.vertx.ext.web.RoutingContext;
@@ -10,9 +11,11 @@ import org.slf4j.LoggerFactory;
 public class RESTEBikeAdapter {
     private static final Logger logger = LoggerFactory.getLogger(RESTEBikeAdapter.class);
     private final EBikeServiceAPI ebikeService;
+    private final MetricsManager metricsManager;
 
     public RESTEBikeAdapter(EBikeServiceAPI ebikeService) {
         this.ebikeService = ebikeService;
+        this.metricsManager = MetricsManager.getInstance();
     }
 
     public void configureRoutes(Router router) {
@@ -20,9 +23,19 @@ public class RESTEBikeAdapter {
         router.put("/api/ebikes/:id/recharge").handler(this::rechargeEBike);
         router.get("/api/ebikes").handler(this::getAllEBikes);
         router.get("/health").handler(this::healthCheck);
+        router.get("/metrics").handler(this::metrics);
+    }
+
+    private void metrics(RoutingContext routingContext) {
+        routingContext.response()
+                .putHeader("Content-Type", "text/plain")
+                .end(metricsManager.getMetrics());
     }
 
     private void createEBike(RoutingContext ctx) {
+        metricsManager.incrementMethodCounter("createEBike");
+        var timer = metricsManager.startTimer();
+
         try {
             JsonObject body = ctx.body().asJsonObject();
             String id = body.getString("id");
@@ -30,13 +43,19 @@ public class RESTEBikeAdapter {
             float y = body.getFloat("y", 0.0f);
 
             if (id == null || id.trim().isEmpty()) {
+                metricsManager.recordError(timer, "createEBike", new RuntimeException("Invalid id"));
                 sendError(ctx, 400, "Invalid id");
                 return;
             }
 
             ebikeService.createEBike(id, x, y)
-                    .thenAccept(result -> sendResponse(ctx, 201, result))
+                    .thenAccept(result -> {
+                        sendResponse(ctx, 201, result);
+                        metricsManager.recordTimer(timer, "createEBike");
+                    }
+                    )
                     .exceptionally(e -> {
+                        metricsManager.recordError(timer, "createEBike", e);
                         handleError(ctx, e);
                         return null;
                     });
@@ -46,8 +65,12 @@ public class RESTEBikeAdapter {
     }
 
     private void rechargeEBike(RoutingContext ctx) {
+        metricsManager.incrementMethodCounter("rechargeEBike");
+        var timer = metricsManager.startTimer();
+
         String id = ctx.pathParam("id");
         if (id == null || id.trim().isEmpty()) {
+            metricsManager.recordError(timer, "rechargeEBike", new RuntimeException("Invalid id"));
             sendError(ctx, 400, "Invalid id");
             return;
         }
@@ -56,20 +79,29 @@ public class RESTEBikeAdapter {
                 .thenAccept(result -> {
                     if (result != null) {
                         sendResponse(ctx, 200, result);
+                        metricsManager.recordTimer(timer, "rechargeEBike");
                     } else {
                         ctx.response().setStatusCode(404).end();
+                        metricsManager.recordError(timer, "rechargeEBike", new RuntimeException("EBike not found"));
                     }
                 })
                 .exceptionally(e -> {
+                    metricsManager.recordError(timer, "rechargeEBike", e);
                     handleError(ctx, e);
                     return null;
                 });
     }
 
     private void getAllEBikes(RoutingContext ctx) {
+        metricsManager.incrementMethodCounter("getAllEBikes");
+        var timer = metricsManager.startTimer();
         ebikeService.getAllEBikes()
-                .thenAccept(result -> sendResponse(ctx, 200, result))
+                .thenAccept(result -> {
+                    sendResponse(ctx, 200, result);
+                    metricsManager.recordTimer(timer, "getAllEBikes");
+                })
                 .exceptionally(e -> {
+                    metricsManager.recordError(timer, "getAllEBikes", e);
                     handleError(ctx, e);
                     return null;
                 });
