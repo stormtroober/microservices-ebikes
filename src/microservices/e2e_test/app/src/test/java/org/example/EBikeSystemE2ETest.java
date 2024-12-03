@@ -106,35 +106,41 @@ public class EBikeSystemE2ETest {
     @Test
     void testEBikeCreationAndArrive() {
         var httpClient = vertx.createHttpClient();
+
         // Register users after health check succeeds
-        registerUser("admin", "ADMIN");
-        registerUser("user", "USER");
+        CompletableFuture<Void> adminFuture = registerUser("admin", "ADMIN");
+        CompletableFuture<Void> userFuture = registerUser("user", "USER");
 
-        // Create an eBike after user registration
-        createEBike("bike1", 10.0, 20.0, "AVAILABLE", 100);
+        // Wait for user registration to complete
+        CompletableFuture.allOf(adminFuture, userFuture).thenCompose(v -> {
+            // Create an eBike after user registration
+            return createEBike("bike1", 10.0, 20.0, "AVAILABLE", 100);
+        }).thenAccept(v -> {
+            // Connect to WebSocket and verify the received message
+            httpClient.webSocket(8081, "localhost", "/MAP-MICROSERVICE/observeUserBikes?username=user")
+                    .onSuccess(ws -> {
+                        ws.textMessageHandler(message -> {
+                            System.out.print("Received WebSocket message: " + message);
+                            JsonArray receivedArray = new JsonArray(message);
+                            String bikeString = receivedArray.getString(0);
+                            JsonObject receivedBike = new JsonObject(bikeString);
 
-        httpClient.webSocket(8081, "localhost", "/MAP-MICROSERVICE/observeUserBikes?username=user")
-                .onSuccess(ws -> {
-                    ws.textMessageHandler(message -> {
-                        System.out.print("Received WebSocket message: " + message);
-                        JsonArray receivedArray = new JsonArray(message);
-                        String bikeString = receivedArray.getString(0);
-                        JsonObject receivedBike = new JsonObject(bikeString);
-
-                        JsonObject expectedBike = new JsonObject()
-                                .put("id", "bike1")
-                                .put("x", 10.0)
-                                .put("y", 20.0)
-                                .put("status", "AVAILABLE")
+                            JsonObject expectedBike = new JsonObject()
+                                .put("bikeName", "bike1")
+                                .put("position", new JsonObject()
+                                    .put("x", 10.0)
+                                    .put("y", 20.0))
+                                .put("state", "AVAILABLE")
                                 .put("batteryLevel", 100);
 
-                        assertEquals(expectedBike, receivedBike);
+                            assertEquals(expectedBike, receivedBike);
+                        });
                     });
-                });
-
+        }).join(); // Wait for all operations to complete
     }
 
-    private static void registerUser(String username, String type) {
+    private static CompletableFuture<Void> registerUser(String username, String type) {
+        CompletableFuture<Void> future = new CompletableFuture<>();
         JsonObject user = new JsonObject()
                 .put("username", username)
                 .put("type", type);
@@ -143,13 +149,17 @@ public class EBikeSystemE2ETest {
                 .sendJsonObject(user, ar -> {
                     if (ar.succeeded()) {
                         System.out.println("User registration SUCCEEDED: " + ar.result().bodyAsString());
+                        future.complete(null);
                     } else {
                         System.err.println("User registration failed: " + ar.cause().getMessage());
+                        future.completeExceptionally(ar.cause());
                     }
                 });
+        return future;
     }
 
-    private static void createEBike(String id, double x, double y, String status, int batteryLevel) {
+    private static CompletableFuture<Void> createEBike(String id, double x, double y, String status, int batteryLevel) {
+        CompletableFuture<Void> future = new CompletableFuture<>();
         JsonObject ebike = new JsonObject()
                 .put("id", id)
                 .put("x", x)
@@ -161,10 +171,13 @@ public class EBikeSystemE2ETest {
                 .sendJsonObject(ebike, ar -> {
                     if (ar.succeeded()) {
                         System.out.println("EBike creation SUCCEEDED: " + ar.result().bodyAsString());
+                        future.complete(null);
                     } else {
                         System.err.println("EBike creation failed: " + ar.cause().getMessage());
+                        future.completeExceptionally(ar.cause());
                     }
                 });
+        return future;
     }
 
     @AfterAll
