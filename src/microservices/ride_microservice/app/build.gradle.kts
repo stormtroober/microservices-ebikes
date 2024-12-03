@@ -26,6 +26,10 @@ dependencies {
     implementation("io.vertx:vertx-core:4.4.0")
     implementation("io.vertx:vertx-web:4.4.0")
     implementation("io.vertx:vertx-web-client:4.4.0")
+    // Add Micrometer and Prometheus dependencies
+    implementation("io.micrometer:micrometer-core:1.12.3")
+    implementation("io.micrometer:micrometer-registry-prometheus:1.12.3")
+    //implementation("io.vertx:vertx-micrometer-metrics:4.4.0")
 }
 
 // Apply a specific Java toolchain to ease working on different environments.

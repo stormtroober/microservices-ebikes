@@ -1,6 +1,7 @@
 package infrastructure.adapter.web;
 
 import application.ports.RestRideServiceAPI;
+import infrastructure.MetricsManager;
 import io.vertx.core.AbstractVerticle;
 import io.vertx.core.http.HttpServer;
 import io.vertx.core.json.JsonObject;
@@ -20,6 +21,7 @@ public class RideServiceVerticle extends AbstractVerticle {
     private final String eurekaHost;
     private WebClient client;
     private final RestRideServiceAPI rideService;
+    private final MetricsManager metricsManager;
 
     public RideServiceVerticle(RestRideServiceAPI rideService, String eurekaApplicationName, String eurekaInstanceId) {
         this.rideService = rideService;
@@ -28,6 +30,7 @@ public class RideServiceVerticle extends AbstractVerticle {
         this.port = 8092;
         this.eurekaPort = 8761;
         this.eurekaHost = "eureka-server";
+        this.metricsManager = MetricsManager.getInstance();
     }
 
     public RideServiceVerticle(RestRideServiceAPI rideService, String eurekaApplicationName) {
@@ -44,21 +47,32 @@ public class RideServiceVerticle extends AbstractVerticle {
         router.route().handler(BodyHandler.create());
 
         router.get("/health").handler(ctx -> ctx.response().setStatusCode(200).end("OK"));
+        router.get("/metrics").handler(ctx -> {
+            ctx.response()
+                    .putHeader("Content-Type", "text/plain")
+                    .end(metricsManager.getMetrics());
+        });
 
         router.post("/startRide").handler(ctx -> {
+            metricsManager.incrementMethodCounter("startRide");
+            var timer = metricsManager.startTimer();
+
             JsonObject body = ctx.body().asJsonObject();
             String user = body.getString("user");
             String bike = body.getString("bike");
 
             rideService.startRide(user, bike).thenAccept(v -> {
                 ctx.response().setStatusCode(200).end("Ride started");
+                metricsManager.recordTimer(timer, "startRide");
                 }).exceptionally(ex -> {
                     ctx.response().setStatusCode(500).end(ex.getMessage());
+                    metricsManager.recordError(timer, "startRide", ex);
                     return null;
                 });
         });
 
         // Define /stopRide endpoint
+        //TODO: add metrics and implement completableFuture in rideService
         router.post("/stopRide").handler(ctx -> {
             JsonObject body = ctx.body().asJsonObject();
             String username = body.getString("username");
