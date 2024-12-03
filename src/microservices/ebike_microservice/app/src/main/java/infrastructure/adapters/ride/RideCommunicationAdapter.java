@@ -1,6 +1,7 @@
 package infrastructure.adapters.ride;
 
 import application.ports.EBikeServiceAPI;
+import infrastructure.MetricsManager;
 import io.vertx.core.AbstractVerticle;
 import io.vertx.core.Promise;
 import io.vertx.core.Vertx;
@@ -16,17 +17,27 @@ public class RideCommunicationAdapter extends AbstractVerticle {
     private final EBikeServiceAPI ebikeService;
     private final int port;
     private final Vertx vertx;
+    private final MetricsManager metricsManager;
 
     public RideCommunicationAdapter(EBikeServiceAPI ebikeService, int port, Vertx vertx) {
         this.ebikeService = ebikeService;
         this.port = port;
         this.vertx = vertx;
+        this.metricsManager = MetricsManager.getInstance();
     }
 
     @Override
     public void start(Promise<Void> startPromise) {
         Router router = Router.router(vertx);
         router.route().handler(BodyHandler.create());
+
+
+        router.get("/health").handler(ctx -> ctx.response().setStatusCode(200).end("OK"));
+        router.get("/metrics").handler(ctx -> {
+            ctx.response()
+                    .putHeader("Content-Type", "text/plain")
+                    .end(metricsManager.getMetrics());
+        });
 
         // Configure routes
         router.get("/api/ebikes/:id").handler(this::getEBike);
@@ -52,6 +63,9 @@ public class RideCommunicationAdapter extends AbstractVerticle {
     }
 
     private void getEBike(RoutingContext ctx) {
+        metricsManager.incrementMethodCounter("getEBike");
+        var timer = metricsManager.startTimer();
+
         String id = ctx.pathParam("id");
         System.out.println("Receive request from rides-microservice -> getEBike(" + id + ")");
         if (id == null || id.trim().isEmpty()) {
@@ -70,6 +84,9 @@ public class RideCommunicationAdapter extends AbstractVerticle {
                         ctx.response().setStatusCode(404).end();
                     }
                 })
+                .whenComplete((result, throwable) -> {
+                    metricsManager.recordTimer(timer, "getEBike");
+                })
                 .exceptionally(e -> {
                     handleError(ctx, e);
                     return null;
@@ -78,6 +95,9 @@ public class RideCommunicationAdapter extends AbstractVerticle {
 
     private void updateEBike(RoutingContext ctx) {
         try {
+            metricsManager.incrementMethodCounter("updateEBike");
+            var timer = metricsManager.startTimer();
+
             JsonObject body = ctx.body().asJsonObject();
             String id = ctx.pathParam("id");
             body.put("id", id);
@@ -89,6 +109,9 @@ public class RideCommunicationAdapter extends AbstractVerticle {
                         } else {
                             ctx.response().setStatusCode(404).end();
                         }
+                    })
+                    .whenComplete((result, throwable) -> {
+                        metricsManager.recordTimer(timer, "updateEBike");
                     })
                     .exceptionally(e -> {
                         handleError(ctx, e);
