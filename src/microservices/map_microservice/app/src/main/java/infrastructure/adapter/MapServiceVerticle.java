@@ -136,6 +136,10 @@ public class MapServiceVerticle extends AbstractVerticle {
                         metricsManager.incrementMethodCounter("observeUserBikes_message_sent");
                     });
 
+                    var stopRideConsumer = vertx.eventBus().consumer("ride.stop."+username, message -> {
+                        webSocket.writeTextMessage(message.body().toString());
+                    });
+
                     // Listen to user-specific bike updates
                     var userConsumer = vertx.eventBus().consumer(username, message -> {
                         webSocket.writeTextMessage(message.body().toString());
@@ -143,7 +147,7 @@ public class MapServiceVerticle extends AbstractVerticle {
                         // Increment for message sent over WebSocket
                         metricsManager.incrementMethodCounter("observeUserBikes_message_sent");
                     });
-
+                    mapService.registerUser(username);
                     mapService.getAllBikes(username);
 
                     // Cleanup on WebSocket close

@@ -17,4 +17,6 @@ public interface RestMapServiceAPI {
     void getAllBikes();
 
     void getAllBikes(String username);
+
+    void registerUser(String username);
 }

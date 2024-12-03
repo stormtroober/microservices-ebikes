@@ -36,6 +36,13 @@ public class EventPublisherImpl implements EventPublisher {
         vertx.eventBus().publish("available_bikes", bikesJson.encode());
     }
 
+    @Override
+    public void publishStopRide(String username) {
+        JsonObject json = new JsonObject();
+        json.put("rideStatus", "stopped");
+        vertx.eventBus().publish("ride.stop."+username , json.encode());
+    }
+
     private String convertBikeToJson(EBike bike) {
         JsonObject json = new JsonObject();
         json.put("bikeName", bike.getBikeName());
@@ -46,4 +53,5 @@ public class EventPublisherImpl implements EventPublisher {
         json.put("batteryLevel", bike.getBatteryLevel()); // Add this line
         return json.encode();
     }
+
 }

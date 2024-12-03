@@ -6,15 +6,18 @@ import domain.model.EBike;
 import application.ports.EventPublisher;
 import application.ports.EBikeRepository;
 import domain.model.EBikeState;
+import domain.model.User;
 
 import java.util.ArrayList;
 import java.util.List;
 import java.util.concurrent.CompletableFuture;
+import java.util.concurrent.CopyOnWriteArrayList;
 
 public class RestMapServiceAPIImpl implements RestMapServiceAPI {
 
     private final EBikeRepository bikeRepository;
     private final EventPublisher eventPublisher;
+    private final List<String> registeredUsers = new CopyOnWriteArrayList<>();
 
     public RestMapServiceAPIImpl(EBikeRepository bikeRepository, EventPublisher eventPublisher) {
         this.bikeRepository = bikeRepository;
@@ -66,7 +69,7 @@ public class RestMapServiceAPIImpl implements RestMapServiceAPI {
                 .thenAccept(v -> {
                     var bikesInRepo = bikeRepository.getAllBikes().join();
                     eventPublisher.publishBikesUpdate(bikesInRepo);
-
+                    System.out.println("Bikes in repo: " + bikesInRepo);
                     List<EBike> availableBikes = bikeRepository.getAvailableBikes().join();
                     var usersWithAssignedBikes = bikeRepository.getAllUsersWithAssignedBikes().join();
                     if (!usersWithAssignedBikes.isEmpty()) {
@@ -79,6 +82,9 @@ public class RestMapServiceAPIImpl implements RestMapServiceAPI {
                             userBikes.addAll(availableBikes);
                             eventPublisher.publishUserBikesUpdate(userBikes, username);
                         });
+                        registeredUsers.stream()
+                                .filter(user -> !usersWithAssignedBikes.contains(user))
+                                .forEach(user -> eventPublisher.publishUserBikesUpdate(availableBikes, user));
                     } else {
                         eventPublisher.publishUserAvailableBikesUpdate(availableBikes);
                     }
@@ -90,24 +96,8 @@ public class RestMapServiceAPIImpl implements RestMapServiceAPI {
          return bikeRepository.getBike(bikeName)
                  .thenCompose(bike -> bikeRepository.assignBikeToUser(username, bike))
                  .thenAccept(v -> {
-                     var bikesInRepo = bikeRepository.getAllBikes().join();
-                     eventPublisher.publishBikesUpdate(bikesInRepo);
-
                      List<EBike> availableBikes = bikeRepository.getAvailableBikes().join();
-                     var usersWithAssignedBikes = bikeRepository.getAllUsersWithAssignedBikes().join();
-                     if (!usersWithAssignedBikes.isEmpty()) {
-                         usersWithAssignedBikes.forEach(un -> {
-                             List<EBike> userBikes = new ArrayList<>(bikesInRepo.stream()
-                                     .filter(b -> {
-                                         String assignedUser = bikeRepository.isBikeAssigned(b).join();
-                                         return assignedUser != null && assignedUser.equals(un);
-                                     }).toList());
-                             userBikes.addAll(availableBikes);
-                             eventPublisher.publishUserBikesUpdate(userBikes, un);
-                         });
-                     } else {
-                         eventPublisher.publishUserAvailableBikesUpdate(availableBikes);
-                     }
+                     eventPublisher.publishUserAvailableBikesUpdate(availableBikes);
                  });
     }
 
@@ -117,24 +107,9 @@ public class RestMapServiceAPIImpl implements RestMapServiceAPI {
         return bikeRepository.getBike(bikeName)
                 .thenCompose(bike -> bikeRepository.unassignBikeFromUser(username, bike))
                 .thenAccept(v -> {
-                    var bikesInRepo = bikeRepository.getAllBikes().join();
-                    eventPublisher.publishBikesUpdate(bikesInRepo);
-
                     List<EBike> availableBikes = bikeRepository.getAvailableBikes().join();
-                    var usersWithAssignedBikes = bikeRepository.getAllUsersWithAssignedBikes().join();
-                    if (!usersWithAssignedBikes.isEmpty()) {
-                        usersWithAssignedBikes.forEach(un -> {
-                            List<EBike> userBikes = new ArrayList<>(bikesInRepo.stream()
-                                    .filter(b -> {
-                                        String assignedUser = bikeRepository.isBikeAssigned(b).join();
-                                        return assignedUser != null && assignedUser.equals(un);
-                                    }).toList());
-                            userBikes.addAll(availableBikes);
-                            eventPublisher.publishUserBikesUpdate(userBikes, un);
-                        });
-                    } else {
-                        eventPublisher.publishUserAvailableBikesUpdate(availableBikes);
-                    }
+                    eventPublisher.publishUserAvailableBikesUpdate(availableBikes);
+                    eventPublisher.publishStopRide(username);
                 });
     }
 
@@ -157,6 +132,11 @@ public class RestMapServiceAPIImpl implements RestMapServiceAPI {
             eventPublisher.publishUserAvailableBikesUpdate(availableBikes);
         }
 
+    }
+
+    @Override
+    public void registerUser(String username) {
+        registeredUsers.add(username);
     }
 
 }
