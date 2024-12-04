@@ -1,7 +1,7 @@
 package org.example;
 
 import domain.model.P2d;
-import infrastructure.EBikeRepositoryImpl;
+import infrastructure.adapter.EBikeRepositoryImpl;
 import domain.model.EBike;
 import domain.model.EBikeState;
 import org.junit.jupiter.api.BeforeEach;

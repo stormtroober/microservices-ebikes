@@ -4,9 +4,7 @@ import application.RestMapServiceAPIImpl;
 import application.ports.EventPublisher;
 import application.ports.RestMapServiceAPI;
 import domain.model.EBike;
-import domain.model.EBikeState;
-import domain.model.P2d;
-import infrastructure.EBikeRepositoryImpl;
+import infrastructure.adapter.EBikeRepositoryImpl;
 import io.vertx.core.Vertx;
 import io.vertx.core.buffer.Buffer;
 import io.vertx.core.json.JsonObject;
@@ -15,7 +13,6 @@ import io.vertx.ext.web.client.WebClient;
 import io.vertx.junit5.VertxExtension;
 import io.vertx.junit5.VertxTestContext;
 import infrastructure.adapter.BikeUpdateAdapter;
-import infrastructure.adapter.MapServiceVerticle;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
@@ -23,7 +20,6 @@ import org.junit.jupiter.api.extension.ExtendWith;
 
 import java.util.ArrayList;
 import java.util.List;
-import java.util.concurrent.TimeUnit;
 
 import static org.junit.jupiter.api.Assertions.*;
 

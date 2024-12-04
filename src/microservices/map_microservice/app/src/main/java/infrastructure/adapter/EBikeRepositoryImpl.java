@@ -1,5 +1,5 @@
 // EBikeRepositoryImpl.java
-package infrastructure;
+package infrastructure.adapter;
 
 import application.ports.EBikeRepository;
 import domain.model.EBike;
