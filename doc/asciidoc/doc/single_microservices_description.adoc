@@ -1,4 +1,6 @@
-Di seguito verrà riportata una descrizione di tutti i microservizi utilizzati nel sistema.
+Di seguito verrà riportata una descrizione di tutti i microservizi e le configurazioni utilizzate nel sistema. Vedremo nel dettaglio le singole parti, mentre nel prossimo capitolo parleremo di come esse sono integrate una con l'altra.
+
+include::single_microservices/DockerConfig.adoc[]
 
 === API Gateway
 
