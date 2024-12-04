@@ -36,22 +36,30 @@ public class StartRideDialog extends AbstractDialog {
     public void actionPerformed(ActionEvent e) {
         super.actionPerformed(e);
         if (e.getSource() == confirmButton) {
-            String bikeId = idEBikeField.getText();
-            JsonObject rideDetails = new JsonObject()
-                    .put("user", user.username())
-                    .put("bike", bikeId);
-            vertx.eventBus().request("user.ride.start." + user.username(), rideDetails, ar -> {
+            if (user.credit() == 0) {
                 SwingUtilities.invokeLater(() -> {
-                    if (ar.succeeded()) {
-                        JOptionPane.showMessageDialog(this, "Ride started");
-                        ((UserView) parent).setRiding(true);
-                        dispose();
-                    } else {
-                        JOptionPane.showMessageDialog(this, "Error starting ride: " + ar.cause().getMessage());
-                        ((UserView) parent).setRiding(false);
-                    }
+                    JOptionPane.showMessageDialog(this, "You need to recharge your credit before starting a ride");
+                    ((UserView) parent).setRiding(false);
+                    dispose();
                 });
-            });
+            } else {
+                String bikeId = idEBikeField.getText();
+                JsonObject rideDetails = new JsonObject()
+                        .put("user", user.username())
+                        .put("bike", bikeId);
+                vertx.eventBus().request("user.ride.start." + user.username(), rideDetails, ar -> {
+                    SwingUtilities.invokeLater(() -> {
+                        if (ar.succeeded()) {
+                            JOptionPane.showMessageDialog(this, "Ride started");
+                            ((UserView) parent).setRiding(true);
+                            dispose();
+                        } else {
+                            JOptionPane.showMessageDialog(this, "Error starting ride: " + ar.cause().getMessage());
+                            ((UserView) parent).setRiding(false);
+                        }
+                    });
+                });
+            }
         }
     }
 }
