@@ -2,6 +2,10 @@ Di seguito verrà riportata una descrizione di tutti i microservizi e le configu
 
 include::single_microservices/DockerConfig.adoc[]
 
+include::single_microservices/Prometheus.adoc[]
+
 include::single_microservices/API_Gateway.adoc[]
 
 include::single_microservices/ServiceDiscovery.adoc[]
+
+include::single_microservices/MapMicroservice.adoc[]

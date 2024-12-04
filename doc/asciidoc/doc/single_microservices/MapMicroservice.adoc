@@ -40,3 +40,5 @@ Le tre porte sono quindi implementate nel layer infrastrutturale, che fornisce l
 `BikeUpdateAdapter` e `RideUpdateAdapter` servono per ricevere aggiornamenti dai servizi di Bike e Ride, non passando per il gateway, ma sfruttando quindi la rete docker a cui tutti i servizi sono connessi.
 
 `MapServiceVerticle` è invece il punto di ingresso del microservizio per l'utente, esso infatti è registrato al service-discovery e fornisce le due websocket per osservare i cambiamenti delle biciclette sulla mappa.
+
+Come gli altri microservizi, utilizza la classe MetricsManager per trasmettere a Prometheus le metriche di sistema.
