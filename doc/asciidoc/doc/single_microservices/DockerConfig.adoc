@@ -1,4 +1,4 @@
-=== Configurazione Docker per i Microservizi
+=== Configurazione Docker
 
 Ogni microservizio del sistema è containerizzato utilizzando Docker per garantire portabilità, isolamento e facilità di distribuzione. La configurazione Docker per ogni microservizio segue una struttura comune, progettata per funzionare nel Docker Compose globale.
 

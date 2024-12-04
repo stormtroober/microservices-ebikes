@@ -19,6 +19,7 @@ La configurazione del file application.yml definisce:
 - La disabilitazione della registrazione e della raccolta del registro da parte del servizio di discovery stesso.
 
 - L'esposizione di endpoint per il monitoraggio del sistema, come health check e metriche Prometheus.
+
 [source, yaml]
 ----
 eureka:
