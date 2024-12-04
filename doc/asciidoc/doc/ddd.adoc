@@ -411,5 +411,5 @@ image::../png/Bounded_Context.drawio.png[]
 
 Dall'analisi dei bounded context si è potuto definire il context map del sistema, individuando le relazioni tra i contesti:
 
-
+image::../png/Context_Map.drawio.png[]
 

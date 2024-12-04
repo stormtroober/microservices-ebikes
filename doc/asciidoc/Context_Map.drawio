@@ -1,0 +1,63 @@
+<mxfile host="app.diagrams.net" agent="Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/131.0.0.0 Safari/537.36" version="25.0.1">
+  <diagram name="Pagina-1" id="xdIivekC0FsTY3R17vXH">
+    <mxGraphModel dx="1050" dy="557" grid="1" gridSize="10" guides="1" tooltips="1" connect="1" arrows="1" fold="1" page="1" pageScale="1" pageWidth="827" pageHeight="1169" math="0" shadow="0">
+      <root>
+        <mxCell id="0" />
+        <mxCell id="1" parent="0" />
+        <mxCell id="ydpzaj2xB8HC-2rXMy2J-19" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;exitX=0.5;exitY=1;exitDx=0;exitDy=0;entryX=0.5;entryY=0;entryDx=0;entryDy=0;" edge="1" parent="1" source="ydpzaj2xB8HC-2rXMy2J-1" target="ydpzaj2xB8HC-2rXMy2J-15">
+          <mxGeometry relative="1" as="geometry">
+            <Array as="points">
+              <mxPoint x="170" y="160" />
+              <mxPoint x="270" y="160" />
+            </Array>
+          </mxGeometry>
+        </mxCell>
+        <mxCell id="ydpzaj2xB8HC-2rXMy2J-1" value="User Management" style="ellipse;whiteSpace=wrap;html=1;" vertex="1" parent="1">
+          <mxGeometry x="100" y="50" width="140" height="70" as="geometry" />
+        </mxCell>
+        <mxCell id="ydpzaj2xB8HC-2rXMy2J-4" value="Map Management" style="ellipse;whiteSpace=wrap;html=1;" vertex="1" parent="1">
+          <mxGeometry x="200" y="360" width="140" height="70" as="geometry" />
+        </mxCell>
+        <mxCell id="ydpzaj2xB8HC-2rXMy2J-20" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;exitX=0.5;exitY=1;exitDx=0;exitDy=0;" edge="1" parent="1" source="ydpzaj2xB8HC-2rXMy2J-10">
+          <mxGeometry relative="1" as="geometry">
+            <mxPoint x="270" y="190" as="targetPoint" />
+            <Array as="points">
+              <mxPoint x="390" y="160" />
+              <mxPoint x="271" y="160" />
+            </Array>
+          </mxGeometry>
+        </mxCell>
+        <mxCell id="ydpzaj2xB8HC-2rXMy2J-10" value="Bike Management" style="ellipse;whiteSpace=wrap;html=1;" vertex="1" parent="1">
+          <mxGeometry x="320" y="50" width="140" height="70" as="geometry" />
+        </mxCell>
+        <mxCell id="ydpzaj2xB8HC-2rXMy2J-14" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;exitX=0.5;exitY=1;exitDx=0;exitDy=0;entryX=0.5;entryY=0;entryDx=0;entryDy=0;" edge="1" parent="1" source="ydpzaj2xB8HC-2rXMy2J-11" target="ydpzaj2xB8HC-2rXMy2J-4">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="ydpzaj2xB8HC-2rXMy2J-11" value="Ride Management" style="ellipse;whiteSpace=wrap;html=1;" vertex="1" parent="1">
+          <mxGeometry x="200" y="200" width="140" height="70" as="geometry" />
+        </mxCell>
+        <mxCell id="ydpzaj2xB8HC-2rXMy2J-15" value="" style="rounded=1;whiteSpace=wrap;html=1;" vertex="1" parent="1">
+          <mxGeometry x="250" y="190" width="40" height="20" as="geometry" />
+        </mxCell>
+        <mxCell id="ydpzaj2xB8HC-2rXMy2J-16" value="ACL" style="text;html=1;align=center;verticalAlign=middle;whiteSpace=wrap;rounded=0;" vertex="1" parent="1">
+          <mxGeometry x="255" y="192.5" width="30" height="15" as="geometry" />
+        </mxCell>
+        <mxCell id="ydpzaj2xB8HC-2rXMy2J-21" value="Conformist" style="text;html=1;align=center;verticalAlign=middle;whiteSpace=wrap;rounded=0;" vertex="1" parent="1">
+          <mxGeometry x="270" y="300" width="60" height="30" as="geometry" />
+        </mxCell>
+        <mxCell id="ydpzaj2xB8HC-2rXMy2J-22" value="D" style="text;html=1;align=center;verticalAlign=middle;whiteSpace=wrap;rounded=0;" vertex="1" parent="1">
+          <mxGeometry x="270" y="270" width="30" height="20" as="geometry" />
+        </mxCell>
+        <mxCell id="ydpzaj2xB8HC-2rXMy2J-23" value="U" style="text;html=1;align=center;verticalAlign=middle;whiteSpace=wrap;rounded=0;" vertex="1" parent="1">
+          <mxGeometry x="270" y="340" width="30" height="20" as="geometry" />
+        </mxCell>
+        <mxCell id="ydpzaj2xB8HC-2rXMy2J-24" value="Partership" style="text;html=1;align=center;verticalAlign=middle;whiteSpace=wrap;rounded=0;" vertex="1" parent="1">
+          <mxGeometry x="110" y="130" width="60" height="30" as="geometry" />
+        </mxCell>
+        <mxCell id="ydpzaj2xB8HC-2rXMy2J-25" value="Partership" style="text;html=1;align=center;verticalAlign=middle;whiteSpace=wrap;rounded=0;" vertex="1" parent="1">
+          <mxGeometry x="390" y="130" width="60" height="30" as="geometry" />
+        </mxCell>
+      </root>
+    </mxGraphModel>
+  </diagram>
+</mxfile>

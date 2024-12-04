@@ -1,0 +1,107 @@
+=== User Microservice
+
+Il microservizio, organizzato in architettura esagonale, definisce quattro porte per interfacciarsi al layer di applicazione.
+Queste porte sono utilizzate nel layer infrastrutturale, che fornisce le implementazioni concrete per interagire con la repository, pubblicare eventi,
+registrare il microservizio al Service Discovery e gestire le richieste REST.
+
+==== Domain Layer
+
+L'unico oggetto del dominio è l'entità `User`, che rappresenta un utente all'interno del sistema.
+L'utente ha un `username`, un `credit` e un `type`(user o admin).
+L'entità include metodi per accedere e modificare i dati dell'utente, in particolare il credito.
+
+==== Application Layer
+
+**UserRepository**
+
+La porta è responsabile della gestione dei dati degli utenti all'interno del sistema.
+Fornisce metodi per salvare, aggiornare e trovare un utente tramite il suo username.
+Inoltre, permette di recuperare tutti gli utenti presenti all'interno del sistema.
+
+Questa porta assicura che il sistema possa gestire in modo efficiente i dati degli utenti.
+
+**UserServiceAPI**
+
+La porta definisce il contratto per l'API REST che interagisce con il sistema degli utenti.
+
+Include metodi per registrare un nuovo utente, autenticare un utente e recuperare i dati di un utente tramite il suo username.
+Inoltre, consente di aggiornare i dati di un utente, la ricarica del credito, il decremento del credito durante, ad esempio,
+una corsa, e fornisce un metodo per recuperare tutti gli utenti presenti nel sistema.
+
+Questa interfaccia facilita la comunicazione tra il sistema degli utenti e i client esterni, consentendo un'interazione fluida e uno scambio di dati.
+
+**UserEventPublisher**
+
+La porta è progettata per gestire la pubblicazione di eventi relativi agli utenti e alle attività degli utenti.
+
+Include metodi per pubblicare aggiornamenti su un singolo utente e su tutti gli utenti.
+Questi eventi sono fondamentali per mantenere il sistema e gli utenti informati sugli aggiornamenti in tempo reale.
+
+**EurekaRegistrationPort**
+
+La porta è progettata per registrare il microservizio al Service Discovery.
+
+Include metodi per registrare un'istanza dell'applicazione, inviare un heartbeat per mantenere l'istanza registrata
+e deregistrare un'istanza dell'applicazione.
+
+Questa porta è fondamentale per garantire che il microservizio sia sempre disponibile e raggiungibile dagli altri servizi.
+
+**UserServiceImpl**
+
+La classe implementa la logica di business del microservizio, utilizzando le porte definite nel layer di applicazione.
+In particolare, gestisce le richieste provenienti dall'API REST e pubblica gli eventi relativi agli utenti.
+
+Fornisce i metodi per registrare un nuovo utente, autenticare un utente, aggiornare i dati di un utente,
+recuperare i dati di un utente tramite il suo username, ricaricare il credito di un utente, decrementare il credito di un utente
+e recuperare tutti gli utenti presenti nel sistema.
+Utilizza il repository per accedere ai dati degli utenti e l'event publisher per notificare gli aggiornamenti.
+
+==== Infrastructure Layer
+
+Le quattro porte sono quindi implementate nel layer infrastrutturale, che fornisce le implementazioni concrete per interagire con la repository, pubblicare eventi, registrare il microservizio al Service Discovery e gestire le richieste REST.
+
+**EurekaRegistrationAdapter**
+
+La classe implementa la porta per registrare il microservizio al Service Discovery.
+Utilizza la libreria `vertx-eureka` per registrare l'istanza del microservizio al Service Discovery, e
+il WebClient di Vert.x per inviare richieste HTTP a Eureka.
+Include metodi per registrare un'istanza dell'applicazione, inviare un heartbeat per mantenere l'istanza registrata e
+deregistrare un'istanza dell'applicazione.
+
+**RideCommunicationAdapter**
+
+Gestisce la comunicazione con il microservizio delle corse. Configura un server HTTP con diverse routes per gestire le richieste in arrivo.
+In particolare, espone un endpoint per recuperare i dettagli di un utente e un endpoint per dli aggiornamenti di un utente.
+
+**RESTUserAdapter**
+
+Gestisce le richieste REST per il microservizio degli utenti. Configura le rotte HTTP e definisce i metodi per gestire le operazioni sugli utenti.
+In particolare, espone un endpoint per registrare un nuovo utente, un endpoint per autenticare un utente, un endpoint per ricaricare il credito di un utente,
+un endpoint per osservare gli utenti e un endpoint per osservare un singolo utenti. Gli ultimi due endpoint sono gestiti utilizzando una connessione WebSocket per l'invio
+degli aggiornamenti in tempo reale.
+
+**UserVerticle**
+
+Rappresenta il punto di ingresso del microservizio degli utenti. Configura le rotte HTTP usando il `RESTUserAdapter` e registra il microservizio con Eureka.
+
+**ApplicationConfig**
+
+Questa classe è responsabile del caricamento e della fornitura delle impostazioni di configurazione per l'applicazione.
+Legge le variabili d'ambiente per configurare l'host, la porta, i dettagli del server Eureka, la connessione a MongoDB e altre impostazioni.
+Fornisce metodi per recuperare queste configurazioni come JsonObject per MongoDB ed Eureka.
+
+**MongoUserRepository**
+
+Implementa la porta `UserRepository`e gestisce i dati degli utenti in un database MongoDB. Utilizza il MongoClient di Vert.x per eseguire operazioni sulla collezione users.
+
+**MetricsManager**
+
+Rappresenta un singleton che gestisce le metriche dell'applicazione utilizzando Micrometer e Prometheus. Fornisce metodi per avviare e registrare timer, incrementare contatori e
+registrare errori per vari metodi nel servizio utenti.
+
+**UserEventPublisherImpl**
+
+Implementa l'interfaccia UserEventPublisher e gestisce la pubblicazione degli eventi relativi agli utenti utilizzando il bus degli eventi di Vert.x.
+
+
+

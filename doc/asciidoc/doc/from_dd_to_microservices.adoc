@@ -206,7 +206,7 @@ Seguendo quanto detto sopra, sono state identificate le API di tipo REST per i s
 * `/updateEBike`(bikeid, JSON bike) => PUT
 ** Ritorna `status OK` e JSON di ebike
 
-== MAP SERVICE
+==== MAP SERVICE
 * **Endpoint:**
 * `/updateEBike`(JSON bike) => PUT
 ** Ritorna `status OK` se avvenuto con successo
@@ -219,7 +219,7 @@ Seguendo quanto detto sopra, sono state identificate le API di tipo REST per i s
 * `/observeUserBikes`(username) => WebSocket
 ** Ritorna JSON Object di tutte le ebike disponibili o quelle legate all’utente
 
-== RIDE SERVICE
+==== RIDE SERVICE
 * **Endpoint:**
 * `/startRide`(user, bike) => POST
 ** Ritorna `status OK` se avvenuto con successo
