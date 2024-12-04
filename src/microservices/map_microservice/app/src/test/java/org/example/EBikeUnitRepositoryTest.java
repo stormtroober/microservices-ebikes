@@ -40,16 +40,6 @@ public class EBikeUnitRepositoryTest {
         assertThrows(ExecutionException.class, () -> repository.getBike("NonExistentBike").get());
     }
 
-    //  todo: fix this test
-//    @Test
-//    public void testGetAllBikes() throws ExecutionException, InterruptedException {
-//        repository.saveBike(bike1).get();
-//        repository.saveBike(bike2).get();
-//
-//        List<EBike> allBikes = repository.getAllBikes().get();
-//        assertEquals(2, allBikes.size());
-//    }
-
     @Test
     public void testAssignBikeToUser() throws ExecutionException, InterruptedException {
         repository.saveBike(bike1).get();
