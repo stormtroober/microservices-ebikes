@@ -287,13 +287,129 @@ image::../png/admin_storytelling.png[]
 
 === Domain Model
 
-Grazie all'analisi delle user story, dei casi d'uso e dei rispettivi Domain Storytelling è stato possibile individuare il domain-model del sistema,
+Grazie all'analisi delle user story, dei casi d'uso e dei rispettivi Domain Storytelling è stato possibile individuare facilmente il domain-model del sistema,
 definito in modo da rappresentare le entità principali del sistema e le relazioni tra di esse.
 Esso è rappresentato nel seguente diagramma:
 
 
 image::../png/Domain_Model.png[]
 
+**Entità: User**
+
+[cols="2,3", options="header"]
+|===
+| Campo         | Descrizione
+
+| Nome          | User
+| Attributi     | username, credit
+| Ruolo         | Utente normale che può osservare le e-bike, ricaricare il proprio credito e effettuare le ride.
+|===
+
+**Entità: Admin**
+
+[cols="2,3", options="header"]
+|===
+| Campo         | Descrizione
+
+| Nome          | Admin
+| Attributi     | username
+| Ruolo         | Amministratore che gestisce le e-bike, aggiungendone nuove o ricaricando quelle esistenti,
+e che osserva gli utenti.
+|===
+
+**Entità: Ride**
+
+[cols="2,3", options="header"]
+|===
+| Campo         | Descrizione
+
+| Nome          | Ride
+| Attributi     | rideId, bike, user
+| Ruolo         | Rappresenta una corsa di un utente su una bicicletta.
+|===
+
+**Entità: Map**
+
+[cols="2,3", options="header"]
+|===
+| Campo         | Descrizione
+
+| Nome          | Map
+| Attributi     | bikes
+| Ruolo         | Contiene informazioni sulle e-bike disponibili per gli utenti e di tutte le e-bike per l'admin.
+|===
+
+**Entità: EBike**
+
+[cols="2,3", options="header"]
+|===
+| Campo         | Descrizione
+
+| Nome          | EBike
+| Attributi     | id, chargeLevel, position, state
+| Ruolo         | Rappresenta una e-bike con variabili di stato.
+|===
+
+**Interazioni tra le entità**
+
+- **User** può avviare e fermare una **Ride**.
+- **Admin** può aggiungere o modificare una **EBike**.
+- **User** e **Admin** possono osservare le biciclette disponibili nella **Map**.
+- **Ride** notifica lo stato di avvio e fermo delle ride alla **Map**.
+
+**Value Objects**
+
+image::../png/Value_Object E-Bike.drawio.png[]
+
+- **P2d**: rappresenta una posizione bidimensionale e contiene i valori x e y.
+- **V2d**: rappresenta un vettore bidimensionale e contiene i valori x e y.
+
+**Aggregates**
+
+- **Ride**: contiene le informazioni relative alla ride e include **User** e **EBike**.
+- **Map**: contiene le informazioni relative alla mappa e include **EBike**.
+- **EBike**: contiene le informazioni relative alla e-bike e include i value objects **P2d** e **V2d**.
+
+**Domain Events**
+
+- **RideStarted**: notifica l'avvio di una ride e contiene l'aggregato **Ride**.
+- **RideStopped**: notifica la fine di una ride e contiene l'aggregato **Ride**.
+- **EBikeAdded**: notifica l'aggiunta di una e-bike e contiene l'aggregato **Map**.
+- **EBikeRecharged**: notifica la ricarica di una e-bike e contiene l'aggregato **Map**.
+
+**Domain Services**
+
+- **RideService**: contiene i metodi per avviare e fermare una ride.
+- **EBikeService**: contiene i metodi per aggiungere e ricaricare una e-bike.
+- **MapService**: contiene i metodi per visualizzare le e-bike sulla mappa.
+- **UserService**: contiene i metodi per ricaricare il credito dell'utente.
+
+**Factory**
+
+- **RideFactory**: contiene il metodo per creare nuove istanze ride.
+- **EBikeFactory**: contiene il metodo per creare nuove istanze e-bike.
+- **UserFactory**: contiene il metodo per creare nuove istanze utente.
+
+**Repository**
+
+- **RideRepository**: gestisce la persistenza delle ride.
+- **EBikeRepository**: gestisce la persistenza delle e-bike.
+- **UserRepository**: gestisce la persistenza degli utenti.
 
 === Bounded Context
+
+Dall'analisi del domain-model si è potuto definire i bounded context del sistema, individuando quattro contesti ben distinti:
+
+image::../png/Bounded_Context.drawio.png[]
+
+- **User Management Context**: di tipo _**core**_, contiene le entità e i servizi relativi agli utenti, sia admin che user.
+- **Ride Management Context**: di tipo _**core**_, contiene le entità e i servizi relativi alle ride.
+- **EBike Management Context**: di tipo _**core**_, contiene le entità e i servizi relativi alle e-bike.
+- **Map Management Context**: di tipo _**core**_, contiene le entità e i servizi relativi alla mappa.
+
+=== Context Map
+
+Dall'analisi dei bounded context si è potuto definire il context map del sistema, individuando le relazioni tra i contesti:
+
+
 
