@@ -1,0 +1,58 @@
+=== Configurazione Docker per i Microservizi
+
+Ogni microservizio del sistema è containerizzato utilizzando Docker per garantire portabilità, isolamento e facilità di distribuzione. La configurazione Docker per ogni microservizio segue una struttura comune, progettata per funzionare nel Docker Compose globale.
+
+
+Il Dockerfile utilizza una configurazione multistage per ottimizzare il processo di build e runtime di un'applicazione Java basata su Gradle.
+
+=== Stage 1: Build
+[source, dockerfile]
+----
+FROM gradle:8.11-jdk21 AS build
+COPY app/build.gradle.kts settings.gradle.kts gradle.properties ./
+COPY app/src src
+RUN --mount=type=cache,target=/home/gradle/.gradle/caches gradle jar --no-daemon --parallel --build-cache
+----
+
+- **Immagine Gradle con JDK 21** per la compilazione del progetto con tutte le dipendenze.
+- **Copia dei file Gradle** di configurazione e del codice sorgente.
+- **Build del file JAR** utilizzando la cache per velocizzare le compilazioni successive.
+
+Allo scopo di generare il jar con tutte le dipendenze (fatjar) è stato definito un task specifico
+nel `build.gradle.kts`:
+
+[source, kotlin]
+----
+tasks.jar {
+    archiveFileName.set("app.jar")
+    manifest {
+        attributes["Main-Class"] = application.mainClass.get() // or specify your main class directly
+    }
+
+    // Include all runtime dependencies into the JAR file
+    from(configurations.runtimeClasspath.get().filter { it.name.endsWith("jar") }.map { zipTree(it) })
+
+    // Optionally, include your compiled classes (if not already included by default)
+    from(sourceSets.main.get().output)
+
+    // Ensure the JAR is built as a single fat JAR
+    duplicatesStrategy = DuplicatesStrategy.EXCLUDE
+}
+----
+
+=== Stage 2: Runtime
+[source, dockerfile]
+----
+FROM openjdk:21-jdk-slim
+RUN apt-get update && apt-get install -y curl
+WORKDIR /app
+COPY --from=build /home/gradle/build/libs/app.jar app.jar
+EXPOSE 8087
+ENTRYPOINT ["java", "-jar", "app.jar"]
+----
+
+- **Immagine Java runtime minima** per ridurre la dimensione del container finale.
+- **Installazione di `curl`** per eseguire health check dal `docker-compose`.
+- **Copia del file JAR** dalla fase di build al filesystem del container.
+- **Esposizione della porta 8087** e avvio dell'app con `java -jar app.jar`.
+
