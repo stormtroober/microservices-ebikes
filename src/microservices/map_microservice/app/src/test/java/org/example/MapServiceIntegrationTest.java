@@ -92,40 +92,6 @@ public class MapServiceIntegrationTest {
                 }));
     }
 
-//    @Test
-//    void testNotifyStartRide(VertxTestContext testContext) {
-//        // First, create a bike
-//        EBike bike = new EBike("testBike", new P2d(0, 0), EBikeState.AVAILABLE, 100);
-//        mapService.updateEBike(bike)
-//                .thenCompose(v -> {
-//                    JsonObject startRideJson = new JsonObject()
-//                            .put("username", "testUser")
-//                            .put("bikeName", "testBike");
-//
-//                    return vertx.executeBlocking(promise ->
-//                            client.post(PORT, "localhost", "/notifyStartRide")
-//                                    .sendJsonObject(startRideJson)
-//                                    .onComplete(ar -> {
-//                                        if (ar.succeeded()) {
-//                                            promise.complete(ar.result());
-//                                        } else {
-//                                            promise.fail(ar.cause());
-//                                        }
-//                                    })
-//                    );
-//                })
-//                .whenComplete((response, throwable) -> {
-//                    if (throwable == null) {
-//                        testContext.verify(() -> {
-//                            assertEquals(200, response.statusCode());
-//                            testContext.completeNow();
-//                        });
-//                    } else {
-//                        testContext.failNow(throwable);
-//                    }
-//                });
-//    }
-
     // Test implementation of EventPublisher for integration tests
     private static class TestEventPublisher implements EventPublisher {
         @Override

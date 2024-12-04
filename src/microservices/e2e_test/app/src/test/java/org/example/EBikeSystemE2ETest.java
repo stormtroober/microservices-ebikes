@@ -1,6 +1,5 @@
 package org.example;
 
-
 import io.vertx.core.Vertx;
 import io.vertx.core.buffer.Buffer;
 import io.vertx.core.json.JsonArray;
@@ -10,7 +9,6 @@ import io.vertx.ext.web.client.WebClient;
 import org.junit.jupiter.api.AfterAll;
 import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.Test;
-
 import java.io.BufferedReader;
 import java.io.IOException;
 import java.io.InputStreamReader;
@@ -18,9 +16,7 @@ import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.TimeUnit;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
-import static org.junit.jupiter.api.Assertions.assertNotNull;
 
-//@ExtendWith(VertxExtension.class)
 public class EBikeSystemE2ETest {
 
     private static Vertx vertx;
@@ -182,7 +178,7 @@ public class EBikeSystemE2ETest {
 
     @AfterAll
     static void tearDown() {
-        String command = "sleep 5 && cd ../../ && docker-compose down -v";
+        String command = "cd ../../ && docker-compose down -v";
         ProcessBuilder processBuilder = new ProcessBuilder();
         processBuilder.command("bash", "-c", command);
 

@@ -99,39 +99,6 @@ public class MapServiceComponentTest {
                 });
     }
 
-//    @Test
-//    void testWebSocketConnection(VertxTestContext testContext) {
-//        client.webSocket(BIKE_UPDATE_PORT, "localhost", "/bikes-updates")
-//                .onSuccess(ws -> {
-//                    ws.textMessageHandler(message -> {
-//                        System.out.println("Received WebSocket message: " + message);
-//                        testContext.verify(() -> {
-//                            assertNotNull(message);
-//                            JsonObject bikeUpdate = new JsonObject(message);
-//                            assertNotNull(bikeUpdate.getString("id"));
-//                            ws.close();
-//                            testContext.completeNow();
-//                        });
-//                    });
-//
-//                    // Send a test bike update after connection
-//                    JsonObject testBike = new JsonObject()
-//                            .put("id", "testBike")
-//                            .put("location", new JsonObject()
-//                                    .put("x", 0.0)
-//                                    .put("y", 0.0))
-//                            .put("state", "AVAILABLE")
-//                            .put("batteryLevel", 100);
-//
-//                    client.put(BIKE_UPDATE_PORT, "localhost", "/updateEBike")
-//                            .sendJsonObject(testBike);
-//                })
-//                .onFailure(err -> {
-//                    System.err.println("WebSocket connection failed: " + err.getMessage());
-//                    testContext.failNow(err);
-//                });
-//    }
-
     @Test
     void testErrorHandling(VertxTestContext testContext) {
         JsonObject invalidBikeJson = new JsonObject()
