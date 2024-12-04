@@ -1,0 +1,40 @@
+=== Service Discovery
+
+Il Service Discovery è un meccanismo che consente ai microservizi di localizzarsi e comunicare tra loro in modo dinamico in un sistema distribuito.
+
+In un'architettura basata su microservizi, i servizi sono registrati in un registro centrale, come Eureka, che consente ad altri microservizi di trovare e interagire con essi senza dover conoscere a priori il loro indirizzo o posizione.
+
+==== Funzionamento
+Il Service Discovery utilizza Spring Cloud Eureka per consentire la registrazione e la scoperta dei servizi.
+
+I microservizi possono registrarsi in Eureka al momento del loro avvio, mentre altri servizi possono utilizzare Eureka per scoprire e comunicare con i servizi disponibili. Questo approccio dinamico riduce la necessità di configurazioni statiche e rende l'architettura più flessibile e scalabile.
+
+==== Configurazione `application.yml`
+
+La configurazione del file application.yml definisce:
+
+- La porta su cui il server Eureka è in ascolto.
+
+- La disabilitazione della registrazione e della raccolta del registro da parte del servizio di discovery stesso.
+
+- L'esposizione di endpoint per il monitoraggio del sistema, come health check e metriche Prometheus.
+[source, yaml]
+----
+eureka:
+  client:
+    registerWithEureka: false
+    fetchRegistry: false
+
+management:
+  endpoints:
+    web:
+      exposure:
+        include: health,info,metrics,prometheus
+  endpoint:
+    health:
+      show-details: always
+
+server:
+  port: 8761
+----
+
