@@ -5,7 +5,7 @@ scrape_configs:
   - job_name: 'api-gateway'
     metrics_path: '/actuator/prometheus'
     static_configs:
-      - targets: ['api-gateway:8081']
+      - targets: ['api-gateway:8080']
 
   - job_name: 'service-discovery'
     static_configs:
@@ -16,17 +16,17 @@ scrape_configs:
   - job_name: 'map-microservice'
     metrics_path: '/metrics'
     static_configs:
-      - targets: ['map-microservice:8087']
+      - targets: ['map-microservice:8080']
 
   - job_name: 'map-bikeadapter'
     metrics_path: '/metrics'
     static_configs:
-      - targets: ['map-microservice:8088']
+      - targets: ['map-microservice:8082']
 
   - job_name: 'map-rideadapter'
     metrics_path: '/metrics'
     static_configs:
-      - targets: [ 'map-microservice:8089' ]
+      - targets: [ 'map-microservice:8081' ]
 
   - job_name: 'ebike-microservice'
     metrics_path: '/metrics'
@@ -36,19 +36,19 @@ scrape_configs:
   - job_name: 'ebike-rideadapter'
     metrics_path: '/metrics'
     static_configs:
-      - targets: [ 'ebike-microservice:8082' ]
+      - targets: [ 'ebike-microservice:8081' ]
 
   - job_name: 'ride-microservice'
     metrics_path: '/metrics'
     static_configs:
-      - targets: [ 'ride-microservice:8092' ]
+      - targets: [ 'ride-microservice:8080' ]
 
   - job_name: 'user-microservice'
     metrics_path: '/metrics'
     static_configs:
-      - targets: [ 'user-microservice:8082' ]
+      - targets: [ 'user-microservice:8080' ]
 
   - job_name: 'user-rideadapter'
     metrics_path: '/metrics'
     static_configs:
-      - targets: [ 'user-microservice:8083' ]
+      - targets: [ 'user-microservice:8081' ]
