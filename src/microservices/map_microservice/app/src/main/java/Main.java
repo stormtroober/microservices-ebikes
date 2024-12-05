@@ -20,7 +20,7 @@ public class Main {
         RestMapServiceAPI service = new RestMapServiceAPIImpl(bikeRepository, eventPublisher);
 
         // Deploy single verticle with both API and Eureka registration
-        vertx.deployVerticle(new MapServiceVerticle(service, "map-microservice"));
+        vertx.deployVerticle(new MapServiceVerticle(service, System.getenv("SERVICE_NAME")));
 
         // Deploy verticle for communication with other microservices
         vertx.deployVerticle(new BikeUpdateAdapter(service));

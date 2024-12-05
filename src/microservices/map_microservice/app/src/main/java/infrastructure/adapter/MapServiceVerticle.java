@@ -38,7 +38,7 @@ public class MapServiceVerticle extends AbstractVerticle {
         this.mapService = mapService;
         this.eurekaApplicationName = eurekaApplicationName;
         this.eurekaInstanceId = eurekaInstanceId;
-        this.port = EnvUtils.getEnvOrDefaultInt("SERVICE_PORT", 8087);
+        this.port = EnvUtils.getEnvOrDefaultInt("SERVICE_PORT", 8080);
         this.eurekaPort = EnvUtils.getEnvOrDefaultInt("EUREKA_PORT", 8761);
         this.eurekaHost = EnvUtils.getEnvOrDefaultString("EUREKA_HOST", "eureka-service");
         this.metricsManager = MetricsManager.getInstance();
@@ -182,9 +182,9 @@ public class MapServiceVerticle extends AbstractVerticle {
 
 
         // Start the server
-        server.requestHandler(router).listen(8087, result -> {
+        server.requestHandler(router).listen(this.port, result -> {
             if (result.succeeded()) {
-                System.out.println("HTTP server started on port 8087");
+                System.out.println("HTTP server started on port "+this.port);
                 registerWithEureka();
                 vertx.setPeriodic(TimeUnit.SECONDS.toMillis(30), id -> sendHeartbeat());
             } else {

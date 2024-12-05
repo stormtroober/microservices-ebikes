@@ -20,7 +20,7 @@ public class RideUpdateAdapter extends AbstractVerticle {
 
     public RideUpdateAdapter(RestMapServiceAPI mapService) {
         this.mapService = mapService;
-        this.port = EnvUtils.getEnvOrDefaultInt("COMM_MICROSERVICES_PORT", 8089);
+        this.port = EnvUtils.getEnvOrDefaultInt("ADAPTER_RIDE_PORT", 8081);
         this.metricsManager = MetricsManager.getInstance();
     }
 
