@@ -37,14 +37,6 @@ La porta è progettata per gestire la pubblicazione di eventi relativi agli uten
 Include metodi per pubblicare aggiornamenti su un singolo utente e su tutti gli utenti.
 Questi eventi sono fondamentali per mantenere il sistema e gli utenti informati sugli aggiornamenti in tempo reale.
 
-**EurekaRegistrationPort**
-
-La porta è progettata per registrare il microservizio al Service Discovery.
-
-Include metodi per registrare un'istanza dell'applicazione, inviare un heartbeat per mantenere l'istanza registrata
-e deregistrare un'istanza dell'applicazione.
-
-Questa porta è fondamentale per garantire che il microservizio sia sempre disponibile e raggiungibile dagli altri servizi.
 
 **UserServiceImpl**
 
@@ -60,13 +52,6 @@ Utilizza il repository per accedere ai dati degli utenti e l'event publisher per
 
 Le quattro porte sono quindi implementate nel layer infrastrutturale, che fornisce le implementazioni concrete per interagire con la repository, pubblicare eventi, registrare il microservizio al Service Discovery e gestire le richieste REST.
 
-**EurekaRegistrationAdapter**
-
-La classe implementa la porta per registrare il microservizio al Service Discovery.
-Utilizza la libreria `vertx-eureka` per registrare l'istanza del microservizio al Service Discovery, e
-il WebClient di Vert.x per inviare richieste HTTP a Eureka.
-Include metodi per registrare un'istanza dell'applicazione, inviare un heartbeat per mantenere l'istanza registrata e
-deregistrare un'istanza dell'applicazione.
 
 **RideCommunicationAdapter**
 

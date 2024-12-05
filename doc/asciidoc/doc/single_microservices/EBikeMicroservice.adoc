@@ -29,13 +29,6 @@ e recuperare tutte le ebike.
 
 Questa interfaccia facilita la comunicazione tra il sistema delle ebike e i client esterni, consentendo un'interazione fluida e uno scambio di dati.
 
-**EurekaRegistrationPort**
-
-La porta è progettata per registrare il microservizio al Service Discovery.
-
-Include metodi per registrare un’istanza dell’applicazione e inviare un heartbeat per mantenere l’istanza registrata.
-
-Questa porta è fondamentale per garantire che il microservizio sia sempre disponibile e raggiungibile dagli altri servizi.
 
 **MapCommunicationPort**
 

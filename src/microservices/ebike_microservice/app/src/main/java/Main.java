@@ -1,5 +1,4 @@
 import application.EBikeServiceImpl;
-import infrastructure.adapters.eureka.EurekaRegistrationAdapter;
 import infrastructure.adapters.map.MapCommunicationAdapter;
 import infrastructure.adapters.ride.RideCommunicationAdapter;
 import infrastructure.adapters.web.EBikeVerticle;
@@ -53,24 +52,10 @@ public class Main {
         // Deploy RideCommunicationAdapter
         rideCommunicationAdapter.init();
         // Create Eureka adapter
-        EurekaRegistrationAdapter eurekaAdapter = new EurekaRegistrationAdapter(
-                vertx,
-                eurekaConfig
-        );
+        EBikeVerticle eBikeVerticle = new EBikeVerticle(restEBikeAdapter, serviceConfiguration, vertx);
+        eBikeVerticle.init();
 
-        // Deploy EBikeVerticle
-        vertx.deployVerticle(new EBikeVerticle(
-                restEBikeAdapter,
-                eurekaAdapter,
-                serviceConfiguration
-        )).onSuccess(id -> {
-            logger.info("EBike service started successfully on port {" + serviceConfiguration.getInteger("port") + "}");
 
-        }).onFailure(err -> {
-            logger.error("Failed to start EBike service", err);
-            vertx.close();
-            System.exit(1);
-        });
 
 
     }
