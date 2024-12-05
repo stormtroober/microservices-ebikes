@@ -27,9 +27,9 @@ public class RideServiceVerticle extends AbstractVerticle {
         this.rideService = rideService;
         this.eurekaApplicationName = eurekaApplicationName;
         this.eurekaInstanceId = eurekaInstanceId;
-        this.port = 8092;
-        this.eurekaPort = 8761;
-        this.eurekaHost = "eureka-server";
+        this.port = Integer.parseInt(System.getenv("SERVICE_PORT"));
+        this.eurekaPort = Integer.parseInt(System.getenv("EUREKA_PORT"));;
+        this.eurekaHost = System.getenv("EUREKA_HOST");
         this.metricsManager = MetricsManager.getInstance();
     }
 

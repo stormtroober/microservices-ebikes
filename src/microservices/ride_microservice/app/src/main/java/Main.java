@@ -15,9 +15,9 @@ public class Main {
         Vertx vertx = Vertx.vertx();
 
         RideRepository rideRepository = new RideRepositoryImpl(vertx);
-        String ebikeServiceUrl = "http://ebike-microservice:8082"; // Adjust the URL as needed
-        String mapServiceUrl = "http://map-microservice:8089";
-        String userServiceUrl = "http://user-microservice:8083";
+        String ebikeServiceUrl = "http://"+System.getenv("EBIKE_HOST")+":"+System.getenv("EBIKE_PORT");
+        String mapServiceUrl = "http://"+System.getenv("MAP_HOST")+":"+System.getenv("MAP_PORT");
+        String userServiceUrl = "http://"+System.getenv("USER_HOST")+":"+System.getenv("USER_PORT");
 
         EbikeCommunicationPort ebikeCommunicationAdapter = new EBikeCommunicationAdapter(vertx, ebikeServiceUrl);
         MapCommunicationPort mapCommunicationAdapter = new MapCommunicationAdapter(vertx, mapServiceUrl);
@@ -27,6 +27,6 @@ public class Main {
         RestRideServiceAPI service = new RestRideServiceAPIImpl(rideRepository, vertx, ebikeCommunicationAdapter, mapCommunicationAdapter, userCommunicationAdapter);
 
         // Deploy single verticle with both API and Eureka registration
-        vertx.deployVerticle(new RideServiceVerticle(service, "ride-microservice"));
+        vertx.deployVerticle(new RideServiceVerticle(service, System.getenv("SERVICE_NAME")));
     }
 }
