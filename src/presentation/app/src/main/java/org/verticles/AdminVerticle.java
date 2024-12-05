@@ -14,6 +14,8 @@ public class AdminVerticle extends AbstractVerticle {
     private WebSocket userWebSocket;
     private WebSocket bikeWebSocket;
     private final Vertx vertx;
+    private static final int PORT = 8080;
+    private static final String ADDRESS = "localhost";
 
     public AdminVerticle(Vertx vertx) {
         this.vertx = vertx;
@@ -32,7 +34,7 @@ public class AdminVerticle extends AbstractVerticle {
 
     private void setupWebSocketConnections() {
         // Connect to user updates WebSocket
-        httpClient.webSocket(8081, "localhost", "/USER-MICROSERVICE/observeAllUsers")
+        httpClient.webSocket(PORT, ADDRESS, "/USER-MICROSERVICE/observeAllUsers")
             .onSuccess(ws -> {
                 System.out.println("Connected to user updates WebSocket");
                 userWebSocket = ws;
@@ -40,7 +42,7 @@ public class AdminVerticle extends AbstractVerticle {
             });
 
         // Connect to bike location updates WebSocket
-        httpClient.webSocket(8081, "localhost", "/MAP-MICROSERVICE/observeAllBikes")
+        httpClient.webSocket(PORT, ADDRESS, "/MAP-MICROSERVICE/observeAllBikes")
             .onSuccess(ws -> {
                 bikeWebSocket = ws;
                 ws.textMessageHandler(message -> {
@@ -49,7 +51,7 @@ public class AdminVerticle extends AbstractVerticle {
                 });
 
 
-//                webClient.get(8081, "localhost", "/EBIKE-MICROSERVICE/api/ebikes")
+//                webClient.get(PORT, ADDRESS, "/EBIKE-MICROSERVICE/api/ebikes")
 //                    .send(ar -> {
 //                        if (ar.succeeded() && ar.result().statusCode() == 200) {
 //                            ar.result().bodyAsJsonArray().forEach(bike -> {
@@ -79,7 +81,7 @@ public class AdminVerticle extends AbstractVerticle {
         // Handle create bike requests
         vertx.eventBus().consumer("admin.bike.create", message -> {
             JsonObject bikeDetails = (JsonObject) message.body();
-            webClient.post(8081, "localhost", "/EBIKE-MICROSERVICE/api/ebikes/create")
+            webClient.post(PORT, ADDRESS, "/EBIKE-MICROSERVICE/api/ebikes/create")
                 .sendJsonObject(bikeDetails, ar -> {
                     if (ar.succeeded() && ar.result().statusCode() == 201) {
                         message.reply(ar.result().bodyAsJsonObject());
@@ -94,7 +96,7 @@ public class AdminVerticle extends AbstractVerticle {
         vertx.eventBus().consumer("admin.bike.recharge", message -> {
             JsonObject rechargeDetails = (JsonObject) message.body();
             String bikeId = rechargeDetails.getString("bikeId");
-            webClient.put(8081, "localhost", "/EBIKE-MICROSERVICE/api/ebikes/" + bikeId + "/recharge")
+            webClient.put(PORT, ADDRESS, "/EBIKE-MICROSERVICE/api/ebikes/" + bikeId + "/recharge")
                 .sendJsonObject(rechargeDetails, ar -> {
                     if (ar.succeeded() && ar.result().statusCode() == 200) {
                         message.reply(ar.result().bodyAsJsonObject());

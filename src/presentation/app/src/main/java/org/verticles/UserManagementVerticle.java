@@ -30,7 +30,7 @@ public class UserManagementVerticle extends AbstractVerticle {
             String username = (String) message.body();
             JsonObject requestPayload = new JsonObject().put("username", username);
 
-            webClient.post(8081, "localhost", "/USER-MICROSERVICE/api/users/signin")
+            webClient.post(8080, "localhost", "/USER-MICROSERVICE/api/users/signin")
                     .sendJsonObject(requestPayload, ar -> {
                         if (ar.succeeded() && ar.result().statusCode() == 200) {
                             JsonObject response = ar.result().bodyAsJsonObject();
@@ -47,7 +47,7 @@ public class UserManagementVerticle extends AbstractVerticle {
         vertx.eventBus().consumer("user.register", message -> {
             JsonObject userDetails = (JsonObject) message.body();
             System.out.println("Sending registration request: " + userDetails);
-            webClient.post(8081, "localhost", "/USER-MICROSERVICE/api/users/signup")
+            webClient.post(8080, "localhost", "/USER-MICROSERVICE/api/users/signup")
                     .sendJsonObject(userDetails, ar -> {
                         if (ar.succeeded() && ar.result().statusCode() == 201) {
                             System.out.println("Registration successful");

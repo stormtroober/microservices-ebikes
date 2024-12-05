@@ -16,6 +16,8 @@ public class UserVerticle extends AbstractVerticle {
     private WebSocket bikeWebSocket;
     private final Vertx vertx;
     private final String username;
+    private static final int PORT = 8080;
+    private static final String ADDRESS = "localhost";
 
     public UserVerticle(Vertx vertx, String username) {
         this.vertx = vertx;
@@ -35,7 +37,7 @@ public class UserVerticle extends AbstractVerticle {
 
     private void setupWebSocketConnections() {
       // Connect to user updates WebSocket
-        httpClient.webSocket(8081, "localhost", "/USER-MICROSERVICE/observeUser/" + username)
+        httpClient.webSocket(PORT, ADDRESS, "/USER-MICROSERVICE/observeUser/" + username)
             .onSuccess(ws -> {
                 System.out.println("Connected to user updates WebSocket: " + username);
                 userWebSocket = ws;
@@ -47,7 +49,7 @@ public class UserVerticle extends AbstractVerticle {
                 System.out.println("Failed to connect to user updates WebSocket: " + err.getMessage());
             });
 
-        httpClient.webSocket(8081, "localhost", "/MAP-MICROSERVICE/observeUserBikes?username=" + username)
+        httpClient.webSocket(PORT, ADDRESS, "/MAP-MICROSERVICE/observeUserBikes?username=" + username)
             .onSuccess(ws -> {
                 System.out.println("Connected to user bikes updates WebSocket");
                 bikeWebSocket = ws;
@@ -75,7 +77,7 @@ public class UserVerticle extends AbstractVerticle {
         vertx.eventBus().consumer("user.update.recharge" + username, message -> {
             JsonObject creditDetails = (JsonObject) message.body();
             System.out.println("Recharging credit: " + creditDetails.encodePrettily());
-            webClient.patch(8081, "localhost", "/USER-MICROSERVICE/api/users/" + username + "/recharge")
+            webClient.patch(PORT, ADDRESS, "/USER-MICROSERVICE/api/users/" + username + "/recharge")
                 .sendJsonObject(creditDetails, ar -> {
                     if (ar.succeeded() && ar.result().statusCode() == 200) {
                         System.out.println("Credit recharged successfully");
@@ -90,7 +92,7 @@ public class UserVerticle extends AbstractVerticle {
         vertx.eventBus().consumer("user.ride.start." + username, message -> {
             JsonObject rideDetails = (JsonObject) message.body();
             System.out.println("Starting ride: " + rideDetails.encodePrettily());
-            webClient.post(8081, "localhost", "/RIDE-MICROSERVICE/startRide")
+            webClient.post(PORT, ADDRESS, "/RIDE-MICROSERVICE/startRide")
                     .sendJsonObject(rideDetails, ar -> {
                         if (ar.succeeded()) {
                             if (ar.result().statusCode() == 200) {
@@ -113,7 +115,7 @@ public class UserVerticle extends AbstractVerticle {
         vertx.eventBus().consumer("user.ride.stop." + username, message -> {
             JsonObject rideDetails = (JsonObject) message.body();
             System.out.println("Stopping ride: " + rideDetails.encodePrettily());
-            webClient.post(8081, "localhost", "/RIDE-MICROSERVICE/stopRide")
+            webClient.post(PORT, ADDRESS, "/RIDE-MICROSERVICE/stopRide")
                 .sendJsonObject(rideDetails, ar -> {
                     if (ar.succeeded() && ar.result().statusCode() == 200) {
                         System.out.println("Ride stopped successfully");
