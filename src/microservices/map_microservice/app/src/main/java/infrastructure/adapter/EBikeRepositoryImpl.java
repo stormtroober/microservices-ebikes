@@ -32,11 +32,6 @@ public class EBikeRepositoryImpl implements EBikeRepository {
         }
     }
 
-    @Override
-    public CompletableFuture<List<String>> getAllUsersWithAssignedBikes() {
-        return CompletableFuture.supplyAsync(() -> new ArrayList<>(bikeAssignments.keySet()));
-    }
-
     public CompletableFuture<Map<String, List<EBike>>> getUsersWithAssignedAndAvailableBikes() {
         return CompletableFuture.supplyAsync(() -> {
             List<EBike> availableBikes = bikes.values().stream()
