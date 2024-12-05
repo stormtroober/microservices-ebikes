@@ -2,7 +2,6 @@ import application.UserServiceImpl;
 import application.ports.UserEventPublisher;
 import application.ports.UserServiceAPI;
 import infrastructure.UserEventPublisherImpl;
-import infrastructure.adapters.eureka.EurekaRegistrationAdapter;
 import infrastructure.adapters.ride.RideCommunicationAdapter;
 import infrastructure.adapters.web.RESTUserAdapter;
 import infrastructure.adapters.web.UserVerticle;
@@ -21,56 +20,33 @@ public class Main {
         JsonObject mongoConfig = new JsonObject()
                 .put("connection_string", System.getenv().getOrDefault(
                         "MONGO_CONNECTION",
-                        "mongodb://mongodb:27017"  // Use Docker service name
+                        "mongodb://mongodb:27017"
                 ))
                 .put("db_name", System.getenv().getOrDefault(
                         "MONGO_DATABSE",
-                        "users_db"  // Use Docker service name
+                        "users_db"
                 ));
-
-        JsonObject eurekaConfig = new JsonObject()
-                .put("eurekaHost", System.getenv().getOrDefault("EUREKA_HOST", "eureka-server"))
-                .put("eurekaPort", Integer.parseInt(System.getenv().getOrDefault("EUREKA_PORT", "8761")))
-                .put("eurekaEnabled", true);
 
         JsonObject serviceConfiguration = new JsonObject()
                 .put("hostName", System.getenv().getOrDefault("SERVICE_NAME", "user-microservice"))
-                .put("port", Integer.parseInt(System.getenv().getOrDefault("SERVICE_PORT", "8080"))); // Create MongoDB client
-        // Create MongoDB client
+                .put("port", Integer.parseInt(System.getenv().getOrDefault("SERVICE_PORT", "8080")));
+
         MongoClient mongoClient = MongoClient.create(vertx, mongoConfig);
 
-        // Create repository
         MongoUserRepository repository = new MongoUserRepository(mongoClient);
 
-        // Create event publisher
         UserEventPublisher UserEventPublisher = new UserEventPublisherImpl(vertx);
 
-        // Create service
         UserServiceAPI service = new UserServiceImpl(repository, UserEventPublisher);
 
-        // Create controller
         RESTUserAdapter controller = new RESTUserAdapter(service, vertx);
 
-        // Create Eureka adapter
-        EurekaRegistrationAdapter eurekaAdapter = new EurekaRegistrationAdapter(
-                vertx,
-                eurekaConfig
-        );
+        UserVerticle userVerticle = new UserVerticle(controller, serviceConfiguration.getString("hostName"), vertx);
+
+        userVerticle.init();
 
         RideCommunicationAdapter rideAdapter = new RideCommunicationAdapter(service, Integer.parseInt(System.getenv("ADAPTER_RIDE_PORT")), vertx);
-        rideAdapter.init();
-        // Deploy verticle
-        vertx.deployVerticle(new UserVerticle(
-                controller,
-                eurekaAdapter,
-                serviceConfiguration
-        )).onSuccess(id -> {
-            logger.info("EBike service started successfully on port {" + serviceConfiguration.getInteger("port") + "}");
 
-        }).onFailure(err -> {
-            logger.error("Failed to start EBike service", err);
-            vertx.close();
-            System.exit(1);
-        });
+        rideAdapter.init();
     }
 }
