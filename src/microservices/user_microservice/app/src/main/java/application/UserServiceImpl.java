@@ -128,7 +128,7 @@ public class UserServiceImpl implements UserServiceAPI {
     @Override
     public CompletableFuture<JsonArray> getAllUsers() {
         return repository.findAll().thenApply(users -> {
-            //users.forEach(user -> UserEventPublisher.publishAllUsersUpdates((JsonObject) user));
+            System.out.println("Users: " + users);
             return users;
         });
     }

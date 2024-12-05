@@ -20,11 +20,11 @@ public class Main {
         JsonObject mongoConfig = new JsonObject()
                 .put("connection_string", System.getenv().getOrDefault(
                         "MONGO_CONNECTION",
-                        "mongodb://mongodb:27017"  // Use Docker service name
+                        "mongodb://mongodb:27017"
                 ))
                 .put("db_name", System.getenv().getOrDefault(
                         "MONGO_DATABSE",
-                        "ebikes_db"  // Use Docker service name
+                        "ebikes_db"
                 ));
 
         JsonObject eurekaConfig = new JsonObject()
@@ -37,28 +37,21 @@ public class Main {
                 .put("port", Integer.parseInt(System.getenv().getOrDefault("SERVICE_PORT", "8080")));
         MongoClient mongoClient = MongoClient.create(vertx, mongoConfig);
 
-        // Create MapCommunicationAdapter
-        String microserviceUrl = "http://"+System.getenv("MAP_HOST")+":"+System.getenv("MAP_PORT"); // Adjust the URL as needed
+        String microserviceUrl = "http://"+System.getenv("MAP_HOST")+":"+System.getenv("MAP_PORT");
         MapCommunicationAdapter mapCommunicationAdapter = new MapCommunicationAdapter(vertx, microserviceUrl);
 
-        // Create repository
         MongoEBikeRepository repository = new MongoEBikeRepository(mongoClient);
 
-        // Create service
         EBikeServiceImpl service = new EBikeServiceImpl(repository, mapCommunicationAdapter);
 
-        // Create controllers
         RESTEBikeAdapter restEBikeAdapter = new RESTEBikeAdapter(service);
-        RideCommunicationAdapter rideCommunicationAdapter = new RideCommunicationAdapter(service, 8081, vertx); // Port for RideCommunicationAdapter
-        // Deploy RideCommunicationAdapter
+        RideCommunicationAdapter rideCommunicationAdapter = new RideCommunicationAdapter(service, 8081, vertx);
         rideCommunicationAdapter.init();
-        // Create Eureka adapter
         EurekaRegistrationAdapter eurekaAdapter = new EurekaRegistrationAdapter(
                 vertx,
                 eurekaConfig
         );
 
-        // Deploy EBikeVerticle
         vertx.deployVerticle(new EBikeVerticle(
                 restEBikeAdapter,
                 eurekaAdapter,

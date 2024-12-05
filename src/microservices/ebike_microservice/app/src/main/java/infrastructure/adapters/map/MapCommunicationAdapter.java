@@ -16,9 +16,8 @@ public class MapCommunicationAdapter extends AbstractVerticle implements MapComm
     private Vertx vertx;
 
     public MapCommunicationAdapter(Vertx vertx, String microserviceUrl) {
-        // Configure the HttpClient with proper options
         this.httpClient = vertx.createHttpClient(new HttpClientOptions()
-                .setConnectTimeout(5000) // 5 seconds timeout
+                .setConnectTimeout(5000)
                 .setIdleTimeout(30)
         );
         this.microserviceUrl = microserviceUrl;
@@ -31,7 +30,6 @@ public class MapCommunicationAdapter extends AbstractVerticle implements MapComm
         System.out.println(ebike.encodePrettily());
         System.out.println("to -> " + microserviceUrl);
 
-        // Parse the URL properly
         String[] urlParts = microserviceUrl.replace("http://", "").split(":");
         String host = urlParts[0];
         int port = Integer.parseInt(urlParts[1].split("/")[0]);
@@ -45,7 +43,7 @@ public class MapCommunicationAdapter extends AbstractVerticle implements MapComm
                 })
                 .onFailure(err -> {
                     System.err.println("Failed to send EBike update: " + err.getMessage());
-                    err.printStackTrace(); // Add stack trace for better debugging
+                    err.printStackTrace();
                 });
     }
 
@@ -54,7 +52,6 @@ public class MapCommunicationAdapter extends AbstractVerticle implements MapComm
         System.out.println(ebikes.encodePrettily());
         System.out.println("to -> " + microserviceUrl);
 
-        // Parse the URL properly
         String[] urlParts = microserviceUrl.replace("http://", "").split(":");
         String host = urlParts[0];
         int port = Integer.parseInt(urlParts[1].split("/")[0]);
@@ -68,13 +65,12 @@ public class MapCommunicationAdapter extends AbstractVerticle implements MapComm
                 })
                 .onFailure(err -> {
                     System.err.println("Failed to send all EBike updates: " + err.getMessage());
-                    err.printStackTrace(); // Add stack trace for better debugging
+                    err.printStackTrace();
                 });
     }
 
     @Override
     public void start() {
-        // Any initialization code when the verticle starts
         System.out.println("MapCommunicationAdapter verticle started");
     }
 

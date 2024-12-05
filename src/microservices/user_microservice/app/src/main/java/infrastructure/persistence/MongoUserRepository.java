@@ -1,7 +1,6 @@
 package infrastructure.persistence;
 
 import application.ports.UserRepository;
-import io.vertx.core.Future;
 import io.vertx.core.json.JsonObject;
 import io.vertx.core.json.JsonArray;
 import io.vertx.ext.mongo.MongoClient;

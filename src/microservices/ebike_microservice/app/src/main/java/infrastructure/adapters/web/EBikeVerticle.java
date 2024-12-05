@@ -35,10 +35,8 @@ public class EBikeVerticle extends AbstractVerticle {
         Router router = Router.router(vertx);
         router.route().handler(BodyHandler.create());
 
-        // Configure routes
         controller.configureRoutes(router);
 
-        // Start HTTP server
         vertx.createHttpServer()
                 .requestHandler(router)
                 .listen(port)

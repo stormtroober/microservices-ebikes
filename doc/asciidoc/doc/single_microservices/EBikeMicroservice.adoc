@@ -1,6 +1,6 @@
 === EBike Microservice
 
-Il microservizio, organizzato in architettura esagonale, definisce quattro porte per interfacciarsi al layer di applicazione.
+Il microservizio, organizzato in architettura esagonale, definisce tre porte per interfacciarsi al layer di applicazione.
 Queste porte sono utilizzate nel layer infrastrutturale, che fornisce le implementazioni concrete per interagire con la repository, pubblicare eventi,
 registrare il microservizio al Service Discovery e gestire le richieste REST.
 
@@ -29,14 +29,6 @@ e recuperare tutte le ebike.
 
 Questa interfaccia facilita la comunicazione tra il sistema delle ebike e i client esterni, consentendo un'interazione fluida e uno scambio di dati.
 
-**EurekaRegistrationPort**
-
-La porta è progettata per registrare il microservizio al Service Discovery.
-
-Include metodi per registrare un’istanza dell’applicazione e inviare un heartbeat per mantenere l’istanza registrata.
-
-Questa porta è fondamentale per garantire che il microservizio sia sempre disponibile e raggiungibile dagli altri servizi.
-
 **MapCommunicationPort**
 
 La porta è progettata per comunicare con il Map Microservice.
@@ -54,3 +46,34 @@ Fornisce i metodi per creare una nuova ebike, recuperare una ebike per ID, ricar
 
 ==== Infrastructure Layer
 
+**RESTEBikeAdapter**
+
+Gestisce le richieste REST per il microservizio delle ebike.
+Configura le rotte HTTP e definisce i metodi per gestire le operazioni sulle ebike, in particolare, espone un endpoint per creare una nuova ebike, un endpoint per ricaricare la batteria dell'ebike, e un endpoint per recuperare tutte le ebike.
+
+**MapCommunicationAdapter**
+
+Gestisce la comunicazione con il Map Microservice e  implementa l'interfaccia MapCommunicationPort. Utilizza un HttpClient per inviare aggiornamenti sulle ebike al microservizio delle mappe.
+Configura un istanza di HttpClient per inviare richieste HTTP al Map Microservice.
+Include metodi per inviare aggiornamenti su una singola ebike e inviare aggiornamenti su tutte le ebike.
+
+**RideCommunicationAdapter**
+
+Gestisce la comunicazione con il Ride Microservice e utilizza `EBikeServiceAPI` per eseguire operazioni sulle ebike e inviare aggiornamenti. Configura un server HTTP con diverse rotte per gestire le richieste in arrivo.
+Include metodi per recuperare i dettagli di una ebike e aggiornare i dettagli di una ebike.
+
+**EBikeVerticle**
+
+Rappresenta il punto di ingresso del microservizio degli utenti. Configura le rotte HTTP usando il `RESTEbikeAdapter` e
+gestisce la registrazione del microservizio al Service Discovery, l'inizio e l'invio degli `heartBeat` per mantenere l'istanza registrata.
+Include, inoltre, i metodi per la configurazione del server HTTP e per il deploy del verticle.
+
+**MongoEBikeRepository**
+
+Implementa l'interfaccia `EBikeRepository` e fornisce un'implementazione concreta per l'accesso ai dati delle ebike tramite un database MongoDB.
+Utilizza MongoClient di Vert.x per eseguire operazioni sulla collezione ebikes.
+
+**MetricsManager**
+
+Rappresenta un singleton che gestisce le metriche dell’applicazione utilizzando Micrometer e Prometheus.
+Fornisce metodi per avviare e registrare timer, incrementare contatori e registrare errori per vari metodi nell'ebike microservice.

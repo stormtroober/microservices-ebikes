@@ -43,7 +43,6 @@ public class RideServiceVerticle extends AbstractVerticle {
         HttpServer server = vertx.createHttpServer();
         Router router = Router.router(vertx);
 
-        // Enable request body handling for PUT/POST requests
         router.route().handler(BodyHandler.create());
 
         router.get("/health").handler(ctx -> ctx.response().setStatusCode(200).end("OK"));
@@ -65,7 +64,6 @@ public class RideServiceVerticle extends AbstractVerticle {
                 ctx.response().setStatusCode(200).end("Ride started");
                 metricsManager.recordTimer(timer, "startRide");
             }).exceptionally(ex -> {
-                // Send both status code and error message
                 ctx.response()
                         .setStatusCode(400)  // Use 400 for client errors
                         .putHeader("Content-Type", "application/json")
@@ -93,7 +91,6 @@ public class RideServiceVerticle extends AbstractVerticle {
                 return null;
             });
         });
-        // Start the server
         server.requestHandler(router).listen(port, result -> {
             if (result.succeeded()) {
                 System.out.println("HTTP server started on port " + port);

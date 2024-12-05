@@ -7,7 +7,7 @@ public class User {
 
     public User(String id, int credit) {
         this.id = id;
-        this.credit = credit; // Default credit
+        this.credit = credit;
     }
 
     public String getId() { return id; }

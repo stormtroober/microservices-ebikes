@@ -36,7 +36,6 @@ public class UserVerticle extends AbstractVerticle {
     }
 
     private void setupWebSocketConnections() {
-      // Connect to user updates WebSocket
         httpClient.webSocket(PORT, ADDRESS, "/USER-MICROSERVICE/observeUser/" + username)
             .onSuccess(ws -> {
                 System.out.println("Connected to user updates WebSocket: " + username);
@@ -99,7 +98,6 @@ public class UserVerticle extends AbstractVerticle {
                                 System.out.println("Ride started successfully");
                                 message.reply(ar.result().bodyAsString());
                             } else {
-                                // Extract error message from response
                                 JsonObject errorResponse = ar.result().bodyAsJsonObject();
                                 String errorMessage = errorResponse != null ?
                                         errorResponse.getString("error") : "Unknown error";

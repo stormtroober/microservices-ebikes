@@ -1,4 +1,3 @@
-// EBikeRepositoryImpl.java
 package infrastructure.adapter;
 
 import application.ports.EBikeRepository;
@@ -46,7 +45,6 @@ public class EBikeRepositoryImpl implements EBikeRepository {
                                         .filter(bike -> bike.getBikeName().equals(entry.getValue()))
                                         .collect(Collectors.toList());
 
-                                // Add available bikes to the list of user bikes
                                 userBikes.addAll(availableBikes);
                                 return userBikes;
                             }

@@ -33,7 +33,6 @@ public class AdminVerticle extends AbstractVerticle {
     }
 
     private void setupWebSocketConnections() {
-        // Connect to user updates WebSocket
         httpClient.webSocket(PORT, ADDRESS, "/USER-MICROSERVICE/observeAllUsers")
             .onSuccess(ws -> {
                 System.out.println("Connected to user updates WebSocket");
@@ -49,19 +48,6 @@ public class AdminVerticle extends AbstractVerticle {
                     System.out.println("Received bike update: " + message);
                     vertx.eventBus().publish("admin.bike.update", new JsonArray(message));
                 });
-
-
-//                webClient.get(PORT, ADDRESS, "/EBIKE-MICROSERVICE/api/ebikes")
-//                    .send(ar -> {
-//                        if (ar.succeeded() && ar.result().statusCode() == 200) {
-//                            ar.result().bodyAsJsonArray().forEach(bike -> {
-//                                handleBikeUpdate(bike.toString());
-//                            });
-//                        } else {
-//                            System.out.println("Failed to fetch bikes: " +
-//                                (ar.cause() != null ? ar.cause().getMessage() : "Unknown error"));
-//                        }
-//                    });
             });
     }
 
@@ -70,11 +56,6 @@ public class AdminVerticle extends AbstractVerticle {
         System.out.println("Received user update: " + update);
         vertx.eventBus().publish("admin.user.update", update);
     }
-
-//    private void handleBikeUpdate(String message) {
-//        JsonObject update = new JsonObject(message);
-//        vertx.eventBus().publish("admin.bike.update", update);
-//    }
 
     @Override
     public void start() {
@@ -91,8 +72,6 @@ public class AdminVerticle extends AbstractVerticle {
                     }
                 });
         });
-
-        // Handle bike recharge requests
         vertx.eventBus().consumer("admin.bike.recharge", message -> {
             JsonObject rechargeDetails = (JsonObject) message.body();
             String bikeId = rechargeDetails.getString("bikeId");

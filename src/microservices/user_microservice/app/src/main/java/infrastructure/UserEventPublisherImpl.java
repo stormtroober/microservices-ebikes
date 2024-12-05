@@ -1,7 +1,6 @@
 package infrastructure;
 
 import application.ports.UserEventPublisher;
-import domain.model.User;
 import io.vertx.core.Vertx;
 import io.vertx.core.json.JsonObject;
 

@@ -23,10 +23,8 @@ public class Main {
         MapCommunicationPort mapCommunicationAdapter = new MapCommunicationAdapter(vertx, mapServiceUrl);
         UserCommunicationPort userCommunicationAdapter = new UserCommunicationAdapter(vertx, userServiceUrl);
 
-        // Create service
         RestRideServiceAPI service = new RestRideServiceAPIImpl(rideRepository, vertx, ebikeCommunicationAdapter, mapCommunicationAdapter, userCommunicationAdapter);
 
-        // Deploy single verticle with both API and Eureka registration
         vertx.deployVerticle(new RideServiceVerticle(service, System.getenv("SERVICE_NAME")));
     }
 }

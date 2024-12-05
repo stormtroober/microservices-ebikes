@@ -11,7 +11,6 @@ import org.verticles.AdminVerticle;
 
 import javax.swing.*;
 import java.awt.*;
-import java.util.ArrayList;
 import java.util.List;
 import java.util.concurrent.CopyOnWriteArrayList;
 
@@ -103,22 +102,6 @@ public class AdminView extends AbstractView {
             refreshView();
         });
     }
-
-//    private void updateAllUsers(UserViewModel user) {
-//        userList.stream().filter(u -> u.username().equals(user.username()))
-//                .forEach(u -> u.updateCredit(user.credit()));
-//        refreshView();
-//    }
-
-//    private void updateAllBikes(Collection<EBikeDTO> allBikes) {
-//        eBikes = allBikes.stream()
-//                .map(bike -> {
-//                    EBikeDTOExt bikeExt = pluginService.applyPluginEffect("ColorStateEffect", bike);
-//                    return Mapper.toDomain(bikeExt);
-//                })
-//                .toList();
-//        refreshView();
-//    }
 
     @Override
     protected void paintAdminView(Graphics2D g2) {

@@ -1,10 +1,8 @@
 package application.ports;
 
-import domain.model.EBike;
 import io.vertx.core.json.JsonArray;
 import io.vertx.core.json.JsonObject;
 
-import java.util.List;
 import java.util.Optional;
 import java.util.concurrent.CompletableFuture;
 

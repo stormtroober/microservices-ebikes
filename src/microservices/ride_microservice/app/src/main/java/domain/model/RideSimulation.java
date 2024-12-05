@@ -69,13 +69,11 @@ public class RideSimulation {
                 completeSimulation();
             }
 
-            // Simulate movement and battery usage
             V2d direction = bike.getDirection();
             double speed = 0.5;  // Set speed to a constant value for simplicity
             V2d movement = direction.mul(speed);
             bike.setLocation(bike.getLocation().sum(movement));
 
-            // Boundary checks to reverse direction
             if (bike.getLocation().x() > 200 || bike.getLocation().x() < -200) {
                 bike.setDirection(new V2d(-direction.x(), direction.y()));
             }
@@ -83,7 +81,6 @@ public class RideSimulation {
                 bike.setDirection(new V2d(direction.x(), -direction.y()));
             }
 
-            // Change direction every 500ms
             long elapsedTimeSinceLastChangeDir = System.currentTimeMillis() - lastTimeChangedDir;
             if (elapsedTimeSinceLastChangeDir > 500) {
                 double angle = Math.random() * 60 - 30;
@@ -91,7 +88,6 @@ public class RideSimulation {
                 lastTimeChangedDir = System.currentTimeMillis();
             }
 
-            // Decrease battery and user credit
             bike.decreaseBattery(BATTERY_DECREASE);
             user.decreaseCredit(CREDIT_DECREASE);
 
@@ -106,17 +102,12 @@ public class RideSimulation {
             JsonObject userUpdateMsg = new JsonObject()
                     .put("username", user.getId())
                     .put("credit", user.getCredit());
-            // Publish updated ride information
             eventBus.publish(RIDE_UPDATE_ADDRESS_EBIKE, ebikeUpdateMsg);
             eventBus.publish(RIDE_UPDATE_ADDRESS_USER, userUpdateMsg);
         }
     }
 
     private void completeSimulation() {
-        // Instead of publishing a string
-        // eventBus.publish(RIDE_UPDATE_ADDRESS, "Simulation completed");
-
-        // Publish a JsonObject
         JsonObject completionMessage = new JsonObject()
                 .put("status", "completed")
                 .put("message", "Simulation completed");
