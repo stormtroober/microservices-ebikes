@@ -50,8 +50,6 @@ public class MapServiceVerticle extends AbstractVerticle {
 
     @Override
     public void start() {
-        //configureMetrics();
-
         client = WebClient.create(vertx);
         HttpServer server = vertx.createHttpServer();
         Router router = Router.router(vertx);
@@ -156,7 +154,7 @@ public class MapServiceVerticle extends AbstractVerticle {
 
                         // Track WebSocket disconnection
                         metricsManager.incrementMethodCounter("observeUserBikes_connection_closed");
-
+                        mapService.deregisterUser(username);
                         globalConsumer.unregister();
                         userConsumer.unregister();
                     });
@@ -167,7 +165,7 @@ public class MapServiceVerticle extends AbstractVerticle {
 
                         // Track WebSocket exception
                         metricsManager.incrementMethodCounter("observeUserBikes_connection_error");
-
+                        mapService.deregisterUser(username);
                         globalConsumer.unregister();
                         userConsumer.unregister();
                     });
