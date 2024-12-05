@@ -1,0 +1,230 @@
+Seguendo i bounded context individuati e, in generale, l'analisi del dominio, è stato possibile identificare le system operations, effettuare
+la suddivisioni in subdomains per identificare i servizi ed infine identificare le API di ogni servizio.
+
+=== System operations
+
+In questa fase sono stati prima identificati i comandi:
+
+[cols="1,1,1,2", options="header"]
+|===
+| Actor | Story | Command | Description
+
+| Admin/User | Register | `signUp()` | Creazione profilo
+| Admin/User | Login | `signIn()` | Accesso al sistema
+| Admin | Add a New Bike | `addBike()` | Aggiunta di una nuova ebike nel sistema
+| Admin | Recharge Bike | `rechargeBike()` | Ricarica la batteria di una ebike
+| User | Start a Ride | `startRide()` | Lo User inizia una ride
+| User | Stop a Ride | `stopRide()` | Lo User termina una ride
+| User | Recharge credit | `rechargeCredit()` | Lo User ricarica il proprio credito di una certa quantità
+|===
+
+In seguito sono stati identificati le query:
+
+[cols="1,2", options="header"]
+|===
+| Query | Descrizione
+
+| `getUser(userName)`
+| Recupera i dettagli di un utente specifico in base al suo nome utente. Questa funzione è utile per verificare se un utente è registrato e accedere alle informazioni del suo profilo.
+
+| `observeAllEBikes()`
+| Restituisce un elenco di tutte le EBike nel sistema, comprese quelle che potrebbero non essere disponibili per le corse. Questa funzione sarebbe tipicamente utilizzata da un Admin per visualizzare e gestire tutte le biciclette, indipendentemente dal loro stato attuale.
+
+| `getEBike(bikeId)`
+| Recupera informazioni dettagliate su una specifica EBike tramite il suo bikeId unico. Questo potrebbe includere attributi come livello di carica, posizione e stato. Gli Admin potrebbero utilizzare questa funzione per ispezionare o gestire biciclette singole.
+
+| `getEBikeState(bikeId)`
+| Restituisce lo stato attuale di una specifica EBike identificata dal bikeId. Lo stato potrebbe indicare se la bicicletta è disponibile, in uso o in manutenzione. Questo è utile sia per gli Admin (per gestire la disponibilità delle biciclette) che per gli utenti (per vedere se una bicicletta è pronta per l'uso).
+
+| `observeAllUsers()`
+| Recupera un elenco di tutti gli utenti registrati nel sistema. Questa funzione è destinata agli Admin che devono visualizzare e gestire gli account utente o analizzare i modelli di utilizzo.
+
+| `observeUserEBikes()`
+| Restituisce un osservabile delle EBike attualmente disponibili per le corse.
+
+| `getUserCredit(userId)`
+| Recupera il saldo attuale del credito di un utente specifico tramite il suo userId. Questa funzione è utile per gli utenti per controllare il loro saldo disponibile prima di iniziare una corsa e per gli Admin per assistere gli utenti con domande relative all'account.
+|===
+
+=== Subdomains
+
+I subdomains identificati sono i seguenti:
+
+**User Management**
+
+[cols="1,2", options="header"]
+|===
+| Capacità | Descrizione
+
+| Registrazione e Autenticazione
+| Gestisce la registrazione e il login, assicurando che utenti e admin abbiano credenziali valide per accedere al sistema.
+
+| Gestione del Credito (User)
+| Gestisce il credito degli utenti, compresa l'allocazione iniziale e la ricarica.
+
+| Visualizzazione Profilo e Account
+| Consente agli utenti di visualizzare il saldo del credito e le informazioni del profilo.
+
+| Supervisione Utenti (Admin)
+| Consente agli admin di visualizzare tutti gli utenti registrati e i dettagli sul loro credito.
+|===
+
+**Bike Management**
+
+[cols="1,2", options="header"]
+|===
+| Capacità | Descrizione
+
+| Gestione Inventario E-Bike
+| Gestisce l'inventario delle e-bike, consentendo agli admin di registrare nuove e-bike.
+
+| Stato e Manutenzione Biciclette
+| Consente agli admin di verificare e aggiornare lo stato delle e-bike, comprese le operazioni ricarica.
+
+| Tracciamento E-Bike
+| Abilita gli admin a visualizzare tutte le e-bike sulla mappa, indipendentemente dalla loro disponibilità,
+fornendo una visione completa della distribuzione e dell'uso.
+
+| Disponibilità e-bike (Utente)
+| Mostra solo le e-bike disponibili per gli utenti.
+|===
+
+**Ride Management**
+
+[cols="1,2", options="header"]
+|===
+| Capacità | Descrizione
+
+| Inizio ride
+| Gestisce il processo di avvio di una ride, aggiornando lo stato della bicicletta a IN_USE,
+modificando il credito dell'utente e iniziando a tracciare il movimento della e-bike sulla mappa.
+
+| Tracciamento della ride e Aggiornamenti della Map
+| Assicura che la posizione della e-bike venga aggiornata sulla mappa mentre l'utente sta effettuando una ride,
+riflettendo i cambiamenti di posizione in tempo reale.
+
+| Fine ride
+| Gestisce la fine di una ride, impostando lo stato dell'e-bike su AVAIABLE o MAINTENANCE in base al livello della batteria
+e salvando la posizione finale sulla mappa.
+
+| Monitoraggio della Ride
+| Consente agli utenti di vedere la posizione in tempo reale della propria e-bike sulla mappa durante la ride.
+|===
+
+**Map Management**
+
+[cols="1,2", options="header"]
+|===
+| Capacità | Descrizione
+
+| Rendering della Map e Disponibilità e-bike
+| Visualizza una mappa con solo le e-bike attualmente disponibili per l'accesso degli utenti.
+
+| Panoramica della Map (Admin)
+| Fornisce agli admin una vista completa di tutte le e-bike.
+|===
+
+=== Identificazione dei servizi dalle operazioni di sistema
+
+[cols="1,1", options="header"]
+|===
+| Servizio | Operazione
+
+| User Service | `signUp()`, `signIn()`, `rechargeCredit()`, `decreaseCredit()`, `getUser()`, `observeAllUsers()`
+| EBike Service | `addBike()`, `rechargeBike()`, `getEBike()`, `getEBikeState()`, `updateEBike()`
+| Ride Service | `startRide()`, `stopRide()`
+| Map Service | `updateBikes`, `observeAllBikes()`, `observeAvaiableBikes()`, `notifyStartRide()`, `notifyStopRide()`
+
+|===
+
+[cols="1,1, 1", options="header"]
+|===
+| Servizio | Operazione | Collaboratori
+
+| User Service | `signUp()`, `signIn()`, `rechargeCredit()`, `decreaseCredit()`, `getUser()`, `observeAllUsers()`, `observeUser()` | --
+| EBike Service | `addBike()`, +
+
+`rechargeBike()`, +
+
+`getEBike()`, `getEBikeState()`, +
+
+`updateEBike()` +| - Map Service: `updateBikes` +
+- Map Service: `updateBikes` +
+ --  +
+ --  +
+
+-Map Service: `updateBikes` +
+| Ride Service | `startRide()`, +
+
+ +
+
+ +
+
+ +
+
+ +
+
+`stopRide()` +| - EBike Service: `getEBike()`, `updateEBike()`  +
+- User Service: `observeUser()`, `getUser()`  +
+- Map Service: `notifyStartRide` +
+
+- Map Service: `notifyStopRide` +
+| Map Service | `updateBikes`, `observeAllBikes()`, `observeAvaiableBikes()`, `notifyStartRide()`, `notifyStopRide()`| --
+
+|===
+
+=== Identificazione delle API dei servizi
+
+Seguendo quanto detto sopra, sono state identificate le API di tipo REST per i servizi. Di seguito sono riportati gli endpoint di ogni servizio:
+
+==== USER SERVICE
+* `/signIn`(username) => POST
+** Ritorna `statusCode OK` se login avvenuto con successo
+* `/signUp`(username) => POST
+** Ritorna `status OK` se registrazione avvenuta con successo
+* `/rechargeCredit`(username, creditToAdd) => PATCH
+** Ritorna `status OK` e JSON se cambio avvenuto con successo
+* `/decreaseCredit`(username, creditToDecrease) => PATCH
+** Ritorna `status OK` e JSON se cambio avvenuto con successo
+* `/getUser`(username) => GET
+** Ritorna `status` e JSON con informazioni utente
+* `/observeAllUsers` => WebSocket
+** Emette JSON degli utenti mano a mano che cambiano (ad ogni refresh)
+* `/observeUser`(username) => WebSocket
+** Emette JSON di tutti i cambiamenti dell’utente
+
+==== BIKE SERVICE
+* **Endpoint:**
+* `/addBike`(bikeId, position) => POST
+** Ritorna `status OK` se avvenuto con successo
+* `/rechargeBike`(bikeId) => PATCH
+** Ritorna `status OK` e un JSON Object di ebike con il batteryLevel aggiornato
+* `/getEBike`(bikeId) => GET
+** Ritorna `status OK` e un JSON Object di ebike
+* `/getEBikeState`(bikeId) => GET
+** Ritorna `status OK` e JSON Object di ebike con lo stato
+* `/updateEBike`(bikeid, JSON bike) => PUT
+** Ritorna `status OK` e JSON di ebike
+
+==== MAP SERVICE
+* **Endpoint:**
+* `/updateEBike`(JSON bike) => PUT
+** Ritorna `status OK` se avvenuto con successo
+* `/notifyStartRide`(username, bikeName) => POST
+** Emette `status OK`
+* `/notifyStopRide`(username, bikeName) => POST
+** Emette`status OK`
+* `/observeAllBikes` => WebSocket
+** Emette JSON Object di tutte le ebike ad ogni cambiamento di ogni singola ebike
+* `/observeUserBikes`(username) => WebSocket
+** Ritorna JSON Object di tutte le ebike disponibili o quelle legate all’utente
+
+==== RIDE SERVICE
+* **Endpoint:**
+* `/startRide`(user, bike) => POST
+** Ritorna `status OK` se avvenuto con successo
+* `/stopRide`(username) => POST
+** Ritorna `status OK` se avvenuto con successo
+
+
+

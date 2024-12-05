@@ -1,0 +1,56 @@
+=== EBike Microservice
+
+Il microservizio, organizzato in architettura esagonale, definisce quattro porte per interfacciarsi al layer di applicazione.
+Queste porte sono utilizzate nel layer infrastrutturale, che fornisce le implementazioni concrete per interagire con la repository, pubblicare eventi,
+registrare il microservizio al Service Discovery e gestire le richieste REST.
+
+==== Domain Layer
+
+* *EBike*: Rappresenta una bicicletta elettrica nel sistema. Contiene attributi come `id`, `state`, `location`, `direction`, `speed` e `batteryLevel`. Include metodi per accedere e modificare questi attributi, nonché per gestire la ricarica e il decremento della batteria.
+* *EBikeFactory*: È una classe _singleton_ che fornisce un metodo per creare istanze di EBike.
+* *EBikeState*: È un _enum_ che definisce i possibili stati di una bicicletta elettrica: AVAILABLE (disponibile), IN_USE (in uso) e MAINTENANCE (in manutenzione).
+* *P2d*: Rappresenta un punto bidimensionale nello spazio. Contiene coordinate x e y e include metodi per operazioni vettoriali come somma, sottrazione e normalizzazione.
+* *V2d*: Rappresenta un vettore bidimensionale. Contiene componenti x e y e include metodi per operazioni vettoriali come somma, rotazione, moltiplicazione per uno scalare e normalizzazione.
+
+==== Application Layer
+
+**EBikeRepository**
+
+La porta è responsabile della gestione dei dati delle ebike all'interno del sistema.
+Fornisce metodi per salvare, aggiornare, trovare una ebike tramite il suo id e trovare tutte le ebike presenti nel sistema.
+
+Questa porta assicura che il sistema possa gestire in modo efficiente i dati delle ebike.
+
+**EBikeServiceAPI**
+
+La porta definisce il contratto per l'API REST che interagisce con il sistema delle ebike.
+Include metodi per creare una nuova ebike, recuperare una ebike per ID, ricaricare la batteria di una ebike, aggiornare i dettagli di una ebike
+e recuperare tutte le ebike.
+
+Questa interfaccia facilita la comunicazione tra il sistema delle ebike e i client esterni, consentendo un'interazione fluida e uno scambio di dati.
+
+**EurekaRegistrationPort**
+
+La porta è progettata per registrare il microservizio al Service Discovery.
+
+Include metodi per registrare un’istanza dell’applicazione e inviare un heartbeat per mantenere l’istanza registrata.
+
+Questa porta è fondamentale per garantire che il microservizio sia sempre disponibile e raggiungibile dagli altri servizi.
+
+**MapCommunicationPort**
+
+La porta è progettata per comunicare con il Map Microservice.
+
+Include metodi per inviare aggiornamenti su una singola ebike e inviare aggiornamenti su tutte le ebike.
+
+Questi metodi sono fondamentali per mantenere il sistema e le ebike informate sugli aggiornamenti in tempo reale.
+
+**EBikeServiceImpl**
+
+La classe implementa la logica di business del microservizio, utilizzando le porte definite nel layer di applicazione.
+Utilizza l'EBikeRepository per accedere ai dati delle ebike ed eseguire operazioni su di esse, e il `MapCommunicationAdapter` per comunicare con il Map Microservice.
+
+Fornisce i metodi per creare una nuova ebike, recuperare una ebike per ID, ricaricare la batteria di una ebike, aggiornare i dettagli di una ebike, ricaricare la batteria di una ebike e recuperare tutte le ebike presenti nel sistema.
+
+==== Infrastructure Layer
+
