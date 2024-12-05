@@ -3,7 +3,7 @@ services:
     build:
       context: ./eureka-servicediscovery
     ports:
-      - ${EUREKA_INSTANCE_PORT}:8761
+      - 8761:${EUREKA_INSTANCE_PORT}
     networks:
       - eureka-network
     environment:
@@ -22,7 +22,7 @@ services:
       build:
         context: ./map_microservice
       ports:
-        - ${MAP_INSTANCE_PORT}:8081
+        - 8081:${MAP_INSTANCE_PORT}
       networks:
         - eureka-network
       depends_on:
@@ -37,7 +37,7 @@ services:
         - ADAPTER_RIDE_PORT=${MAP_ADAPTER_RIDE_PORT}
         - ADAPTER_EBIKE_PORT=${MAP_ADAPTER_EBIKE_PORT}
       healthcheck:
-        test: ["CMD-SHELL", "curl -f http://localhost:${MAP_INSTANCE_PORT}/health || exit 1", "curl -f http://localhost:${ADAPTER_EBIKE_PORT}/health || exit 1"]
+        test: ["CMD-SHELL", "curl -f http://localhost:${MAP_INSTANCE_PORT}/health || exit 1", "curl -f http://localhost:${MAP_ADAPTER_EBIKE_PORT}/health || exit 1"]
         interval: 10s
         timeout: 5s
         retries: 3
@@ -46,7 +46,7 @@ services:
   mongodb:
     image: mongo:latest
     ports:
-      - ${MONGODB_INSTANCE_PORT}:27017
+      - 27017:${MONGODB_INSTANCE_PORT}
     networks:
       - eureka-network
     environment:
@@ -71,13 +71,13 @@ services:
     build:
       context: ./ebike_microservice
     ports:
-      - ${EBIKE_INSTANCE_PORT}:8082
+      - 8082:${EBIKE_INSTANCE_PORT}
     networks:
       - eureka-network
     depends_on:
       eureka-server:
         condition: service_healthy
-      mongodb-ebike:
+      mongodb:
         condition: service_healthy
       map-microservice:
         condition: service_healthy
@@ -90,7 +90,6 @@ services:
       - ADAPTER_RIDE_PORT=${EBIKE_ADAPTER_RIDE_PORT}
       - MAP_HOST=${MAP_INSTANCE_HOSTNAME}
       - MAP_PORT=${MAP_ADAPTER_EBIKE_PORT}
-      - MONGODB_COLLECTION=${EBIKE_MONGODB_COLLECTION}
       - MONGO_CONNECTION=${MONGODB_CONNECTION_STRING}
       - MONGO_DATABSE=${EBIKE_MONGODB_DATABASE}
     healthcheck:
@@ -104,7 +103,7 @@ services:
     build:
       context: ./ride_microservice
     ports:
-      - ${RIDE_INSTANCE_PORT}:8083
+      - 8083:${RIDE_INSTANCE_PORT}
     networks:
       - eureka-network
     depends_on:
@@ -139,13 +138,13 @@ services:
     build:
       context: ./user_microservice
     ports:
-      - ${USER_INSTANCE_PORT}:8084
+      - 8084:${USER_INSTANCE_PORT}
     networks:
       - eureka-network
     depends_on:
       eureka-server:
         condition: service_healthy
-      mongodb-ebike:
+      mongodb:
         condition: service_healthy
     environment:
       - EUREKA_CLIENT_SERVICEURL_DEFAULTZONE=${EUREKA_CLIENT_SERVICEURL_DEFAULTZONE}
@@ -154,7 +153,6 @@ services:
       - SERVICE_NAME=${USER_INSTANCE_HOSTNAME}
       - SERVICE_PORT=${USER_INSTANCE_PORT}
       - ADAPTER_RIDE_PORT=${USER_ADAPTER_RIDE_PORT}
-      - MONGODB_COLLECTION=${USER_MONGODB_COLLECTION}
       - MONGO_CONNECTION=${MONGODB_CONNECTION_STRING}
       - MONGO_DATABSE=${USER_MONGODB_DATABASE}
     healthcheck:
@@ -168,7 +166,7 @@ services:
     build:
       context: ./eureka-apigateway  # Path to your API Gateway Dockerfile
     ports:
-      - ${API_GATEWAY_EUREKA_INSTANCE_PORT}:8080  # Gateway runs on port 8081
+      - 8080:${API_GATEWAY_EUREKA_INSTANCE_PORT}  # Gateway runs on port 8081
     networks:
       - eureka-network
     depends_on:
@@ -196,7 +194,7 @@ services:
   prometheus:
     image: prom/prometheus:latest
     ports:
-      - ${PROMETHEUS_INSTANCE_PORT}:9090
+      - 9090:${PROMETHEUS_INSTANCE_PORT}
     networks:
       - eureka-network
     volumes:
