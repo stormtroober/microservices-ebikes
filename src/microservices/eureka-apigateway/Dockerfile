@@ -15,7 +15,7 @@ WORKDIR /app
 COPY --from=build /home/gradle/build/libs/eureka-apigateway-1.0.0-SNAPSHOT.jar app.jar
 
 # Expose the Eureka port
-EXPOSE 8081
+EXPOSE 8080
 
 # Set the entry point to run the JAR
 ENTRYPOINT ["java", "-jar", "app.jar"]
