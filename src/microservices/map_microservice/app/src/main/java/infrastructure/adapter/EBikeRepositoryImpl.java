@@ -37,6 +37,28 @@ public class EBikeRepositoryImpl implements EBikeRepository {
         return CompletableFuture.supplyAsync(() -> new ArrayList<>(bikeAssignments.keySet()));
     }
 
+    public CompletableFuture<Map<String, List<EBike>>> getUsersWithAssignedAndAvailableBikes() {
+        return CompletableFuture.supplyAsync(() -> {
+            List<EBike> availableBikes = bikes.values().stream()
+                    .filter(bike -> bike.getState() == EBikeState.AVAILABLE)
+                    .toList();
+
+            return bikeAssignments.entrySet().stream()
+                    .collect(Collectors.toMap(
+                            Map.Entry::getKey,
+                            entry -> {
+                                List<EBike> userBikes = bikes.values().stream()
+                                        .filter(bike -> bike.getBikeName().equals(entry.getValue()))
+                                        .collect(Collectors.toList());
+
+                                // Add available bikes to the list of user bikes
+                                userBikes.addAll(availableBikes);
+                                return userBikes;
+                            }
+                    ));
+        });
+    }
+
     @Override
     public CompletableFuture<List<EBike>> getAllBikes() {
         return CompletableFuture.supplyAsync(() -> new ArrayList<>(bikes.values()));

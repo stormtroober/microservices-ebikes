@@ -5,8 +5,6 @@ import application.ports.RestMapServiceAPI;
 import domain.model.EBike;
 import application.ports.EventPublisher;
 import application.ports.EBikeRepository;
-import domain.model.EBikeState;
-import domain.model.User;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -31,35 +29,20 @@ public class RestMapServiceAPIImpl implements RestMapServiceAPI {
                 .map(bikeRepository::saveBike)
                 .toArray(CompletableFuture[]::new))
                 .thenAccept(v -> {
-                    //Publish the update on the global endpoint
-                    var bikesInRepo = bikeRepository.getAllBikes().join();
-                    eventPublisher.publishBikesUpdate(bikesInRepo);
-                    var availableBikes = bikesInRepo.stream()
-                            .filter(bike -> bike.getState().equals(EBikeState.AVAILABLE))
-                            .toList();
-                    //List<EBike> availableBikes = bikeRepository.getAvailableBikes().join();
-                    var usersWithAssignedBikes = bikeRepository.getAllUsersWithAssignedBikes().join();
-                    if(!usersWithAssignedBikes.isEmpty()){
-                        usersWithAssignedBikes.forEach(username -> {
-                            List<EBike> userBikes = new ArrayList<>(bikesInRepo.stream()
-                                    .filter(bike -> {
-                                        String assignedUser = bikeRepository.isBikeAssigned(bike).join();
-                                        return assignedUser != null && assignedUser.equals(username);
-                                    }).toList());
-                            userBikes.addAll(availableBikes);
-                            eventPublisher.publishUserBikesUpdate(userBikes, username);
-                        });
-                    }
-                    else{
-                        eventPublisher.publishUserAvailableBikesUpdate(availableBikes);
-                    }
+                    bikeRepository.getAllBikes().thenAccept(eventPublisher::publishBikesUpdate);
+
+                    bikeRepository.getUsersWithAssignedAndAvailableBikes().thenAccept(usersWithBikeMap -> {
+                        if(!usersWithBikeMap.isEmpty()){
+                            usersWithBikeMap.forEach((username, userBikes) -> {
+                                eventPublisher.publishUserBikesUpdate(userBikes, username);
+                            });
+                        }
+                        else{
+                            bikeRepository.getAvailableBikes().thenAccept(eventPublisher::publishUserAvailableBikesUpdate);
+                        }
+                    });
 
                 });
-    }
-
-    //TODO: make a private method for the two methods
-    private void publishBikeForUser(){
-
     }
 
     @Override

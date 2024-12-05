@@ -2,6 +2,7 @@ package application.ports;
 
 import domain.model.EBike;
 
+import java.util.Map;
 import java.util.List;
 import java.util.concurrent.CompletableFuture;
 
@@ -19,6 +20,8 @@ public interface EBikeRepository {
     CompletableFuture<String> isBikeAssigned(EBike bike);
 
     CompletableFuture<List<String>> getAllUsersWithAssignedBikes();
+
+    CompletableFuture<Map<String, List<EBike>>> getUsersWithAssignedAndAvailableBikes();
 
     CompletableFuture<List<EBike>> getAllBikes();
 
