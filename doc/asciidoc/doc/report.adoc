@@ -28,6 +28,9 @@ toc::[]
 == Domain Driven Development
 include::ddd.adoc[]
 
+== Dal Domain Driven Development ai Microservizi
+include::from_dd_to_microservices.adoc[]
+
 == Descrizione dei microservizi
 include::single_microservices_description.adoc[]
 

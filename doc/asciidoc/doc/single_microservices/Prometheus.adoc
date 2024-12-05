@@ -1,0 +1,50 @@
+=== Prometheus
+
+Il microservizio è responsabile del monitoraggio e della raccolta delle metriche di sistema per i vari microservizi all'interno dell'architettura.
+
+Utilizza Prometheus per raccogliere e memorizzare le metriche, che possono poi essere utilizzate per analisi e monitoraggio in tempo reale.
+
+Per capire a quali microservizi raccogliere le metriche, esso usa il file di configurazione `prometheus.yml`.
+
+[source, yaml]
+----
+global:
+  scrape_interval: 15s  # Scrape targets every 15 seconds
+
+scrape_configs:
+  - job_name: 'api-gateway'
+    metrics_path: '/actuator/prometheus'
+    static_configs:
+      - targets: ['api-gateway:8081']
+
+  - job_name: 'service-discovery'
+    static_configs:
+      - targets: ['eureka-server:8761']
+    metrics_path: '/actuator/prometheus'
+
+  # Map microservice
+  - job_name: 'map-microservice'
+    metrics_path: '/metrics'
+    static_configs:
+      - targets: ['map-microservice:8087']
+
+  ...
+
+  - job_name: 'user-rideadapter'
+    metrics_path: '/metrics'
+    static_configs:
+      - targets: ['user-microservice:8083']
+----
+
+Per gestire le metriche all'interno del microservizio viene utilizzata la classe `MetricsManager`.
+
+Essa utilizza la libreria Micrometer per registrare e gestire le metriche, e specificamente il `PrometheusMeterRegistry` per l'integrazione con Prometheus.
+
+Ecco una descrizione delle principali funzionalità della classe MetricsManager:
+
+- Singleton Pattern: La classe utilizza il pattern Singleton per garantire che ci sia una sola istanza di MetricsManager in esecuzione.
+
+- Registrazione delle Metriche: Utilizza PrometheusMeterRegistry per registrare le metriche.
+- Temporizzazione dei Metodi: Fornisce metodi per avviare e registrare il tempo di esecuzione dei metodi.
+- Contatori di Metodi: Incrementa i contatori per il numero di chiamate ai metodi.
+- Registrazione degli Errori: Registra gli errori che si verificano durante l'esecuzione dei metodi.
