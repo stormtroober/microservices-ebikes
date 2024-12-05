@@ -6,11 +6,11 @@ import infrastructure.adapters.eureka.EurekaRegistrationAdapter;
 import infrastructure.adapters.ride.RideCommunicationAdapter;
 import infrastructure.adapters.web.RESTUserAdapter;
 import infrastructure.adapters.web.UserVerticle;
-import infrastructure.config.ApplicationConfig;
 import infrastructure.persistence.MongoUserRepository;
 import io.vertx.core.Vertx;
 import io.vertx.core.impl.logging.Logger;
 import io.vertx.core.impl.logging.LoggerFactory;
+import io.vertx.core.json.JsonObject;
 import io.vertx.ext.mongo.MongoClient;
 
 public class Main {
@@ -18,10 +18,26 @@ public class Main {
 
     public static void main(String[] args) {
         Vertx vertx = Vertx.vertx();
-        ApplicationConfig config = new ApplicationConfig();
+        JsonObject mongoConfig = new JsonObject()
+                .put("connection_string", System.getenv().getOrDefault(
+                        "MONGO_CONNECTION",
+                        "mongodb://mongodb:27017"  // Use Docker service name
+                ))
+                .put("db_name", System.getenv().getOrDefault(
+                        "MONGO_DATABSE",
+                        "users_db"  // Use Docker service name
+                ));
 
+        JsonObject eurekaConfig = new JsonObject()
+                .put("eurekaHost", System.getenv().getOrDefault("EUREKA_HOST", "eureka-server"))
+                .put("eurekaPort", Integer.parseInt(System.getenv().getOrDefault("EUREKA_PORT", "8761")))
+                .put("eurekaEnabled", true);
+
+        JsonObject serviceConfiguration = new JsonObject()
+                .put("hostName", System.getenv().getOrDefault("SERVICE_NAME", "user-microservice"))
+                .put("port", Integer.parseInt(System.getenv().getOrDefault("SERVICE_PORT", "8080"))); // Create MongoDB client
         // Create MongoDB client
-        MongoClient mongoClient = MongoClient.create(vertx, config.getMongoConfig());
+        MongoClient mongoClient = MongoClient.create(vertx, mongoConfig);
 
         // Create repository
         MongoUserRepository repository = new MongoUserRepository(mongoClient);
@@ -38,25 +54,21 @@ public class Main {
         // Create Eureka adapter
         EurekaRegistrationAdapter eurekaAdapter = new EurekaRegistrationAdapter(
                 vertx,
-                config.getEurekaConfig()
+                eurekaConfig
         );
 
-        RideCommunicationAdapter rideAdapter = new RideCommunicationAdapter(service, 8083, vertx);
+        RideCommunicationAdapter rideAdapter = new RideCommunicationAdapter(service, Integer.parseInt(System.getenv("ADAPTER_RIDE_PORT")), vertx);
         rideAdapter.init();
         // Deploy verticle
         vertx.deployVerticle(new UserVerticle(
                 controller,
                 eurekaAdapter,
-                config.getHostName(),
-                config.getHostName(),
-                config.getPort()
+                serviceConfiguration
         )).onSuccess(id -> {
-            logger.info("User service started successfully on port {" + config.getPort() + "}");
-            if (!config.isEurekaEnabled()) {
-                logger.info("Running in standalone mode (Eureka disabled)");
-            }
+            logger.info("EBike service started successfully on port {" + serviceConfiguration.getInteger("port") + "}");
+
         }).onFailure(err -> {
-            logger.error("Failed to start User service", err);
+            logger.error("Failed to start EBike service", err);
             vertx.close();
             System.exit(1);
         });

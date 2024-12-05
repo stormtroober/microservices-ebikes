@@ -3,6 +3,7 @@ package infrastructure.adapters.web;
 import application.ports.EurekaRegistrationPort;
 import io.vertx.core.AbstractVerticle;
 import io.vertx.core.Promise;
+import io.vertx.core.json.JsonObject;
 import io.vertx.ext.web.Router;
 import io.vertx.ext.web.handler.BodyHandler;
 import org.slf4j.Logger;
@@ -21,15 +22,13 @@ public class UserVerticle extends AbstractVerticle {
     public UserVerticle(
             RESTUserAdapter controller,
             EurekaRegistrationPort eurekaRegistration,
-            String applicationName,
-            String hostName,
-            int port
+            JsonObject config
     ) {
         this.controller = controller;
         this.eurekaRegistration = eurekaRegistration;
-        this.applicationName = applicationName;
-        this.hostName = hostName;
-        this.port = port;
+        this.applicationName = config.getString("hostName");
+        this.hostName = config.getString("hostName");;
+        this.port = config.getInteger("port");
     }
 
     @Override
