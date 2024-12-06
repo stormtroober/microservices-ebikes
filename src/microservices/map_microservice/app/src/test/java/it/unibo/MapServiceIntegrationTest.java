@@ -1,4 +1,4 @@
-package org.example;
+package it.unibo;
 
 
 import application.RestMapServiceAPIImpl;
@@ -41,8 +41,8 @@ public class MapServiceIntegrationTest {
         mapService = new RestMapServiceAPIImpl(repository, eventPublisher);
 
         // Deploy verticles
-        vertx.deployVerticle(new MapServiceVerticle(mapService, "map-microservice"))
-                .compose(id -> vertx.deployVerticle(new BikeUpdateAdapter(mapService)))
+        vertx.deployVerticle(new MapServiceVerticle(mapService, vertx))
+                .compose(id -> vertx.deployVerticle(new BikeUpdateAdapter(mapService, vertx)))
                 .onComplete(ar -> {
                     if (ar.succeeded()) {
                         testContext.completeNow();

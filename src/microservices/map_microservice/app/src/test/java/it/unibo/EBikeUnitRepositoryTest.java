@@ -1,4 +1,4 @@
-package org.example;
+package it.unibo;
 
 import domain.model.P2d;
 import infrastructure.adapter.EBikeRepositoryImpl;

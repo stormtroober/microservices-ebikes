@@ -1,4 +1,4 @@
-package org.example;
+package it.unibo;
 
 import application.RestMapServiceAPIImpl;
 import application.ports.EventPublisher;
@@ -43,7 +43,7 @@ public class MapServiceComponentTest {
         mapService = new RestMapServiceAPIImpl(repository, eventPublisher);
 
         // Deploy BikeUpdateAdapter only for this test
-        vertx.deployVerticle(new BikeUpdateAdapter(mapService))
+        vertx.deployVerticle(new BikeUpdateAdapter(mapService, vertx))
                 .onComplete(ar -> {
                     if (ar.succeeded()) {
                         // Add delay to ensure server is ready
