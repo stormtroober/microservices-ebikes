@@ -35,7 +35,7 @@ public class RideCommunicationAdapter extends AbstractVerticle {
         router.get("/api/users/:username").handler(this::getUser);
         router.put("/api/users/:id/update").handler(this::updateUser);
         router.get("/metrics").handler(this::metrics);
-
+        router.get("/health").handler(ctx -> ctx.response().setStatusCode(200).end("OK"));
         vertx.createHttpServer()
                 .requestHandler(router)
                 .listen(port)

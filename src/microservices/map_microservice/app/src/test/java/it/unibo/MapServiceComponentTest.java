@@ -5,6 +5,7 @@ import application.ports.EventPublisher;
 import application.ports.RestMapServiceAPI;
 import domain.model.EBike;
 import infrastructure.adapter.EBikeRepositoryImpl;
+import infrastructure.config.ServiceConfiguration;
 import io.vertx.core.Vertx;
 import io.vertx.core.buffer.Buffer;
 import io.vertx.core.json.JsonObject;
@@ -30,7 +31,7 @@ public class MapServiceComponentTest {
     private WebClient client;
     private RestMapServiceAPI mapService;
     private MockEventPublisher eventPublisher;
-    private static final int BIKE_UPDATE_PORT = 8088;
+    private static final int BIKE_UPDATE_PORT = 8082;
 
     @BeforeEach
     void setUp(VertxTestContext testContext) {
@@ -43,19 +44,24 @@ public class MapServiceComponentTest {
         mapService = new RestMapServiceAPIImpl(repository, eventPublisher);
 
         // Deploy BikeUpdateAdapter only for this test
-        vertx.deployVerticle(new BikeUpdateAdapter(mapService, vertx))
-                .onComplete(ar -> {
-                    if (ar.succeeded()) {
-                        // Add delay to ensure server is ready
-                        vertx.setTimer(1000, id -> {
-                            System.out.println("BikeUpdateAdapter deployed successfully");
-                            testContext.completeNow();
-                        });
-                    } else {
-                        System.err.println("Failed to deploy BikeUpdateAdapter: " + ar.cause());
-                        testContext.failNow(ar.cause());
-                    }
-                });
+        ServiceConfiguration config = ServiceConfiguration.getInstance(vertx);
+        config.load().onSuccess(conf -> {
+            System.out.println("Configuration loaded: " + conf.encodePrettily());
+            vertx.deployVerticle(new BikeUpdateAdapter(mapService, vertx))
+                    .onComplete(ar -> {
+                        if (ar.succeeded()) {
+                            // Add delay to ensure server is ready
+                            vertx.setTimer(1000, id -> {
+                                System.out.println("BikeUpdateAdapter deployed successfully");
+                                testContext.completeNow();
+                            });
+                        } else {
+                            System.err.println("Failed to deploy BikeUpdateAdapter: " + ar.cause());
+                            testContext.failNow(ar.cause());
+                        }
+                    });
+        });
+
     }
 
     @AfterEach
