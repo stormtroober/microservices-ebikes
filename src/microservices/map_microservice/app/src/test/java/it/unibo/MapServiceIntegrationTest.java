@@ -29,6 +29,7 @@ public class MapServiceIntegrationTest {
     private Vertx vertx;
     private WebClient client;
     private RestMapServiceAPI mapService;
+    private EventPublisher eventPublisher;
     private static final int PORT = 8082;
 
     @BeforeEach
@@ -38,7 +39,7 @@ public class MapServiceIntegrationTest {
 
         // Initialize components
         EBikeRepositoryImpl repository = new EBikeRepositoryImpl();
-        EventPublisher eventPublisher = new TestEventPublisher();
+        eventPublisher = new TestEventPublisher();
         mapService = new RestMapServiceAPIImpl(repository, eventPublisher);
 
         ServiceConfiguration config = ServiceConfiguration.getInstance(vertx);
@@ -74,6 +75,17 @@ public class MapServiceIntegrationTest {
                 .onComplete(testContext.succeeding(response -> {
                     testContext.verify(() -> {
                         assertEquals(200, response.statusCode());
+
+                        // Verify the published bikes
+                        List<EBike> publishedBikes = ((TestEventPublisher) eventPublisher).getPublishedBikes();
+                        assertEquals(1, publishedBikes.size());
+                        EBike bike = publishedBikes.get(0);
+                        assertEquals("bike1", bike.getBikeName());
+                        assertEquals(10.0, bike.getPosition().x());
+                        assertEquals(20.0, bike.getPosition().y());
+                        assertEquals("AVAILABLE", bike.getState().toString());
+                        assertEquals(100, bike.getBatteryLevel());
+
                         testContext.completeNow();
                     });
                 }));
@@ -81,24 +93,24 @@ public class MapServiceIntegrationTest {
 
     // Test implementation of EventPublisher for integration tests
     private static class TestEventPublisher implements EventPublisher {
+        private List<EBike> publishedBikes;
         @Override
-        public void publishBikesUpdate(List<EBike> bikes) {
-            // No-op for testing
-        }
+        public void publishBikesUpdate(List<EBike> bikes) {}
 
         @Override
-        public void publishUserBikesUpdate(List<EBike> bikes, String username) {
-            // No-op for testing
-        }
+        public void publishUserBikesUpdate(List<EBike> bikes, String username) {}
 
         @Override
         public void publishUserAvailableBikesUpdate(List<EBike> bikes) {
-            // No-op for testing
+            this.publishedBikes = bikes;
+            System.out.println("Available bikes: " + bikes);
         }
 
         @Override
-        public void publishStopRide(String username) {
+        public void publishStopRide(String username) {}
 
+        public List<EBike> getPublishedBikes() {
+            return publishedBikes;
         }
     }
 }
