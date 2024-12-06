@@ -1,12 +1,10 @@
 import application.RestRideServiceAPIImpl;
-import application.ports.EbikeCommunicationPort;
-import application.ports.MapCommunicationPort;
-import application.ports.RestRideServiceAPI;
-import application.ports.UserCommunicationPort;
+import application.ports.*;
 import domain.model.*;
-import infrastructure.adapter.microservices_notifiers.EBikeCommunicationAdapter;
-import infrastructure.adapter.microservices_notifiers.MapCommunicationAdapter;
-import infrastructure.adapter.microservices_notifiers.UserCommunicationAdapter;
+import infrastructure.adapter.microservices.eventbus.EventPublisherImpl;
+import infrastructure.adapter.microservices.notifiers.EBikeCommunicationAdapter;
+import infrastructure.adapter.microservices.notifiers.MapCommunicationAdapter;
+import infrastructure.adapter.microservices.notifiers.UserCommunicationAdapter;
 import infrastructure.adapter.web.RideServiceVerticle;
 import infrastructure.config.ServiceConfiguration;
 import io.vertx.core.Vertx;
@@ -17,7 +15,7 @@ public class Main {
         ServiceConfiguration config = ServiceConfiguration.getInstance(vertx);
         config.load().onSuccess(conf -> {
             System.out.println("Configuration loaded: " + conf.encodePrettily());
-            RideRepository rideRepository = new RideRepositoryImpl(vertx);
+            RideRepository rideRepository = new RideRepositoryImpl(vertx, new EventPublisherImpl(vertx));
             EbikeCommunicationPort ebikeCommunicationAdapter = new EBikeCommunicationAdapter(vertx);
             MapCommunicationPort mapCommunicationAdapter = new MapCommunicationAdapter(vertx);
             UserCommunicationPort userCommunicationAdapter = new UserCommunicationAdapter(vertx);
