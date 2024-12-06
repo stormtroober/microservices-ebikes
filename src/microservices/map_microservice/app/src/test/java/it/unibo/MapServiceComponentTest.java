@@ -29,7 +29,6 @@ public class MapServiceComponentTest {
     private Vertx vertx;
     private HttpClient client;
     private WebClient webClient;
-    private RestMapServiceAPI mapService;
     private static final int BIKE_UPDATE_PORT = 8082;
 
     @BeforeEach
