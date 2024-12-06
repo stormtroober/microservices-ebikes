@@ -1,5 +1,6 @@
-package infrastructure.adapter.microservices_notifiers;
+package infrastructure.adapter.microservices.notifiers;
 
+import application.ports.EventPublisher;
 import application.ports.UserCommunicationPort;
 import infrastructure.config.ServiceConfiguration;
 import io.vertx.core.AbstractVerticle;
@@ -13,7 +14,6 @@ import java.util.concurrent.CompletableFuture;
 public class UserCommunicationAdapter extends AbstractVerticle implements UserCommunicationPort {
     private final WebClient webClient;
     private final String userServiceUrl;
-    private static final String RIDE_UPDATE_ADDRESS = "ride.updates.user";
     private final Vertx vertx;
 
     public UserCommunicationAdapter(Vertx vertx) {
@@ -26,7 +26,7 @@ public class UserCommunicationAdapter extends AbstractVerticle implements UserCo
 
     @Override
     public void start(Promise<Void> startPromise) {
-        vertx.eventBus().consumer(RIDE_UPDATE_ADDRESS, message -> {
+        vertx.eventBus().consumer(EventPublisher.RIDE_UPDATE_ADDRESS_USER, message -> {
             if (message.body() instanceof JsonObject) {
                 JsonObject update = (JsonObject) message.body();
                 if (update.containsKey("username")) {

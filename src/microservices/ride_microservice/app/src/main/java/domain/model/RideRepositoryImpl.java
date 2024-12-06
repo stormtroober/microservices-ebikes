@@ -1,24 +1,25 @@
 package domain.model;
 
+import application.ports.EventPublisher;
 import ddd.Repository;
 import io.vertx.core.Vertx;
 import io.vertx.core.impl.ConcurrentHashSet;
-
-import java.util.concurrent.ConcurrentHashMap;
 
 public class RideRepositoryImpl implements RideRepository, Repository {
 
     private final ConcurrentHashSet<RideSimulation> rides;
     private final Vertx vertx;
+    private final EventPublisher publisher;
 
-    public RideRepositoryImpl(Vertx vertx) {
+    public RideRepositoryImpl(Vertx vertx, EventPublisher publisher) {
         this.rides = new ConcurrentHashSet<>();
         this.vertx = vertx;
+        this.publisher = publisher;
     }
 
     @Override
     public void addRide(Ride ride) {
-        RideSimulation sim = new RideSimulation(ride, vertx);
+        RideSimulation sim = new RideSimulation(ride, vertx, publisher);
         rides.add(sim);
     }
 

@@ -1,6 +1,7 @@
-package infrastructure.adapter.microservices_notifiers;
+package infrastructure.adapter.microservices.notifiers;
 
 import application.ports.EbikeCommunicationPort;
+import application.ports.EventPublisher;
 import infrastructure.config.ServiceConfiguration;
 import io.vertx.core.AbstractVerticle;
 import io.vertx.core.Promise;
@@ -13,7 +14,6 @@ import java.util.concurrent.CompletableFuture;
 public class EBikeCommunicationAdapter extends AbstractVerticle implements EbikeCommunicationPort {
     private final WebClient webClient;
     private final String ebikeServiceUrl;
-    private static final String RIDE_UPDATE_ADDRESS = "ride.updates.ebike";
     private final Vertx vertx;
 
     public EBikeCommunicationAdapter(Vertx vertx) {
@@ -26,7 +26,7 @@ public class EBikeCommunicationAdapter extends AbstractVerticle implements Ebike
 
     @Override
     public void start(Promise<Void> startPromise) {
-        vertx.eventBus().consumer(RIDE_UPDATE_ADDRESS, message -> {
+        vertx.eventBus().consumer(EventPublisher.RIDE_UPDATE_ADDRESS_EBIKE, message -> {
             if (message.body() instanceof JsonObject) {
                 JsonObject update = (JsonObject) message.body();
                 if (update.containsKey("id")) {

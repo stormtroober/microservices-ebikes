@@ -1,5 +1,7 @@
 package domain.model;
 
+import application.ports.EventPublisher;
+import infrastructure.adapter.microservices.eventbus.EventPublisherImpl;
 import io.vertx.core.Vertx;
 import io.vertx.core.eventbus.EventBus;
 import io.vertx.core.json.JsonObject;
@@ -8,19 +10,17 @@ import java.util.concurrent.CompletableFuture;
 
 public class RideSimulation {
     private final Ride ride;
-    private final EventBus eventBus;
     private final Vertx vertx;
     private volatile boolean stopped = false;
     private long lastTimeChangedDir = System.currentTimeMillis();
-    private static final String RIDE_UPDATE_ADDRESS_EBIKE = "ride.updates.ebike";
-    private static final String RIDE_UPDATE_ADDRESS_USER = "ride.updates.user";
+    private final EventPublisher publisher;
     private static final int CREDIT_DECREASE = 1;
     private static final int BATTERY_DECREASE = 1;
 
-    public RideSimulation(Ride ride, Vertx vertx) {
+    public RideSimulation(Ride ride, Vertx vertx, EventPublisher publisher) {
         this.ride = ride;
         this.vertx = vertx;
-        this.eventBus = vertx.eventBus();
+        this.publisher = new EventPublisherImpl(vertx);
     }
 
     public Ride getRide() {
@@ -91,28 +91,14 @@ public class RideSimulation {
             bike.decreaseBattery(BATTERY_DECREASE);
             user.decreaseCredit(CREDIT_DECREASE);
 
-            JsonObject ebikeUpdateMsg = new JsonObject()
-                    .put("id", bike.getId())
-                    .put("state", bike.getState().toString())
-                    .put("location", new JsonObject()
-                            .put("x", bike.getLocation().x())
-                            .put("y", bike.getLocation().y()))
-                    .put("batteryLevel", bike.getBatteryLevel());
-
-            JsonObject userUpdateMsg = new JsonObject()
-                    .put("username", user.getId())
-                    .put("credit", user.getCredit());
-            eventBus.publish(RIDE_UPDATE_ADDRESS_EBIKE, ebikeUpdateMsg);
-            eventBus.publish(RIDE_UPDATE_ADDRESS_USER, userUpdateMsg);
+            publisher.publishEBikeUpdate(bike.getId(), bike.getLocation().x(), bike.getLocation().y(), bike.getState().toString(), bike.getBatteryLevel());
+            publisher.publishUserUpdate(user.getId(), user.getCredit());
         }
     }
 
     private void completeSimulation() {
-        JsonObject completionMessage = new JsonObject()
-                .put("status", "completed")
-                .put("message", "Simulation completed");
-        eventBus.publish(RIDE_UPDATE_ADDRESS_EBIKE, completionMessage);
-        eventBus.publish(RIDE_UPDATE_ADDRESS_USER, completionMessage);
+        publisher.publishEBikeUpdate(ride.getEbike().getId(), ride.getEbike().getLocation().x(), ride.getEbike().getLocation().y(), ride.getEbike().getState().toString(), ride.getEbike().getBatteryLevel());
+        publisher.publishUserUpdate(ride.getUser().getId(), ride.getUser().getCredit());
     }
 
     public void stopSimulation() {
@@ -122,10 +108,9 @@ public class RideSimulation {
 
     public void stopSimulationManually(){
         System.out.println("Stopping simulation manually");
-        stopped = true;
         if(ride.getEbike().getState() == EBikeState.IN_USE){
             ride.getEbike().setState(EBikeState.AVAILABLE);
-            eventBus.publish(RIDE_UPDATE_ADDRESS_EBIKE, ride.toString());
         }
+        stopped = true;
     }
 }
