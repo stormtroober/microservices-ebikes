@@ -68,14 +68,14 @@ public class ServiceConfiguration {
 
     public JsonObject getServiceConfig() {
         return new JsonObject()
-                .put("name", config.getString("SERVICE_NAME", "service-name"))
+                .put("name", config.getString("SERVICE_NAME", "ebike-microservice"))
                 .put("port", config.getInteger("SERVICE_PORT", 8080));
     }
 
     public JsonObject getMapAdapterConfig() {
         return new JsonObject()
-                .put("name", config.getString("MAP_HOST", "map-service"))
-                .put("port", config.getInteger("MAP_PORT", 8089));
+                .put("name", config.getString("MAP_HOST", "map-microservice"))
+                .put("port", config.getInteger("MAP_PORT", 8082));
     }
 
     public JsonObject getRideAdapterConfig() {

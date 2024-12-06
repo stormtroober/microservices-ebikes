@@ -24,8 +24,7 @@ public class RideCommunicationAdapter extends AbstractVerticle {
 
     public RideCommunicationAdapter(EBikeServiceAPI ebikeService, Vertx vertx) {
         this.ebikeService = ebikeService;
-        ServiceConfiguration config = ServiceConfiguration.getInstance(vertx);
-        this.port = config.getRideAdapterConfig().getInteger("port");
+        this.port = ServiceConfiguration.getInstance(vertx).getRideAdapterConfig().getInteger("port");
         this.vertx = vertx;
         this.metricsManager = MetricsManager.getInstance();
     }
