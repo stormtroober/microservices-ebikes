@@ -20,7 +20,7 @@ services:
 
   map-microservice:
       build:
-        context: ./map_microservice
+        context: ./map-microservice
       ports:
         - 8081:${MAP_INSTANCE_PORT}
       networks:
@@ -69,7 +69,7 @@ services:
 
   ebike-microservice:
     build:
-      context: ./ebike_microservice
+      context: ./ebike-microservice
     ports:
       - 8082:${EBIKE_INSTANCE_PORT}
     networks:
@@ -101,7 +101,7 @@ services:
 
   ride-microservice:
     build:
-      context: ./ride_microservice
+      context: ./ride-microservice
     ports:
       - 8083:${RIDE_INSTANCE_PORT}
     networks:
@@ -136,7 +136,7 @@ services:
 
   user-microservice:
     build:
-      context: ./user_microservice
+      context: ./user-microservice
     ports:
       - 8084:${USER_INSTANCE_PORT}
     networks:
