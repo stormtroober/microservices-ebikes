@@ -1,0 +1,64 @@
+Allo scopo di validare il sistema, sono stati definiti dei test, seppur limitati a una piccola parte di applicazione.
+
+Inoltre, è stato eseguito un test di utilizzo del sistema, allo scopo di verificare che funzioni allo stesso modo della versione non a microservizi.
+
+=== Test pyramid
+In particolare, è stato definito un test per ogni layer dell'applicazione, seguendo la piramide dei test. I test sono stati scritti utilizzando il framework JUnit, e sono stati eseguiti con successo.
+Di seguito vengono descritti brevemente i test eseguiti suddivisi per tipologia.
+
+==== Unit Test
+[source, java]
+----
+@Test
+    public void testSaveAndGetBike() throws ExecutionException, InterruptedException {
+        repository.saveBike(bike1).get();
+
+        EBike retrievedBike = repository.getBike("Bike1").get();
+        assertNotNull(retrievedBike);
+        assertEquals("Bike1", retrievedBike.getBikeName());
+        assertEquals(EBikeState.AVAILABLE, retrievedBike.getState());
+    }
+
+    @Test
+    public void testGetBike_NotFound() {
+        assertThrows(ExecutionException.class, () -> repository.getBike("NonExistentBike").get());
+    }
+
+    @Test
+    public void testAssignBikeToUser() throws ExecutionException, InterruptedException {
+        repository.saveBike(bike1).get();
+        repository.assignBikeToUser("User1", bike1).get();
+
+        String assignedUser = repository.isBikeAssigned(bike1).get();
+        assertEquals("User1", assignedUser);
+    }
+
+    @Test
+    public void testUnassignBikeFromUser() throws ExecutionException, InterruptedException {
+        repository.saveBike(bike1).get();
+        repository.assignBikeToUser("User1", bike1).get();
+
+        repository.unassignBikeFromUser("User1", bike1).get();
+        String assignedUser = repository.isBikeAssigned(bike1).get();
+        assertNull(assignedUser);
+    }
+
+    @Test
+    public void testGetAvailableBikes() throws ExecutionException, InterruptedException {
+        repository.saveBike(bike1).get();
+        repository.saveBike(bike2).get();
+
+        List<EBike> availableBikes = repository.getAvailableBikes().get();
+        assertEquals(1, availableBikes.size());
+        assertEquals("Bike1", availableBikes.get(0).getBikeName());
+    }
+----
+Trattandosi di un test Unit, viene testata la parte di codice interna al microservizio, senza interagire con altri.
+
+Vengono testati i metodi di salvataggio e recupero di una bicicletta, l'assegnazione e la rimozione di una bicicletta da un utente, e il recupero delle biciclette disponibili.
+
+==== Integration Test
+[source, java]
+----
+
+----

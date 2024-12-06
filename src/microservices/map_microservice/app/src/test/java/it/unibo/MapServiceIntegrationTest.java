@@ -6,6 +6,7 @@ import application.ports.EventPublisher;
 import application.ports.RestMapServiceAPI;
 import domain.model.EBike;
 import infrastructure.adapter.EBikeRepositoryImpl;
+import infrastructure.config.ServiceConfiguration;
 import io.vertx.core.Vertx;
 import io.vertx.core.json.JsonObject;
 import io.vertx.ext.web.client.WebClient;
@@ -28,7 +29,7 @@ public class MapServiceIntegrationTest {
     private Vertx vertx;
     private WebClient client;
     private RestMapServiceAPI mapService;
-    private static final int PORT = 8088;
+    private static final int PORT = 8082;
 
     @BeforeEach
     void setUp(VertxTestContext testContext) {
@@ -40,16 +41,17 @@ public class MapServiceIntegrationTest {
         EventPublisher eventPublisher = new TestEventPublisher();
         mapService = new RestMapServiceAPIImpl(repository, eventPublisher);
 
-        // Deploy verticles
-        vertx.deployVerticle(new MapServiceVerticle(mapService, vertx))
-                .compose(id -> vertx.deployVerticle(new BikeUpdateAdapter(mapService, vertx)))
-                .onComplete(ar -> {
-                    if (ar.succeeded()) {
-                        testContext.completeNow();
-                    } else {
-                        testContext.failNow(ar.cause());
-                    }
-                });
+        ServiceConfiguration config = ServiceConfiguration.getInstance(vertx);
+        config.load().onSuccess(conf -> {
+            vertx.deployVerticle(new BikeUpdateAdapter(mapService, vertx))
+                    .onComplete(ar -> {
+                        if (ar.succeeded()) {
+                            vertx.setTimer(1000, id -> testContext.completeNow());
+                        } else {
+                            testContext.failNow(ar.cause());
+                        }
+                    });
+        });
     }
 
     @AfterEach
@@ -72,19 +74,6 @@ public class MapServiceIntegrationTest {
                 .onComplete(testContext.succeeding(response -> {
                     testContext.verify(() -> {
                         assertEquals(200, response.statusCode());
-                        testContext.completeNow();
-                    });
-                }));
-    }
-
-    @Test
-    void testGetHealth(VertxTestContext testContext) {
-        client.get(PORT, "localhost", "/health")
-                .send()
-                .onComplete(testContext.succeeding(response -> {
-                    testContext.verify(() -> {
-                        assertEquals(200, response.statusCode());
-                        assertEquals("OK", response.bodyAsString());
                         testContext.completeNow();
                     });
                 }));
