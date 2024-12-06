@@ -8,8 +8,8 @@ import java.util.Optional;
 import java.util.concurrent.CompletableFuture;
 
 /**
- * Interface for the User Service API.
- * Provides methods to manage users.
+ * Port for the User Service API.
+ * Provides methods to manage the Application domain.
  */
 public interface UserServiceAPI {
 
