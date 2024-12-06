@@ -72,7 +72,7 @@ public class EBikeSystemE2ETest {
         CompletableFuture<Void> healthCheckFuture = new CompletableFuture<>();
 
         vertx.setPeriodic(1000, id -> { // Poll every 1 second
-            client.get(8081, "localhost", "/actuator/health")
+            client.get(8080, "localhost", "/actuator/health")
                     .send(ar -> {
                         if (ar.succeeded()) {
                             HttpResponse<Buffer> response = ar.result();
@@ -113,7 +113,7 @@ public class EBikeSystemE2ETest {
             return createEBike("bike1", 10.0, 20.0, "AVAILABLE", 100);
         }).thenAccept(v -> {
             // Connect to WebSocket and verify the received message
-            httpClient.webSocket(8081, "localhost", "/MAP-MICROSERVICE/observeUserBikes?username=user")
+            httpClient.webSocket(8080, "localhost", "/MAP-MICROSERVICE/observeUserBikes?username=user")
                     .onSuccess(ws -> {
                         ws.textMessageHandler(message -> {
                             System.out.print("Received WebSocket message: " + message);
@@ -141,7 +141,7 @@ public class EBikeSystemE2ETest {
                 .put("username", username)
                 .put("type", type);
 
-        client.post(8081, "localhost", "/USER-MICROSERVICE/api/users/signup")
+        client.post(8080, "localhost", "/USER-MICROSERVICE/api/users/signup")
                 .sendJsonObject(user, ar -> {
                     if (ar.succeeded()) {
                         System.out.println("User registration SUCCEEDED: " + ar.result().bodyAsString());
@@ -163,7 +163,7 @@ public class EBikeSystemE2ETest {
                 .put("status", status)
                 .put("batteryLevel", batteryLevel);
 
-        client.post(8081, "localhost", "/EBIKE-MICROSERVICE/api/ebikes/create")
+        client.post(8080, "localhost", "/EBIKE-MICROSERVICE/api/ebikes/create")
                 .sendJsonObject(ebike, ar -> {
                     if (ar.succeeded()) {
                         System.out.println("EBike creation SUCCEEDED: " + ar.result().bodyAsString());
