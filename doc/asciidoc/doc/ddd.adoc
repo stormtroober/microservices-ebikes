@@ -276,6 +276,72 @@ image::../png/UseCase.drawio.png[]
 3. L'elenco degli utenti con le loro relative informazioni viene mostrato all'amministratore nella dashboard.
 |===
 
+=== Quality Attributes Scenarios
+
+I casi d'uso individuati sono stati analizzati per identificare i rispettivi attributi di qualità.
+Di seguito sono riportati i principali attributi di qualità individuati:
+
+[cols="1,1,1,1,1,1,1", options="header"]
+|===
+| Quality Attribute | Source | Stimulus | Artifact | Environment | Response | Response Measure
+
+| Availability
+| System
+| Richiesta di accesso al sistema
+| User Management
+| Produzione
+| Il sistema risponde alla richiesta
+| Tempo di risposta accettabile
+
+| Performance
+| User, Admin
+| Esecuzione di operazioni
+| System
+| Produzione
+| Il sistema esegue le operazioni rapidamente
+| Tempo di esecuzione accettabile
+
+| Modifyability
+| Developer
+| Cambiare il layout dell'interfaccia
+| Interfaccia utente
+| Codebase
+| L'interfaccia viene modificata facilmente senza modificare il backend
+| Il tempo della modifica è limitato
+
+| Usability
+| User, Admin
+| Interazione con l'interfaccia
+| Interfaccia utente
+| Produzione
+| L'utente riesce a completare le operazioni
+| Percentuale di successo delle operazioni
+
+| Extensibility
+| Stakeholder
+| Auggiunta di un nuovo microservizio
+| Codebase
+| Produzione
+| I developer aggiungono un nuovo microservizio utilizzando le tecnologie esistenti
+| Il codice esistente rimane invariato
+
+| Adaptability
+| Developer
+| Modifica dei requisiti
+| Progettazione e codebase
+| Sviluppo
+| Il sistema viene modificato facilmente qualora i requisiti cambino
+| Tempo di modifica accettabile
+
+| Testability
+| Developer
+| Esecuzione di test unitari per ogni microservizio
+| Microservices
+| Test
+| Oggni microservizio è testabile singolarmente
+| Percentuale di test passati
+|===
+
 === Domain Storytelling
 In aiuto alla definizione del domain-model, si è deciso di realizzare anche dei Domain Storytelling
 sia per lo user sia per l'admin.
@@ -359,7 +425,7 @@ e che osserva gli utenti.
 
 **Value Objects**
 
-image::../png/Value_Object E-Bike.drawio.png[]
+image::../png/Value_Objects.drawio.png[]
 
 - **P2d**: rappresenta una posizione bidimensionale e contiene i valori x e y.
 - **V2d**: rappresenta un vettore bidimensionale e contiene i valori x e y.
