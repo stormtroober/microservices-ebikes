@@ -276,6 +276,72 @@ image::../png/UseCase.drawio.png[]
 3. L'elenco degli utenti con le loro relative informazioni viene mostrato all'amministratore nella dashboard.
 |===
 
+=== Quality Attributes Scenarios
+
+I casi d'uso individuati sono stati analizzati per identificare i rispettivi attributi di qualità.
+Di seguito sono riportati i principali attributi di qualità individuati:
+
+[cols="1,1,1,1,1,1,1", options="header"]
+|===
+| Quality Attribute | Source | Stimulus | Artifact | Environment | Response | Response Measure
+
+| Availability
+| System
+| Richiesta di accesso al sistema
+| E-Bike System
+| Ambiente di produzione
+| Il sistema risponde alla richiesta
+| Tempo di risposta accettabile
+
+| Performance
+| User
+| Esecuzione di operazioni
+| E-Bike System
+| Ambiente di produzione
+| Il sistema esegue le operazioni rapidamente
+| Tempo di esecuzione accettabile
+
+| Modifyability
+| Developer
+| Cambiare il layout dell'interfaccia
+| Interfaccia utente
+| Ambiente di produzione
+| L'interfaccia viene modificata facilmente senza modificare il backend
+| Il tempo della modifica è limitato
+
+| Usability
+| User
+| Interazione con l'interfaccia
+| E-Bike System
+| Ambiente di produzione
+| L'utente riesce a completare le operazioni
+| Percentuale di successo delle operazioni
+
+| Scalability
+| System
+| Aumento del numero di utenti
+| E-Bike System
+| Ambiente di produzione
+| Il sistema gestisce l'aumento di carico
+| Nessuna degradazione delle prestazioni
+
+| Dependability
+| System
+| Esecuzione di operazioni critiche
+| E-Bike System
+| Ambiente di produzione
+| Il sistema esegue le operazioni senza errori
+| Percentuale di successo delle operazioni critiche
+
+| Adaptability
+| Developer
+| Modifica dei requisiti
+| E-Bike System
+| Ambiente di sviluppo
+| Il sistema viene modificato facilmente
+| Tempo di modifica accettabile
+|===
+
 === Domain Storytelling
 In aiuto alla definizione del domain-model, si è deciso di realizzare anche dei Domain Storytelling
 sia per lo user sia per l'admin.

@@ -1,0 +1,2 @@
+In quest'ultimo capitolo verrà dimostrato come l'architettura sia valida verso i QA individuati nel capitolo 1.
+
