@@ -1,6 +1,7 @@
 package infrastructure.adapters.map;
 
 import application.ports.MapCommunicationPort;
+import infrastructure.config.ServiceConfiguration;
 import io.vertx.core.AbstractVerticle;
 import io.vertx.core.Vertx;
 import io.vertx.core.buffer.Buffer;
@@ -15,12 +16,13 @@ public class MapCommunicationAdapter extends AbstractVerticle implements MapComm
     private final String microserviceUrl;
     private Vertx vertx;
 
-    public MapCommunicationAdapter(Vertx vertx, String microserviceUrl) {
+    public MapCommunicationAdapter(Vertx vertx) {
         this.httpClient = vertx.createHttpClient(new HttpClientOptions()
                 .setConnectTimeout(5000)
                 .setIdleTimeout(30)
         );
-        this.microserviceUrl = microserviceUrl;
+        JsonObject configuration = ServiceConfiguration.getInstance(vertx).getMapAdapterConfig();
+        this.microserviceUrl = "http://"+configuration.getString("name")+":"+configuration.getInteger("port");
         this.vertx = vertx;
     }
 

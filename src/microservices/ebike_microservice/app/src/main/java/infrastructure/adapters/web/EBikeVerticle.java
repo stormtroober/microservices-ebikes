@@ -1,6 +1,5 @@
 package infrastructure.adapters.web;
 
-import infrastructure.adapters.EnvUtils;
 import infrastructure.config.ServiceConfiguration;
 import io.vertx.core.AbstractVerticle;
 import io.vertx.core.Future;
