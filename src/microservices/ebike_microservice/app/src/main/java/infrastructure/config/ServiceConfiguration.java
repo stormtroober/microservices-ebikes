@@ -61,31 +61,31 @@ public class ServiceConfiguration {
 
     public JsonObject getEurekaConfig() {
         return new JsonObject()
-                .put("serviceUrl", config.getString("eureka.serviceUrl", "http://eureka-server:8761/eureka/"))
-                .put("host", config.getString("eureka.host", "eureka-server"))
-                .put("port", config.getInteger("eureka.port", 8761));
+                .put("serviceUrl", config.getString("EUREKA_CLIENT_SERVICEURL_DEFAULTZONE", "http://eureka-server:8761/eureka/"))
+                .put("host", config.getString("EUREKA_HOST", "eureka-server"))
+                .put("port", config.getInteger("EUREKA_PORT", 8761));
     }
 
     public JsonObject getServiceConfig() {
         return new JsonObject()
-                .put("name", config.getString("service.name", "service-name"))
-                .put("port", config.getInteger("service.port", 8080));
+                .put("name", config.getString("SERVICE_NAME", "service-name"))
+                .put("port", config.getInteger("SERVICE_PORT", 8080));
     }
 
     public JsonObject getMapAdapterConfig() {
         return new JsonObject()
-                .put("name", config.getString("map.host", "map-service"))
-                .put("port", config.getInteger("map.port", 8080));
+                .put("name", config.getString("MAP_HOST", "map-service"))
+                .put("port", config.getInteger("MAP_PORT", 8089));
     }
 
     public JsonObject getRideAdapterConfig() {
         return new JsonObject()
-                .put("port", config.getInteger("adapter.ride.port", 8081));
+                .put("port", config.getInteger("ADAPTER_RIDE_PORT", 8081));
     }
 
     public JsonObject getMongoConfig() {
         return new JsonObject()
-                .put("connection_string", config.getString("mongo.connection", "mongodb://mongodb:27017"))
-                .put("db_name", config.getString("mongo.database", "ebikes_db"));
+                .put("connection_string", config.getString("MONGO_CONNECTION", "mongodb://mongodb:27017"))
+                .put("db_name", config.getString("MONGO_DATABSE", "ebikes_db"));
     }
 }
