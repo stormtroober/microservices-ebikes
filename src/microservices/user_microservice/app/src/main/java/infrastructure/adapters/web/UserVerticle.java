@@ -1,6 +1,6 @@
 package infrastructure.adapters.web;
 
-import infrastructure.adapters.EnvUtils;
+import infrastructure.config.ServiceConfiguration;
 import io.vertx.core.AbstractVerticle;
 import io.vertx.core.Future;
 import io.vertx.core.Promise;
@@ -27,13 +27,16 @@ public class UserVerticle extends AbstractVerticle {
     private WebClient client;
     private Vertx vertx;
 
-    public UserVerticle(RESTUserAdapter userService, String eurekaApplicationName, Vertx vertx) {
+    public UserVerticle(RESTUserAdapter userService, Vertx vertx) {
         this.userService = userService;
-        this.eurekaApplicationName = eurekaApplicationName;
-        this.eurekaInstanceId = UUID.randomUUID().toString();
-        this.eurekaHost = EnvUtils.getEnvOrDefaultString("EUREKA_HOST", "localhost");
-        this.eurekaPort = EnvUtils.getEnvOrDefaultInt("EUREKA_PORT", 8761);
-        this.port = EnvUtils.getEnvOrDefaultInt("PORT", 8080);
+        ServiceConfiguration config = ServiceConfiguration.getInstance(vertx);
+        JsonObject eurekaConfig = config.getEurekaConfig();
+        JsonObject serviceConfig = config.getServiceConfig();
+        this.eurekaApplicationName = serviceConfig.getString("name");
+        this.eurekaInstanceId = UUID.randomUUID().toString().substring(0, 5);
+        this.eurekaHost = eurekaConfig.getString("host");
+        this.eurekaPort = eurekaConfig.getInteger("port");
+        this.port = serviceConfig.getInteger("port");
         this.vertx = vertx;
     }
 

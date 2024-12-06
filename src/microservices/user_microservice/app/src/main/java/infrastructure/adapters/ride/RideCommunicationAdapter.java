@@ -2,6 +2,7 @@ package infrastructure.adapters.ride;
 
 import application.ports.UserServiceAPI;
 import infrastructure.MetricsManager;
+import infrastructure.config.ServiceConfiguration;
 import io.vertx.core.AbstractVerticle;
 import io.vertx.core.Promise;
 import io.vertx.core.Vertx;
@@ -19,9 +20,9 @@ public class RideCommunicationAdapter extends AbstractVerticle {
     private final Vertx vertx;
     private final MetricsManager metricsManager;
 
-    public RideCommunicationAdapter(UserServiceAPI userService, int port, Vertx vertx) {
+    public RideCommunicationAdapter(UserServiceAPI userService, Vertx vertx) {
         this.userService = userService;
-        this.port = port;
+        this.port = ServiceConfiguration.getInstance(vertx).getRideAdapterConfig().getInteger("port");
         this.vertx = vertx;
         this.metricsManager = MetricsManager.getInstance();
     }
