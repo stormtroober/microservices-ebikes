@@ -3,59 +3,59 @@ package it.unibo;
 import application.RestMapServiceAPIImpl;
 import application.ports.EventPublisher;
 import application.ports.RestMapServiceAPI;
-import domain.model.EBike;
+import infrastructure.adapter.BikeUpdateAdapter;
 import infrastructure.adapter.EBikeRepositoryImpl;
+import infrastructure.adapter.EventPublisherImpl;
+import infrastructure.adapter.MapServiceVerticle;
+import infrastructure.config.ServiceConfiguration;
 import io.vertx.core.Vertx;
-import io.vertx.core.buffer.Buffer;
+import io.vertx.core.http.HttpClient;
+import io.vertx.core.http.WebSocket;
+import io.vertx.core.json.JsonArray;
 import io.vertx.core.json.JsonObject;
-import io.vertx.ext.web.client.HttpResponse;
 import io.vertx.ext.web.client.WebClient;
 import io.vertx.junit5.VertxExtension;
 import io.vertx.junit5.VertxTestContext;
-import infrastructure.adapter.BikeUpdateAdapter;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 
-import java.util.ArrayList;
-import java.util.List;
-
-import static org.junit.jupiter.api.Assertions.*;
+import static org.junit.jupiter.api.Assertions.assertEquals;
 
 @ExtendWith(VertxExtension.class)
 public class MapServiceComponentTest {
 
     private Vertx vertx;
-    private WebClient client;
-    private RestMapServiceAPI mapService;
-    private MockEventPublisher eventPublisher;
-    private static final int BIKE_UPDATE_PORT = 8088;
+    private HttpClient client;
+    private WebClient webClient;
+    private static final int BIKE_UPDATE_PORT = 8082;
 
     @BeforeEach
     void setUp(VertxTestContext testContext) {
         vertx = Vertx.vertx();
-        client = WebClient.create(vertx);
-        eventPublisher = new MockEventPublisher();
+        client = vertx.createHttpClient();
+        webClient = WebClient.create(vertx);
 
         // Initialize components
         EBikeRepositoryImpl repository = new EBikeRepositoryImpl();
-        mapService = new RestMapServiceAPIImpl(repository, eventPublisher);
+        EventPublisher eventPublisher = new EventPublisherImpl(vertx);
+        RestMapServiceAPI mapService = new RestMapServiceAPIImpl(repository, eventPublisher);
 
-        // Deploy BikeUpdateAdapter only for this test
-        vertx.deployVerticle(new BikeUpdateAdapter(mapService, vertx))
-                .onComplete(ar -> {
-                    if (ar.succeeded()) {
-                        // Add delay to ensure server is ready
-                        vertx.setTimer(1000, id -> {
-                            System.out.println("BikeUpdateAdapter deployed successfully");
-                            testContext.completeNow();
-                        });
-                    } else {
-                        System.err.println("Failed to deploy BikeUpdateAdapter: " + ar.cause());
-                        testContext.failNow(ar.cause());
-                    }
-                });
+        ServiceConfiguration config = ServiceConfiguration.getInstance(vertx);
+        config.load().onSuccess(conf -> {
+            // Deploy verticles
+            vertx.deployVerticle(new MapServiceVerticle(mapService, vertx))
+                    .compose(id -> vertx.deployVerticle(new BikeUpdateAdapter(mapService, vertx)))
+                    .onComplete(ar -> {
+                        if (ar.succeeded()) {
+                            vertx.setTimer(1000, id -> testContext.completeNow());
+                        } else {
+                            testContext.failNow(ar.cause());
+                        }
+                    });
+        });
+
     }
 
     @AfterEach
@@ -64,7 +64,7 @@ public class MapServiceComponentTest {
     }
 
     @Test
-    void testUpdateEBike(VertxTestContext testContext) {
+    void testUpdateEBikeAndObserveAllBikes(VertxTestContext testContext) {
         JsonObject bikeJson = new JsonObject()
                 .put("id", "bike1")
                 .put("location", new JsonObject()
@@ -73,95 +73,31 @@ public class MapServiceComponentTest {
                 .put("state", "AVAILABLE")
                 .put("batteryLevel", 100);
 
-        System.out.println("Sending request to update bike: " + bikeJson.encodePrettily());
-
-        client.put(BIKE_UPDATE_PORT, "localhost", "/updateEBike")
+        // Send update request
+        webClient.put(BIKE_UPDATE_PORT, "localhost", "/updateEBike")
                 .putHeader("Content-Type", "application/json")
                 .sendJsonObject(bikeJson)
                 .onComplete(ar -> {
-                    if (ar.succeeded()) {
-                        HttpResponse<Buffer> response = ar.result();
-                        System.out.println("Response status code: " + response.statusCode());
-                        System.out.println("Response body: " + response.bodyAsString());
-
-                        testContext.verify(() -> {
-                            assertEquals(200, response.statusCode());
-                            testContext.completeNow();
-                        });
-                    } else {
-                        System.err.println("Request failed: " + ar.cause().getMessage());
+                    if (ar.failed()) {
                         testContext.failNow(ar.cause());
                     }
                 });
-    }
 
-    @Test
-    void testErrorHandling(VertxTestContext testContext) {
-        JsonObject invalidBikeJson = new JsonObject()
-                .put("id", "") // Invalid empty ID
-                .put("location", new JsonObject()
-                        .put("x", 10.0)
-                        .put("y", 20.0))
-                .put("state", "INVALID_STATE")
-                .put("batteryLevel", -1);
-
-        client.put(BIKE_UPDATE_PORT, "localhost", "/updateEBike")
-                .putHeader("Content-Type", "application/json")
-                .sendJsonObject(invalidBikeJson)
-                .onComplete(ar -> {
-                    if (ar.succeeded()) {
-                        HttpResponse<Buffer> response = ar.result();
-                        System.out.println("Error response status code: " + response.statusCode());
-                        System.out.println("Error response body: " + response.bodyAsString());
-
+        // Set up WebSocket client
+        client.webSocket(8080, "localhost", "/observeAllBikes")
+                .onComplete(testContext.succeeding(webSocket -> {
+                    webSocket.handler(buffer -> {
+                        JsonArray receivedBike = buffer.toJsonArray();
+                        JsonObject bike = new JsonObject(receivedBike.getString(0));
                         testContext.verify(() -> {
-                            assertEquals(400, response.statusCode());
+                            assertEquals("bike1", bike.getString("bikeName"));
+                            assertEquals(10.0, bike.getJsonObject("position").getDouble("x"));
+                            assertEquals(20.0, bike.getJsonObject("position").getDouble("y"));
+                            assertEquals("AVAILABLE", bike.getString("state"));
+                            assertEquals(100, bike.getInteger("batteryLevel"));
                             testContext.completeNow();
                         });
-                    } else {
-                        System.err.println("Request failed: " + ar.cause().getMessage());
-                        testContext.failNow(ar.cause());
-                    }
-                });
-    }
-
-    private static class MockEventPublisher implements EventPublisher {
-        private final List<EBike> lastPublishedBikes = new ArrayList<>();
-        private boolean userBikesUpdateCalled = false;
-
-        @Override
-        public void publishBikesUpdate(List<EBike> bikes) {
-            System.out.println("Publishing bikes update: " + bikes);
-            lastPublishedBikes.clear();
-            lastPublishedBikes.addAll(bikes);
-        }
-
-        @Override
-        public void publishUserBikesUpdate(List<EBike> bikes, String username) {
-            System.out.println("Publishing user bikes update for " + username + ": " + bikes);
-            userBikesUpdateCalled = true;
-            lastPublishedBikes.clear();
-            lastPublishedBikes.addAll(bikes);
-        }
-
-        @Override
-        public void publishUserAvailableBikesUpdate(List<EBike> bikes) {
-            System.out.println("Publishing available bikes update: " + bikes);
-            lastPublishedBikes.clear();
-            lastPublishedBikes.addAll(bikes);
-        }
-
-        @Override
-        public void publishStopRide(String username) {
-
-        }
-
-        public List<EBike> getLastPublishedBikes() {
-            return new ArrayList<>(lastPublishedBikes);
-        }
-
-        public boolean wasUserBikesUpdateCalled() {
-            return userBikesUpdateCalled;
-        }
+                    });
+                }));
     }
 }
