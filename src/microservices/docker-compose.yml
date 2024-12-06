@@ -1,7 +1,7 @@
 services:
   eureka-server:
     build:
-      context: ./eureka-servicediscovery
+      context: ./service-discovery
     ports:
       - 8761:${EUREKA_INSTANCE_PORT}
     networks:
@@ -164,7 +164,7 @@ services:
 
   api-gateway:
     build:
-      context: ./eureka-apigateway  # Path to your API Gateway Dockerfile
+      context: ./api-gateway  # Path to your API Gateway Dockerfile
     ports:
       - 8080:${API_GATEWAY_EUREKA_INSTANCE_PORT}  # Gateway runs on port 8081
     networks:
