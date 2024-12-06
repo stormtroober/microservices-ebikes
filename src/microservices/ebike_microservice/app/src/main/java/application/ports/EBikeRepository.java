@@ -8,7 +8,7 @@ import java.util.Optional;
 import java.util.concurrent.CompletableFuture;
 
 /**
- * Interface for the EBike Repository.
+ * Port for the EBike Repository.
  * Provides methods to perform CRUD operations on eBikes.
  */
 public interface EBikeRepository extends Repository {
