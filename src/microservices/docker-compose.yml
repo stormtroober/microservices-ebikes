@@ -1,7 +1,7 @@
 services:
   eureka-server:
     build:
-      context: ./eureka-servicediscovery
+      context: ./service-discovery
     ports:
       - 8761:${EUREKA_INSTANCE_PORT}
     networks:
