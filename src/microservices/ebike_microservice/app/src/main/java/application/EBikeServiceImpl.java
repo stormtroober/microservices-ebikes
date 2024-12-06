@@ -19,7 +19,7 @@ public class EBikeServiceImpl implements EBikeServiceAPI {
         this.repository = repository;
         this.mapCommunicationAdapter = mapCommunicationAdapter;
         mapCommunicationAdapter.init();
-        mapCommunicationAdapter.sendAllUpdates(this.repository.findAll().join());
+        repository.findAll().thenAccept(mapCommunicationAdapter::sendAllUpdates);
     }
 
     @Override

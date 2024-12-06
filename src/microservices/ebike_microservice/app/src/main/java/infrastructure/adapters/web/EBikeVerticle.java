@@ -1,6 +1,7 @@
 package infrastructure.adapters.web;
 
 import infrastructure.adapters.EnvUtils;
+import infrastructure.config.ServiceConfiguration;
 import io.vertx.core.AbstractVerticle;
 import io.vertx.core.Future;
 import io.vertx.core.Promise;
@@ -27,18 +28,21 @@ public class EBikeVerticle extends AbstractVerticle {
     private final int eurekaPort;
     private final WebClient client;
 
-    public EBikeVerticle(RESTEBikeAdapter controller, JsonObject config, Vertx vertx) {
+    public EBikeVerticle(RESTEBikeAdapter controller, Vertx vertx) {
         this.controller = controller;
+        ServiceConfiguration config = ServiceConfiguration.getInstance(vertx);
+        JsonObject eurekaConfig = config.getEurekaConfig();
+        JsonObject serviceConfig = config.getServiceConfig();
         this.eurekaInstanceId = UUID.randomUUID().toString();
-        this.eurekaHost = EnvUtils.getEnvOrDefaultString("EUREKA_HOST", "localhost");
-        this.eurekaPort = EnvUtils.getEnvOrDefaultInt("EUREKA_PORT", 8761);
+        this.eurekaHost = eurekaConfig.getString("host");
+        this.eurekaPort = eurekaConfig.getInteger("port");
         WebClientOptions options = new WebClientOptions()
                 .setConnectTimeout(2000)
                 .setIdleTimeout(30);
         this.vertx = vertx;
         this.client = WebClient.create(vertx, options);
-        this.eurekaApplicationName = config.getString("hostName");
-        this.port = config.getInteger("port");
+        this.eurekaApplicationName = serviceConfig.getString("name");
+        this.port = serviceConfig.getInteger("port");
     }
 
     @Override

@@ -2,6 +2,7 @@ package infrastructure.adapters.ride;
 
 import application.ports.EBikeServiceAPI;
 import infrastructure.MetricsManager;
+import infrastructure.config.ServiceConfiguration;
 import io.vertx.core.AbstractVerticle;
 import io.vertx.core.Promise;
 import io.vertx.core.Vertx;
@@ -12,6 +13,8 @@ import io.vertx.ext.web.handler.BodyHandler;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import java.lang.module.Configuration;
+
 public class RideCommunicationAdapter extends AbstractVerticle {
     private static final Logger logger = LoggerFactory.getLogger(RideCommunicationAdapter.class);
     private final EBikeServiceAPI ebikeService;
@@ -19,9 +22,10 @@ public class RideCommunicationAdapter extends AbstractVerticle {
     private final Vertx vertx;
     private final MetricsManager metricsManager;
 
-    public RideCommunicationAdapter(EBikeServiceAPI ebikeService, int port, Vertx vertx) {
+    public RideCommunicationAdapter(EBikeServiceAPI ebikeService, Vertx vertx) {
         this.ebikeService = ebikeService;
-        this.port = port;
+        ServiceConfiguration config = ServiceConfiguration.getInstance(vertx);
+        this.port = config.getRideAdapterConfig().getInteger("port");
         this.vertx = vertx;
         this.metricsManager = MetricsManager.getInstance();
     }
