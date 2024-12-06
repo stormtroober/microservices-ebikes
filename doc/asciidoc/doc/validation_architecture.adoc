@@ -290,3 +290,11 @@ La fase successiva implica la validazione del messaggio ricevuto dal WebSocket. 
 
 Infine, una volta terminato il test, si passa alla fase di pulizia finale, dove tutti i container e i volumi associati ai microservizi vengono fermati e rimossi tramite Docker Compose. Questo assicura che non ci siano effetti collaterali tra diversi test e che l'ambiente venga sempre ripristinato allo stato iniziale, pronto per un nuovo ciclo di test.
 
+=== Commento sulla validazione dell'architettura
+
+In conclusione, l'analisi condotta nei precedenti capitoli e i test generati dimostrano come la strategia adottata per soddisfare i requisiti e gli attributi di qualità
+sia stata efficace.
+Si evince, infatti, come i quattro microservizi principali prodotti, ricordando che discendono da sottodomini di tipo core, racchiudano in maniera appropriata ogni funzionalità identificata, favorendone la gestione modulare e facilitando l'estendibilità, la modificabilità e la scalabilità
+del sistema. L'utilizzo di Docker e di API standard per la comunicazione ha permesso di isolare i servizi e di garantire l'interoperabilità tra di essi, mentre l'uso di Vert.x ha garantito performance elevate e una gestione efficiente degli eventi.
+Inoltre, la testabilità dei microservizi è stata garantita grazie alla definizione di test a vari livelli, che hanno permesso di verificare il corretto funzionamento di alcune funzionalità offerte da essi, sia individualmente, sia nel loro funzionamento integrato.  Tuttavia, l'insieme dei test potrebbe essere ulteriormente esteso per coprire scenari più complessi e garantire una maggiore robustezza,
+migliorando così l'affidabilità  e l'efficacia del sistema in ambienti di produzione.
