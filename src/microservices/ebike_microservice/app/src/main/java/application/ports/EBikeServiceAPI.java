@@ -7,8 +7,8 @@ import java.util.Optional;
 import java.util.concurrent.CompletableFuture;
 
 /**
- * Interface for the EBike Service API.
- * Provides methods to manage eBikes.
+ * Port for the EBike Service API Application.
+ * Provides methods to manage the domain.
  */
 public interface EBikeServiceAPI {
 

@@ -8,7 +8,7 @@ import java.util.Optional;
 import java.util.concurrent.CompletableFuture;
 
 /**
- * Interface for the User Repository.
+ * Port for the User Repository.
  * Provides methods to perform CRUD operations on users.
  */
 public interface UserRepository extends Repository {
