@@ -58,7 +58,235 @@ Trattandosi di un test Unit, viene testata la parte di codice interna al microse
 Vengono testati i metodi di salvataggio e recupero di una bicicletta, l'assegnazione e la rimozione di una bicicletta da un utente, e il recupero delle biciclette disponibili.
 
 ==== Integration Test
+
+==== Component Test
 [source, java]
 ----
+@BeforeEach
+    void setUp(VertxTestContext testContext) {
+        vertx = Vertx.vertx();
+        client = vertx.createHttpClient();
+        webClient = WebClient.create(vertx);
 
+        // Initialize components
+        EBikeRepositoryImpl repository = new EBikeRepositoryImpl();
+        EventPublisher eventPublisher = new EventPublisherImpl(vertx);
+        RestMapServiceAPI mapService = new RestMapServiceAPIImpl(repository, eventPublisher);
+
+        ServiceConfiguration config = ServiceConfiguration.getInstance(vertx);
+        config.load().onSuccess(conf -> {
+            // Deploy verticles
+            vertx.deployVerticle(new MapServiceVerticle(mapService, vertx))
+                    .compose(id -> vertx.deployVerticle(new BikeUpdateAdapter(mapService, vertx)))
+                    .onComplete(ar -> {
+                        if (ar.succeeded()) {
+                            vertx.setTimer(1000, id -> testContext.completeNow());
+                        } else {
+                            testContext.failNow(ar.cause());
+                        }
+                    });
+        });
+
+    }
+
+    @AfterEach
+    void tearDown(VertxTestContext testContext) {
+        vertx.close().onComplete(testContext.succeeding(v -> testContext.completeNow()));
+    }
+
+    @Test
+    void testUpdateEBikeAndObserveAllBikes(VertxTestContext testContext) {
+        JsonObject bikeJson = new JsonObject()
+                .put("id", "bike1")
+                .put("location", new JsonObject()
+                        .put("x", 10.0)
+                        .put("y", 20.0))
+                .put("state", "AVAILABLE")
+                .put("batteryLevel", 100);
+
+        // Send update request
+        webClient.put(BIKE_UPDATE_PORT, "localhost", "/updateEBike")
+                .putHeader("Content-Type", "application/json")
+                .sendJsonObject(bikeJson)
+                .onComplete(ar -> {
+                    if (ar.failed()) {
+                        testContext.failNow(ar.cause());
+                    }
+                });
+
+        // Set up WebSocket client
+        client.webSocket(8080, "localhost", "/observeAllBikes")
+                .onComplete(testContext.succeeding(webSocket -> {
+                    webSocket.handler(buffer -> {
+                        JsonArray receivedBike = buffer.toJsonArray();
+                        JsonObject bike = new JsonObject(receivedBike.getString(0));
+                        testContext.verify(() -> {
+                            assertEquals("bike1", bike.getString("bikeName"));
+                            assertEquals(10.0, bike.getJsonObject("position").getDouble("x"));
+                            assertEquals(20.0, bike.getJsonObject("position").getDouble("y"));
+                            assertEquals("AVAILABLE", bike.getString("state"));
+                            assertEquals(100, bike.getInteger("batteryLevel"));
+                            testContext.completeNow();
+                        });
+                    });
+                }));
+    }
 ----
+
+Il test verifica due operazioni chiave:
+
+- Aggiornamento dello stato di una eBike tramite una richiesta HTTP (PUT).
+
+- Osservazione in tempo reale dello stato delle biciclette tramite WebSocket.
+
+La logica è testata end-to-end all'interno del servizio, senza però coinvolgere infrastrutture esterne reali come database o network, che vengono simulate (grazie a Vertx). Questo rende il test rappresentativo di un comportamento reale del servizio, pur mantenendolo isolato e rapido.
+
+Questo test dimostra che il servizio è in grado di gestire correttamente il flusso di dati dal momento in cui riceve una richiesta di aggiornamento fino alla notifica in tempo reale tramite WebSocket.
+
+Coinvolge più componenti del servizio, verificandone il funzionamento interno senza coinvolgere l'intero sistema.
+
+==== End-to-End Test
+
+[source, java]
+----
+@BeforeAll
+    static void setUp() {
+        String command = "cd ../../ && docker-compose up -d --build";
+        ProcessBuilder processBuilder = new ProcessBuilder();
+        processBuilder.command("bash", "-c", command);
+
+            int exitCode = process.waitFor();
+            System.out.println("Docker Compose Exit code: " + exitCode);
+
+        } catch (InterruptedException | IOException e) {
+            throw new RuntimeException(e);
+        }
+
+        vertx = Vertx.vertx();
+        client = WebClient.create(vertx);
+
+        // Wait for health check to succeed
+        waitForHealthCheck();
+    }
+
+    private static void waitForHealthCheck() {
+        CompletableFuture<Void> healthCheckFuture = new CompletableFuture<>();
+
+        vertx.setPeriodic(1000, id -> { // Poll every 1 second
+            client.get(8080, "localhost", "/actuator/health")
+                    .send(ar -> {
+                        if (ar.succeeded()) {
+                            HttpResponse<Buffer> response = ar.result();
+                            String body = response.bodyAsString();
+                            if (response.statusCode() == 200 && body.contains("\"status\":\"UP\"")) {
+                                System.out.println("Health check SUCCEEDED: " + body);
+                                healthCheckFuture.complete(null); // Complete the future on success
+                                vertx.cancelTimer(id); // Cancel the periodic task
+                            } else {
+                                System.err.println("Health check response but not ready: " + body);
+                            }
+                        } else {
+                            System.err.println("Health check failed: " + ar.cause().getMessage());
+                        }
+                    });
+        });
+
+    try {
+        // Wait for the health check to succeed or timeout after 60 seconds
+        healthCheckFuture.get(100, TimeUnit.SECONDS);
+        System.out.println("Health check succeeded in time");
+    } catch (Exception e) {
+        throw new RuntimeException("Health check did not succeed in time", e);
+    }
+}
+
+    @Test
+    void testEBikeCreationAndArrive() {
+        var httpClient = vertx.createHttpClient();
+
+        // Register users after health check succeeds
+        CompletableFuture<Void> adminFuture = registerUser("admin", "ADMIN");
+        CompletableFuture<Void> userFuture = registerUser("user", "USER");
+
+        // Wait for user registration to complete
+        CompletableFuture.allOf(adminFuture, userFuture).thenCompose(v -> {
+            // Create an eBike after user registration
+            return createEBike("bike1", 10.0, 20.0, "AVAILABLE", 100);
+        }).thenAccept(v -> {
+            // Connect to WebSocket and verify the received message
+            httpClient.webSocket(8080, "localhost", "/MAP-MICROSERVICE/observeUserBikes?username=user")
+                    .onSuccess(ws -> {
+                        ws.textMessageHandler(message -> {
+                            System.out.print("Received WebSocket message: " + message);
+                            JsonArray receivedArray = new JsonArray(message);
+                            String bikeString = receivedArray.getString(0);
+                            JsonObject receivedBike = new JsonObject(bikeString);
+
+                            JsonObject expectedBike = new JsonObject()
+                                .put("bikeName", "bike1")
+                                .put("position", new JsonObject()
+                                    .put("x", 10.0)
+                                    .put("y", 20.0))
+                                .put("state", "AVAILABLE")
+                                .put("batteryLevel", 100);
+
+                            assertEquals(expectedBike, receivedBike);
+                        });
+                    });
+        }).join(); // Wait for all operations to complete
+    }
+
+    private static CompletableFuture<Void> registerUser(String username, String type) {
+        CompletableFuture<Void> future = new CompletableFuture<>();
+        JsonObject user = new JsonObject()
+                .put("username", username)
+                .put("type", type);
+
+        client.post(8080, "localhost", "/USER-MICROSERVICE/api/users/signup")
+                .sendJsonObject(user, ar -> {
+                    if (ar.succeeded()) {
+                        System.out.println("User registration SUCCEEDED: " + ar.result().bodyAsString());
+                        future.complete(null);
+                    } else {
+                        System.err.println("User registration failed: " + ar.cause().getMessage());
+                        future.completeExceptionally(ar.cause());
+                    }
+                });
+        return future;
+    }
+
+    private static CompletableFuture<Void> createEBike(String id, double x, double y, String status, int batteryLevel) {
+        CompletableFuture<Void> future = new CompletableFuture<>();
+        JsonObject ebike = new JsonObject()
+                .put("id", id)
+                .put("x", x)
+                .put("y", y)
+                .put("status", status)
+                .put("batteryLevel", batteryLevel);
+
+        client.post(8080, "localhost", "/EBIKE-MICROSERVICE/api/ebikes/create")
+                .sendJsonObject(ebike, ar -> {
+                    if (ar.succeeded()) {
+                        System.out.println("EBike creation SUCCEEDED: " + ar.result().bodyAsString());
+                        future.complete(null);
+                    } else {
+                        System.err.println("EBike creation failed: " + ar.cause().getMessage());
+                        future.completeExceptionally(ar.cause());
+                    }
+                });
+        return future;
+    }
+----
+
+Questo tipo di test verifica l'intero flusso operativo del sistema, assicurandosi che tutti i componenti interagiscano correttamente in un ambiente il più vicino possibile a quello di produzione.
+
+L'obiettivo principale di questo è simulare l'esperienza utente, dalla registrazione degli utenti alla creazione di una eBike e alla verifica delle notifiche in tempo reale tramite WebSocket. Questo assicura che tutte le parti del sistema funzionino bene insieme.
+
+Esso coinvolge l'intero sistema, avviando tutti i container docker interessati tramite un comando shell.
+
+La registrazione degli utenti è il primo passo: un amministratore e un utente comune vengono creati con i rispettivi ruoli. Successivamente, un utente comune registra una nuova eBike con attributi specifici, come l'ID, la posizione e lo stato della batteria. Una volta che la eBike è creata, il test prosegue con la connessione all'endpoint WebSocket per osservare le bici utente.
+
+La fase successiva implica la validazione del messaggio ricevuto dal WebSocket. Una volta connesso, il sistema invia messaggi contenenti i dati della eBike appena creata, e il test verifica che questi dati corrispondano esattamente a quelli previsti.
+
+Infine, una volta terminato il test, si passa alla fase di pulizia finale, dove tutti i container e i volumi associati ai microservizi vengono fermati e rimossi tramite Docker Compose. Questo assicura che non ci siano effetti collaterali tra diversi test e che l'ambiente venga sempre ripristinato allo stato iniziale, pronto per un nuovo ciclo di test.
+
