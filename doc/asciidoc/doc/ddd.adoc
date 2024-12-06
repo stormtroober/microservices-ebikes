@@ -21,6 +21,21 @@ ricaricare il credito del proprio account e visualizzare il saldo del credito.
 bici disponibili e non disponibili per gli amministratori ma solo bici disponibili per gli utenti.
 |===
 
+=== Requisiti del sistema
+
+Di seguito un elenco dei requisiti identificati che deve avere il sistema:
+
+1. Il sistema deve permettere agli utenti di registrarsi e accedere.
+2. Il sistema deve permettere agli utenti di visualizzare le ebike disponibili.
+3. Il sistema deve permettere agli utenti di avviare, monitorare e fermare una ride.
+4. Il sistema deve permettere agli utenti di ricaricare il proprio credito.
+5. Il sistema deve permettere agli utenti di visualizzare il saldo del proprio credito.
+6. Il sistema deve permettere agli amministratori di visualizzare tutte le ebike sulla mappa.
+7. Il sistema deve permettere agli amministratori di aggiungere nuove ebike.
+8. Il sistema deve permettere agli amministratori di ricaricare le ebike.
+9. Il sistema deve permettere agli amministratori di visualizzare tutti gli utenti registrati.
+10. Il sistema deve permettere agli amministratori di monitorare tutte le eventuali ride in corso.
+
 === User Story
 
 Le user story sono state definite in modo da rappresentare le funzionalità principali del sistema. Quelle individuate sono
@@ -285,61 +300,53 @@ Di seguito sono riportati i principali attributi di qualità individuati:
 |===
 | Quality Attribute | Source | Stimulus | Artifact | Environment | Response | Response Measure
 
-| Availability
-| System
-| Richiesta di accesso al sistema
-| User Management
-| Produzione
-| Il sistema risponde alla richiesta
-| Tempo di risposta accettabile
-
-| Performance
-| User, Admin
-| Esecuzione di operazioni
-| System
-| Produzione
-| Il sistema esegue le operazioni rapidamente
-| Tempo di esecuzione accettabile
-
-| Modifyability
+| Estendibilità
 | Developer
-| Cambiare il layout dell'interfaccia
-| Interfaccia utente
-| Codebase
-| L'interfaccia viene modificata facilmente senza modificare il backend
-| Il tempo della modifica è limitato
+| Aggiungere un nuovo servizio
+| Codebase di un microservizio
+| Situazione normale
+| Il nuovo servizio viene aggiunto senza impattare gli altri servizi
+| Nessuna modifica necessaria ai microservizi esistenti
 
-| Usability
-| User, Admin
-| Interazione con l'interfaccia
-| Interfaccia utente
-| Produzione
-| L'utente riesce a completare le operazioni
-| Percentuale di successo delle operazioni
+| Scalabilità
+| DevOps
+| Aumento del traffico
+| Microservizi esistenti
+| Ambiente di produzione
+| I microservizi scalano
+| La latenza rimane sotto il valore soglia
 
-| Extensibility
+| Scalabilità
 | Stakeholder
-| Auggiunta di un nuovo microservizio
-| Codebase
-| Produzione
-| I developer aggiungono un nuovo microservizio utilizzando le tecnologie esistenti
-| Il codice esistente rimane invariato
+| Aggiunta di un nuovo microservizio
+| Sistema di microservizi
+| Ambiente di progettazionee sviluppo
+| L'intero sistema scala, permettendo l'aggiunta del nuov microservizio adattato alle tecnologie esistenti
+| La codebase dei microservizi esistenti non viene modificata
 
-| Adaptability
-| Developer
-| Modifica dei requisiti
-| Progettazione e codebase
-| Sviluppo
-| Il sistema viene modificato facilmente qualora i requisiti cambino
-| Tempo di modifica accettabile
+| Modificabilità
+| Stakeholder
+| Cambio nei requisiti di business
+| Microservizi esistenti
+| Situazione normale
+| Le modifiche si applicano solo ai servizi interessati
+| Nessuna interruzione del sistema complessivo
 
-| Testability
-| Developer
-| Esecuzione di test unitari per ogni microservizio
-| Microservices
-| Test
-| Oggni microservizio è testabile singolarmente
-| Percentuale di test passati
+| Testabilità
+| Tester
+| Esecuzione di test end-to-end
+| Microservizi distribuiti
+| Ambiente di test
+| I servizi sono testabili indipendentemente e insieme
+| Tutti i test passano con successo (e.g., test di integrazione)
+
+| Interoperabilità
+| System Integrator
+| Integrazione con un nuovo sistema esterno
+| API Gateway
+| Ambiente di produzione
+| Il sistema comunica correttamente con il nuovo sistema
+| Tempo di integrazione accettabile
 |===
 
 === Domain Storytelling
