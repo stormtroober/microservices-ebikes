@@ -1,6 +1,7 @@
 package infrastructure.adapter.microservices_notifiers;
 
 import application.ports.EbikeCommunicationPort;
+import infrastructure.config.ServiceConfiguration;
 import io.vertx.core.AbstractVerticle;
 import io.vertx.core.Promise;
 import io.vertx.core.Vertx;
@@ -15,9 +16,11 @@ public class EBikeCommunicationAdapter extends AbstractVerticle implements Ebike
     private static final String RIDE_UPDATE_ADDRESS = "ride.updates.ebike";
     private final Vertx vertx;
 
-    public EBikeCommunicationAdapter(Vertx vertx, String ebikeServiceUrl) {
+    public EBikeCommunicationAdapter(Vertx vertx) {
         this.webClient = WebClient.create(vertx);
-        this.ebikeServiceUrl = ebikeServiceUrl;
+        ServiceConfiguration config = ServiceConfiguration.getInstance(vertx);
+        JsonObject ebikeConfig = config.getEBikeAdapterAddress();
+        this.ebikeServiceUrl = "http://" + ebikeConfig.getString("name") + ":" + ebikeConfig.getInteger("port");
         this.vertx = vertx;
     }
 

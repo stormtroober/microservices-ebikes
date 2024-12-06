@@ -2,7 +2,9 @@ package infrastructure.adapter.web;
 
 import application.ports.RestRideServiceAPI;
 import infrastructure.MetricsManager;
+import infrastructure.config.ServiceConfiguration;
 import io.vertx.core.AbstractVerticle;
+import io.vertx.core.Vertx;
 import io.vertx.core.http.HttpServer;
 import io.vertx.core.json.JsonObject;
 import io.vertx.ext.web.Router;
@@ -22,20 +24,30 @@ public class RideServiceVerticle extends AbstractVerticle {
     private WebClient client;
     private final RestRideServiceAPI rideService;
     private final MetricsManager metricsManager;
+    private final Vertx vertx;
 
-    public RideServiceVerticle(RestRideServiceAPI rideService, String eurekaApplicationName, String eurekaInstanceId) {
+    public RideServiceVerticle(RestRideServiceAPI rideService, Vertx vertx) {
         this.rideService = rideService;
-        this.eurekaApplicationName = eurekaApplicationName;
-        this.eurekaInstanceId = eurekaInstanceId;
-        this.port = Integer.parseInt(System.getenv("SERVICE_PORT"));
-        this.eurekaPort = Integer.parseInt(System.getenv("EUREKA_PORT"));;
-        this.eurekaHost = System.getenv("EUREKA_HOST");
+        this.vertx = vertx;
+        ServiceConfiguration config = ServiceConfiguration.getInstance(vertx);
+        JsonObject eurekaConfig = config.getEurekaConfig();
+        JsonObject serviceConfig = config.getServiceConfig();
+        this.eurekaApplicationName = serviceConfig.getString("name");
+        this.eurekaInstanceId = UUID.randomUUID().toString().substring(0, 5);
+        this.port = serviceConfig.getInteger("port");
+        this.eurekaPort = eurekaConfig.getInteger("port");
+        this.eurekaHost = eurekaConfig.getString("host");
         this.metricsManager = MetricsManager.getInstance();
     }
 
-    public RideServiceVerticle(RestRideServiceAPI rideService, String eurekaApplicationName) {
-        this(rideService, eurekaApplicationName, eurekaApplicationName + "-" + UUID.randomUUID().toString().substring(0, 5));
+    public void init() {
+        vertx.deployVerticle(this).onSuccess(id -> {
+            System.out.println("RideServiceVerticle deployed successfully with ID: " + id);
+        }).onFailure(err -> {
+            System.err.println("Failed to deploy RideServiceVerticle: " + err.getMessage());
+        });
     }
+
 
     @Override
     public void start() {

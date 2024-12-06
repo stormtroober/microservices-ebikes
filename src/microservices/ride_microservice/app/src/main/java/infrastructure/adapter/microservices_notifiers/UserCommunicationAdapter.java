@@ -1,6 +1,7 @@
 package infrastructure.adapter.microservices_notifiers;
 
 import application.ports.UserCommunicationPort;
+import infrastructure.config.ServiceConfiguration;
 import io.vertx.core.AbstractVerticle;
 import io.vertx.core.Promise;
 import io.vertx.core.Vertx;
@@ -15,9 +16,11 @@ public class UserCommunicationAdapter extends AbstractVerticle implements UserCo
     private static final String RIDE_UPDATE_ADDRESS = "ride.updates.user";
     private final Vertx vertx;
 
-    public UserCommunicationAdapter(Vertx vertx, String userServiceUrl) {
+    public UserCommunicationAdapter(Vertx vertx) {
         this.webClient = WebClient.create(vertx);
-        this.userServiceUrl = userServiceUrl;
+        ServiceConfiguration config = ServiceConfiguration.getInstance(vertx);
+        JsonObject userConfig = config.getUserAdapterAddress();
+        this.userServiceUrl = "http://" + userConfig.getString("name") + ":" + userConfig.getInteger("port");
         this.vertx = vertx;
     }
 
