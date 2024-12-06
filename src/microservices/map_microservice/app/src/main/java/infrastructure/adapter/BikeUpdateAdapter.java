@@ -5,7 +5,9 @@ import domain.model.EBike;
 import domain.model.EBikeFactory;
 import domain.model.EBikeState;
 import infrastructure.MetricsManager;
+import infrastructure.config.ServiceConfiguration;
 import io.vertx.core.AbstractVerticle;
+import io.vertx.core.Vertx;
 import io.vertx.core.http.HttpServer;
 import io.vertx.core.json.JsonArray;
 import io.vertx.core.json.JsonObject;
@@ -20,11 +22,21 @@ public class BikeUpdateAdapter extends AbstractVerticle {
     private final RestMapServiceAPI mapService;
     private final int port;
     private final MetricsManager metricsManager;
+    private final Vertx vertx;
 
-    public BikeUpdateAdapter(RestMapServiceAPI mapService) {
+    public BikeUpdateAdapter(RestMapServiceAPI mapService, Vertx vertx) {
+        this.vertx = vertx;
         this.mapService = mapService;
-        this.port = EnvUtils.getEnvOrDefaultInt("ADAPTER_EBIKE_PORT", 8082);
+        this.port = ServiceConfiguration.getInstance(vertx).getEBikeAdapterConfig().getInteger("port");
         this.metricsManager = MetricsManager.getInstance();
+    }
+
+    public void init() {
+        vertx.deployVerticle(this).onSuccess(id -> {
+            System.out.println("BikeUpdateAdapter deployed successfully with ID: " + id);
+        }).onFailure(err -> {
+            System.err.println("Failed to deploy BikeUpdateAdapter: " + err.getMessage());
+        });
     }
 
     @Override

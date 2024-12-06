@@ -30,7 +30,7 @@ dependencies {
     implementation("io.vertx:vertx-core:4.4.0")
     implementation("io.vertx:vertx-web:4.4.0")
     implementation("io.vertx:vertx-web-client:4.4.0")
-
+    implementation("io.vertx:vertx-config:4.4.0")
     testImplementation("org.junit.jupiter:junit-jupiter:5.9.2")
 
     // Add Micrometer and Prometheus dependencies

@@ -21,6 +21,7 @@ dependencies {
     implementation("io.vertx:vertx-web")
     implementation("io.vertx:vertx-web-client")
     implementation("io.vertx:vertx-mongo-client")
+    implementation("io.vertx:vertx-config:4.4.0")
 
     // Logging
     implementation("org.slf4j:slf4j-api:2.0.9")

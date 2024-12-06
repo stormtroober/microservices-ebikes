@@ -6,6 +6,8 @@ import domain.model.EBikeFactory;
 import domain.model.EBikeState;
 import infrastructure.MetricsManager;
 import java.util.List;
+
+import infrastructure.config.ServiceConfiguration;
 import io.vertx.core.AbstractVerticle;
 import io.vertx.core.Vertx;
 import io.vertx.core.VertxOptions;
@@ -32,19 +34,28 @@ public class MapServiceVerticle extends AbstractVerticle {
     private WebClient client;
     private final RestMapServiceAPI mapService;
     private final MetricsManager metricsManager;
+    private final Vertx vertx;
 
-    public MapServiceVerticle(RestMapServiceAPI mapService, String eurekaApplicationName, String eurekaInstanceId) {
+    public MapServiceVerticle(RestMapServiceAPI mapService, Vertx vertx) {
+        this.vertx = vertx;
+        ServiceConfiguration config = ServiceConfiguration.getInstance(vertx);
+        JsonObject eurekaConfig = config.getEurekaConfig();
+        JsonObject serviceConfig = config.getServiceConfig();
         this.mapService = mapService;
-        this.eurekaApplicationName = eurekaApplicationName;
-        this.eurekaInstanceId = eurekaInstanceId;
-        this.port = EnvUtils.getEnvOrDefaultInt("SERVICE_PORT", 8080);
-        this.eurekaPort = EnvUtils.getEnvOrDefaultInt("EUREKA_PORT", 8761);
-        this.eurekaHost = EnvUtils.getEnvOrDefaultString("EUREKA_HOST", "eureka-service");
+        this.eurekaApplicationName = serviceConfig.getString("name");
+        this.eurekaInstanceId = UUID.randomUUID().toString().substring(0, 5);
+        this.port = serviceConfig.getInteger("port");
+        this.eurekaPort = eurekaConfig.getInteger("port");
+        this.eurekaHost = eurekaConfig.getString("host");
         this.metricsManager = MetricsManager.getInstance();
     }
 
-    public MapServiceVerticle(RestMapServiceAPI mapService, String eurekaApplicationName) {
-        this(mapService, eurekaApplicationName, eurekaApplicationName + "-" + UUID.randomUUID().toString().substring(0, 5));
+    public void init() {
+        vertx.deployVerticle(this).onSuccess(id -> {
+            System.out.println("MapServiceVerticle deployed successfully with ID: " + id);
+        }).onFailure(err -> {
+            System.err.println("Failed to deploy MapServiceVerticle: " + err.getMessage());
+        });
     }
 
     @Override
