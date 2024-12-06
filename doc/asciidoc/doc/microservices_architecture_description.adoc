@@ -1,0 +1,53 @@
+In questo capitolo viene riportata una descrizione dettagliata di come i microservizi sono integrati
+tra di loro e come interagiscono, sia all'interno delll'architettura proposta che con il mondo esterno.
+
+In generale la comunicazione tra i microservizi avviene tramite HTTP e chiamate REST: essi
+espongono le loro funzionalità tramite API RESTful. Ogni microservizio ha un set di endpoint HTTP che possono essere chiamati da altri microservizi o da client esterni.
+Ad esempio, il `RideServiceVerticle` espone endpoint come `/startRide` e `/stopRide` per gestire le corse.
+Per facilitare la comunicazione tra microservizi, viene utilizzato un servizio di discovery come Eureka. Ogni microservizio si registra con Eureka all'avvio, fornendo
+informazioni come l'hostname, la porta e gli endpoint di health, questi ultimi usati per rispettare il pattern di `HealthCheckAPI`. Questo permette agli altri microservizi di trovare e comunicare
+con esso senza dover conoscere a priori il suo indirizzo.
+I microservizi utilizzano client HTTP, come WebClient di Vert.x, per inviare richieste ad altri microservizi. Ad esempio, il EBikeCommunicationAdapter utilizza WebClient per inviare aggiornamenti
+al microservizio delle ebike.
+Le API RESTful sono esposte dall'API Gateway di eureka, che funge da punto di ingresso per le richieste esterne. L'API Gateway è responsabile di instradare le richieste ai microservizi corretti,
+in base al path della richiesta. Ad esempio, una richiesta GET come `getAllBikes` viene instradata al `EbikeServiceVerticle`.
+Inoltre, Per garantire la disponibilità e le prestazioni dei microservizi, vengono raccolte metriche e log. Ad esempio, il MetricsManager raccoglie metriche sulle richieste HTTP, come i tempi di
+risposta e gli errori, che possono essere utilizzate per monitorare lo stato del sistema.
+
+**Flussi di comunicazione**
+
+* Avvio di una ride:
+    1. Il client invia una richiesta HTTP al RideServiceVerticle tramite l'API Gateway per avviare una ride.
+    2. Il RideServiceVerticle verifica la disponibilità dell'ebike e dell'utente chiamando i microservizi delle ebike e degli utenti tramite i rispettivi adapter (EBikeCommunicationAdapter e UserCommunicationAdapter).
+    3. Una volta avviata la corsa, il RideServiceVerticle notifica il microservizio delle mappe tramite il MapCommunicationAdapter.
+    4. Il RideServiceVerticle invia una richiesta al EBikeCommunicationAdapter per iniziare la ride.
+    5. Il EBikeCommunicationAdapter invia una richiesta alla ebike per iniziare la ride.
+    6. La ebike conferma l'inizio della ride.
+    7. Il RideServiceVerticle restituisce la conferma al client.
+* Stop di una ride:
+    1. Il client invia una richiesta HTTP al RideServiceVerticle tramite l'API Gateway per fermare una ride.
+    2. Il RideServiceVerticle recupera la simulazione della corsa associata all'utente.
+    3. Il RideServiceVerticle ferma la simulazione manualmente e aggiorna lo stato dell'ebike.
+    4. Il RideServiceVerticle notifica il microservizio delle mappe della fine della corsa tramite il MapCommunicationAdapter.
+    5. Il RideServiceVerticle rimuove la corsa dal repository.
+    6. Il RideServiceVerticle restituisce la conferma al client.
+* Aggiunta di una nuova e-bike:
+    1. L'amministratore invia una richiesta HTTP al EbikeServiceVerticle tramite l'API Gateway per aggiungere una nuova bici.
+    2. Il EbikeServiceVerticle verifica i dettagli della nuova bici.
+    3. Il EbikeServiceVerticle aggiunge la nuova bici al repository delle ebike.
+    4. Il EbikeServiceVerticle notifica il microservizio delle mappe della nuova bici tramite il MapCommunicationAdapter.
+    5. Il EbikeServiceVerticle restituisce la conferma all'amministratore.
+* Ricarica di una e-bike:
+    1. L'amministratore invia una richiesta HTTP al EbikeServiceVerticle tramite l'API Gateway per ricaricare una bici.
+    2. Il EbikeServiceVerticle verifica l'identificativo della bici e la sua disponibilità.
+    3. Il EbikeServiceVerticle invia una richiesta al EBikeCommunicationAdapter per ricaricare la bici.
+    4. Il EBikeCommunicationAdapter invia una richiesta alla bici per iniziare la ricarica.
+    5. La bici conferma l'inizio della ricarica.
+    6. Il EbikeServiceVerticle aggiorna lo stato della bici nel repository.
+    7. Il EbikeServiceVerticle restituisce la conferma all'amministratore.
+* Ricarica del credito:
+    1. L'utente invia una richiesta HTTP al UserServiceVerticle tramite l'API Gateway per ricaricare il proprio credito.
+    2. Il UserServiceVerticle verifica l'identificativo dell'utente e l'importo della ricarica.
+    3. Il UserServiceVerticle aggiorna il credito dell'utente nel repository degli utenti.
+    4. Il UserServiceVerticle notifica il microservizio delle corse dell'aggiornamento del credito tramite il RideServiceVerticle.
+    5. Il UserServiceVerticle restituisce la conferma all'utente

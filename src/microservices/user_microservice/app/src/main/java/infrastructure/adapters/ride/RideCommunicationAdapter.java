@@ -1,6 +1,5 @@
 package infrastructure.adapters.ride;
 
-import application.UserServiceImpl;
 import application.ports.UserServiceAPI;
 import infrastructure.MetricsManager;
 import io.vertx.core.AbstractVerticle;
@@ -32,12 +31,10 @@ public class RideCommunicationAdapter extends AbstractVerticle {
         Router router = Router.router(vertx);
         router.route().handler(BodyHandler.create());
 
-        // Configure routes
         router.get("/api/users/:username").handler(this::getUser);
         router.put("/api/users/:id/update").handler(this::updateUser);
         router.get("/metrics").handler(this::metrics);
 
-        // Start HTTP server
         vertx.createHttpServer()
                 .requestHandler(router)
                 .listen(port)
@@ -96,35 +93,6 @@ public class RideCommunicationAdapter extends AbstractVerticle {
         }
     }
 
-//    private void decreaseCredit(RoutingContext ctx) {
-//        try {
-//            String username = ctx.pathParam("username");
-//            JsonObject body = ctx.body().asJsonObject();
-//            if (username == null || username.trim().isEmpty() || body == null || !body.containsKey("amount")) {
-//                sendError(ctx, 400, "Invalid request");
-//                return;
-//            }
-//
-//            int amount = body.getInteger("amount");
-//            userService.decreaseCredit(username, amount)
-//                    .thenAccept(updatedUser -> {
-//                        if (updatedUser != null) {
-//                            logger.info("Credit decreased for user: " + username);
-//                            sendResponse(ctx, 200, updatedUser);
-//                        } else {
-//                            logger.error("User not found: " + username);
-//                            sendError(ctx, 404, "User not found");
-//                        }
-//                    })
-//                    .exceptionally(e -> {
-//                        handleError(ctx, e);
-//                        return null;
-//                    });
-//        } catch (Exception e) {
-//            handleError(ctx, new RuntimeException("Invalid JSON format"));
-//        }
-//    }
-
     private void updateUser(RoutingContext ctx) {
         metricsManager.incrementMethodCounter("updateUser");
         var timer = metricsManager.startTimer();
@@ -152,8 +120,6 @@ public class RideCommunicationAdapter extends AbstractVerticle {
             metricsManager.recordError(timer, "updateUser", e);
         }
     }
-
-
 
     private void sendResponse(RoutingContext ctx, int statusCode, Object result) {
         ctx.response()

@@ -7,19 +7,16 @@ import org.dialogs.user.RechargeCreditDialog;
 import org.dialogs.user.StartRideDialog;
 import org.models.EBikeViewModel;
 import org.models.UserViewModel;
-import org.models.RideViewModel;
 import org.verticles.UserVerticle;
 
 import javax.swing.*;
 import java.awt.*;
-import java.util.Optional;
 
 public class UserView extends AbstractView {
 
     private final UserVerticle verticle;
     private final Vertx vertx;
     private JButton rideButton;
-    //private final Optional<RideViewModel> ongoingRide = Optional.empty();
     private boolean isRiding = false;
 
 
@@ -149,11 +146,6 @@ public class UserView extends AbstractView {
 
         });
     }
-
-//    @Override
-//    public void paintUserView(Graphics2D g2) {
-//        super.paintUserView(g2);
-//    }
 
     private void refreshView() {
         updateVisualizerPanel();

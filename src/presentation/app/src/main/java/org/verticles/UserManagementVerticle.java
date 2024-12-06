@@ -25,7 +25,6 @@ public class UserManagementVerticle extends AbstractVerticle {
 
     @Override
     public void start() {
-        // Handle login requests
         vertx.eventBus().consumer("user.login", message -> {
             String username = (String) message.body();
             JsonObject requestPayload = new JsonObject().put("username", username);
@@ -42,8 +41,6 @@ public class UserManagementVerticle extends AbstractVerticle {
                         }
                     });
         });
-
-        // Handle registration requests
         vertx.eventBus().consumer("user.register", message -> {
             JsonObject userDetails = (JsonObject) message.body();
             System.out.println("Sending registration request: " + userDetails);

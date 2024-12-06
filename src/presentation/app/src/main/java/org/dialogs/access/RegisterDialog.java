@@ -1,4 +1,3 @@
-// RegisterDialog.java
 package org.dialogs.access;
 
 import io.vertx.core.Vertx;

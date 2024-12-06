@@ -29,7 +29,6 @@ public class RideUpdateAdapter extends AbstractVerticle {
         HttpServer server = vertx.createHttpServer();
         Router router = Router.router(vertx);
 
-        // Enable request body handling for PUT/POST requests
         router.route().handler(BodyHandler.create());
 
         router.get("/metrics").handler(ctx -> {
@@ -77,7 +76,6 @@ public class RideUpdateAdapter extends AbstractVerticle {
                     });
         });
 
-        // Start the server on the specified port
         server.requestHandler(router).listen(port, result -> {
             if (result.succeeded()) {
                 System.out.println("RideUpdateVerticle is running on port " + port);

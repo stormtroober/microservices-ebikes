@@ -32,12 +32,10 @@ public class BikeUpdateAdapter extends AbstractVerticle {
         HttpServer server = vertx.createHttpServer();
         Router router = Router.router(vertx);
 
-        // Enable request body handling for PUT/POST requests
         router.route().handler(BodyHandler.create());
 
         router.get("/health").handler(ctx -> ctx.response().setStatusCode(200).end("OK"));
 
-        // Expose Prometheus metrics
         router.get("/metrics").handler(ctx -> ctx.response()
                 .putHeader("Content-Type", "text/plain")
                 .end(metricsManager.getMetrics()));
@@ -49,7 +47,6 @@ public class BikeUpdateAdapter extends AbstractVerticle {
             JsonObject body = ctx.body().asJsonObject();
             try {
                 EBike bike = createEBikeFromJson(body);
-                // Process the update request
                 mapService.updateEBike(bike)
                         .thenAccept(v -> {
                                     ctx.response().setStatusCode(200).end("EBike updated successfully");
@@ -81,7 +78,6 @@ public class BikeUpdateAdapter extends AbstractVerticle {
                         .map(this::createEBikeFromJson)
                         .collect(Collectors.toList());
 
-                // Process the update request
                 mapService.updateEBikes(bikes)
                         .thenAccept(v -> {
                             ctx.response().setStatusCode(200).end("EBikes updated successfully");
@@ -99,7 +95,6 @@ public class BikeUpdateAdapter extends AbstractVerticle {
             }
         });
 
-        // Start the server on the specified port
         server.requestHandler(router).listen(port, result -> {
             if (result.succeeded()) {
                 System.out.println("BikeUpdateAdapter is running on port " + port);

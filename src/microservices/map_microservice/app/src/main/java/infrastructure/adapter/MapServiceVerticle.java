@@ -24,7 +24,6 @@ import java.util.stream.Collectors;
 
 public class MapServiceVerticle extends AbstractVerticle {
 
-    //private final PrometheusMeterRegistry registry;
     private final String eurekaApplicationName;
     private final String eurekaInstanceId;
     private final int port;
@@ -54,10 +53,8 @@ public class MapServiceVerticle extends AbstractVerticle {
         HttpServer server = vertx.createHttpServer();
         Router router = Router.router(vertx);
 
-        // Enable request body handling for PUT/POST
         router.route().handler(BodyHandler.create());
 
-        // Add Prometheus metrics endpoint
         router.get("/metrics").handler(ctx -> {
             ctx.response()
                     .putHeader("Content-Type", "text/plain")
@@ -67,45 +64,37 @@ public class MapServiceVerticle extends AbstractVerticle {
         router.get("/health").handler(ctx -> ctx.response().setStatusCode(200).end("OK"));
 
         router.route("/observeAllBikes").handler(ctx -> {
-            metricsManager.incrementMethodCounter("observeAllBikes");  // Increment for method call
+            metricsManager.incrementMethodCounter("observeAllBikes");
 
             ctx.request().toWebSocket().onComplete(webSocketAsyncResult -> {
                 if (webSocketAsyncResult.succeeded()) {
                     var webSocket = webSocketAsyncResult.result();
 
-                    // Increment WebSocket connection success count
                     metricsManager.incrementMethodCounter("observeAllBikes_connection_success");
 
-                    // Listen to EventBus and send updates to this WebSocket
                     var consumer = vertx.eventBus().consumer("bikes.update", message -> {
                         webSocket.writeTextMessage(message.body().toString());
 
-                        // Track messages sent via WebSocket
                         metricsManager.incrementMethodCounter("observeAllBikes_message_sent");
                     });
 
                     mapService.getAllBikes();
 
-                    // Cleanup on WebSocket close
                     webSocket.closeHandler(v -> {
                         consumer.unregister();
-                        // Track WebSocket disconnection
                         metricsManager.incrementMethodCounter("observeAllBikes_connection_closed");
                     });
 
                     webSocket.exceptionHandler(err -> {
                         consumer.unregister();
-                        // Track WebSocket exception errors
                         metricsManager.incrementMethodCounter("observeAllBikes_connection_error");
                     });
                 } else {
                     ctx.response().setStatusCode(500).end("WebSocket Upgrade Failed");
-                    // Track WebSocket connection failure
                     metricsManager.incrementMethodCounter("observeAllBikes_connection_failed");
                 }
             });
         });
-
 
         router.route("/observeUserBikes").handler(ctx -> {
             String username = ctx.queryParam("username").stream().findFirst().orElse(null);
@@ -115,7 +104,6 @@ public class MapServiceVerticle extends AbstractVerticle {
                 return;
             }
 
-            // Increment for method call
             metricsManager.incrementMethodCounter("observeUserBikes");
 
             ctx.request().toWebSocket().onComplete(webSocketAsyncResult -> {
@@ -123,14 +111,11 @@ public class MapServiceVerticle extends AbstractVerticle {
                     var webSocket = webSocketAsyncResult.result();
                     System.out.println("User " + username + " connected");
 
-                    // Increment WebSocket connection success count
                     metricsManager.incrementMethodCounter("observeUserBikes_connection_success");
 
-                    // Listen to global bike updates
                     var globalConsumer = vertx.eventBus().consumer("available_bikes", message -> {
                         webSocket.writeTextMessage(message.body().toString());
 
-                        // Increment for message sent over WebSocket
                         metricsManager.incrementMethodCounter("observeUserBikes_message_sent");
                     });
 
@@ -138,32 +123,26 @@ public class MapServiceVerticle extends AbstractVerticle {
                         webSocket.writeTextMessage(message.body().toString());
                     });
 
-                    // Listen to user-specific bike updates
                     var userConsumer = vertx.eventBus().consumer(username, message -> {
                         webSocket.writeTextMessage(message.body().toString());
 
-                        // Increment for message sent over WebSocket
                         metricsManager.incrementMethodCounter("observeUserBikes_message_sent");
                     });
                     mapService.registerUser(username);
                     mapService.getAllBikes(username);
 
-                    // Cleanup on WebSocket close
                     webSocket.closeHandler(v -> {
                         ctx.response().setStatusCode(200).end("WebSocket Closed successfully");
 
-                        // Track WebSocket disconnection
                         metricsManager.incrementMethodCounter("observeUserBikes_connection_closed");
                         mapService.deregisterUser(username);
                         globalConsumer.unregister();
                         userConsumer.unregister();
                     });
 
-                    // Track WebSocket exception errors
                     webSocket.exceptionHandler(err -> {
                         ctx.response().setStatusCode(500).end("WebSocket Failed");
 
-                        // Track WebSocket exception
                         metricsManager.incrementMethodCounter("observeUserBikes_connection_error");
                         mapService.deregisterUser(username);
                         globalConsumer.unregister();
@@ -172,14 +151,11 @@ public class MapServiceVerticle extends AbstractVerticle {
                 } else {
                     ctx.response().setStatusCode(500).end("WebSocket Upgrade Failed");
 
-                    // Track WebSocket connection failure
                     metricsManager.incrementMethodCounter("observeUserBikes_connection_failed");
                 }
             });
         });
 
-
-        // Start the server
         server.requestHandler(router).listen(this.port, result -> {
             if (result.succeeded()) {
                 System.out.println("HTTP server started on port "+this.port);

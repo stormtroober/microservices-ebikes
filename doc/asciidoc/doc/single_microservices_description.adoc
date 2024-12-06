@@ -13,3 +13,5 @@ include::single_microservices/MapMicroservice.adoc[]
 include::single_microservices/UserMicroservice.adoc[]
 
 include::single_microservices/EBikeMicroservice.adoc[]
+
+include::single_microservices/RideMicroservice.adoc[]
