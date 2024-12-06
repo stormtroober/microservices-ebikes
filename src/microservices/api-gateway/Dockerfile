@@ -9,7 +9,7 @@ RUN apt-get update && apt-get install -y curl
 
 WORKDIR /app
 
-COPY --from=build /home/gradle/build/libs/eureka-apigateway-1.0.0-SNAPSHOT.jar app.jar
+COPY --from=build /home/gradle/build/libs/api-gateway-1.0.0-SNAPSHOT.jar app.jar
 
 EXPOSE 8080
 
