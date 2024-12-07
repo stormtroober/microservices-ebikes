@@ -43,4 +43,5 @@ Le tre porte sono quindi implementate nel layer infrastrutturale, che fornisce l
 
 `MapServiceVerticle` è invece il punto di ingresso del microservizio per l'utente, esso infatti è registrato al service-discovery e fornisce le due websocket per osservare i cambiamenti delle biciclette sulla mappa.
 
-Come gli altri microservizi, utilizza la classe MetricsManager per trasmettere a Prometheus le metriche di sistema.
+Come gli altri microservizi, utilizza la classe MetricsManager per trasmettere a Prometheus le metriche di sistema e la classe  ServiceConfiguration per la gestione delle configurazioni.
+
