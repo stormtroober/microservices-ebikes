@@ -45,3 +45,19 @@ Questa interfaccia facilita la comunicazione tra il sistema delle e-bike e i cli
 
 **BikeUpdateAdapter**
 
+L'adapter utilizza Vert.x per creare un server HTTP e configurare le rotte per gestire le richieste di aggiornamento delle ebike.
+Espone due endpoint principali: uno per aggiornare una singola ebike e uno per aggiornare più ebike contemporaneamente.
+Utilizza il RestMapServiceAPI per inviare aggiornamenti al Map Microservice e il MetricsManager per monitorare le metriche delle operazioni eseguite.
+
+**RideUpdateAdapter**
+
+Gestisce le notifiche di inizio e fine corsa delle ebike. Configura un server HTTP con Vert.x e definisce le rotte per ricevere le notifiche di inizio e fine corsa.
+Utilizza il RestMapServiceAPI per inviare queste notifiche al servizio delle mappe e il MetricsManager per registrare le metriche delle operazioni. Questo adapter assicura
+che il sistema delle mappe sia sempre aggiornato con lo stato corrente delle corse.
+
+**MapServiceVerticle**
+
+Questa classe rappresenta il verticle principale del microservizio. Configura un server HTTP e definisce diverse rotte per gestire le richieste, tra cui endpoint per monitorare
+tutte le e-bike e quelle di un utente specifico. Utilizza il WebClient di Vert.x per registrarsi con Eureka e inviare heartbeat periodici per mantenere l'istanza registrata.
+Anch'esso utilizza il MetricsManager per monitorare le metriche delle operazioni e garantire che il sistema sia sempre operativo e monitorato.
+
