@@ -4,7 +4,8 @@ import application.ports.RestMapServiceAPI;
 
 import domain.model.EBike;
 import application.ports.EventPublisher;
-import application.ports.EBikeRepository;
+import domain.model.EBikeRepository;
+import infrastructure.adapter.EBikeRepositoryImpl;
 
 import java.util.List;
 import java.util.concurrent.CompletableFuture;
@@ -16,8 +17,8 @@ public class RestMapServiceAPIImpl implements RestMapServiceAPI {
     private final EventPublisher eventPublisher;
     private final List<String> registeredUsers = new CopyOnWriteArrayList<>();
 
-    public RestMapServiceAPIImpl(EBikeRepository bikeRepository, EventPublisher eventPublisher) {
-        this.bikeRepository = bikeRepository;
+    public RestMapServiceAPIImpl(EventPublisher eventPublisher) {
+        this.bikeRepository = new EBikeRepositoryImpl();
         this.eventPublisher = eventPublisher;
     }
 

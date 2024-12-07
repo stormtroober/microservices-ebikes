@@ -1,10 +1,8 @@
 package application;
 
-import application.ports.EbikeCommunicationPort;
-import application.ports.MapCommunicationPort;
-import application.ports.RestRideServiceAPI;
-import application.ports.UserCommunicationPort;
+import application.ports.*;
 import domain.model.*;
+import infrastructure.adapter.microservices.eventbus.EventPublisherImpl;
 import io.vertx.core.Vertx;
 import io.vertx.core.json.JsonObject;
 
@@ -17,8 +15,8 @@ public class RestRideServiceAPIImpl implements RestRideServiceAPI {
     private final MapCommunicationPort mapCommunicationAdapter;
     private final UserCommunicationPort userCommunicationAdapter;
 
-    public RestRideServiceAPIImpl(RideRepository rideRepository, Vertx vertx, EbikeCommunicationPort ebikeCommunicationAdapter, MapCommunicationPort mapCommunicationAdapter, UserCommunicationPort userCommunicationAdapter) {
-        this.rideRepository = rideRepository;
+    public RestRideServiceAPIImpl(EventPublisher publisher, Vertx vertx, EbikeCommunicationPort ebikeCommunicationAdapter, MapCommunicationPort mapCommunicationAdapter, UserCommunicationPort userCommunicationAdapter) {
+        this.rideRepository = new RideRepositoryImpl(vertx, publisher);
         this.vertx = vertx;
         this.ebikeCommunicationAdapter = ebikeCommunicationAdapter;
         this.mapCommunicationAdapter = mapCommunicationAdapter;

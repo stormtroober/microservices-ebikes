@@ -1,6 +1,6 @@
 package infrastructure.adapter;
 
-import application.ports.EBikeRepository;
+import domain.model.EBikeRepository;
 import domain.model.EBike;
 import domain.model.EBikeState;
 

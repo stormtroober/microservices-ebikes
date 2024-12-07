@@ -1,6 +1,4 @@
-package application.ports;
-
-import domain.model.EBike;
+package domain.model;
 
 import java.util.Map;
 import java.util.List;
