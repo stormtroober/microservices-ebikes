@@ -1,13 +1,13 @@
 package domain.model;
 
 import application.ports.EventPublisher;
-import ddd.Aggregate;
+import ddd.Service;
 import io.vertx.core.Vertx;
 
 
 import java.util.concurrent.CompletableFuture;
 
-public class RideSimulation implements Aggregate<String> {
+public class RideSimulation implements Service {
     private final Ride ride;
     private final Vertx vertx;
     private volatile boolean stopped = false;
@@ -116,7 +116,6 @@ public class RideSimulation implements Aggregate<String> {
         stopped = true;
     }
 
-    @Override
     public String getId() {
         return id;
     }
