@@ -41,7 +41,7 @@ public class EBike implements Aggregate<String>, Serializable {
                 "bikeName='" + bikeName + '\'' +
                 ", position=" + position +
                 ", state=" + state +
-                ", batteryLevel=" + batteryLevel + // Include in toString
+                ", batteryLevel=" + batteryLevel +
                 '}';
     }
 
