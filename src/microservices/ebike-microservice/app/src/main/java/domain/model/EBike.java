@@ -9,7 +9,6 @@ public class EBike implements Aggregate<String>, Serializable {
     private final String id;
     private volatile EBikeState state;
     private volatile P2d location;
-    private volatile V2d direction;
     private volatile double speed; // Units per simulation tick
     private volatile int batteryLevel; // 0..100
 
@@ -17,7 +16,6 @@ public class EBike implements Aggregate<String>, Serializable {
         this.id = id;
         this.state = state;
         this.location = location;
-        this.direction = new V2d(1, 0); // Default direction
         this.speed = 0; // Default speed
         this.batteryLevel = battery;
     }
@@ -31,8 +29,6 @@ public class EBike implements Aggregate<String>, Serializable {
     public  P2d getLocation() { return location; }
     public  void setLocation(P2d location) { this.location = location; }
 
-    public  V2d getDirection() { return direction; }
-    public  void setDirection(V2d direction) { this.direction = direction; }
 
     public  double getSpeed() { return speed; }
     public  void setSpeed(double speed) { this.speed = speed; }

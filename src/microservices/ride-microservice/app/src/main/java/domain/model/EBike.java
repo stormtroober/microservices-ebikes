@@ -42,11 +42,6 @@ public class EBike {
         }
     }
 
-    public synchronized void rechargeBattery() {
-        this.batteryLevel = 100;
-        this.state = EBikeState.AVAILABLE;
-    }
-
     public synchronized boolean isAvailable() {
         return this.state == EBikeState.AVAILABLE;
     }
