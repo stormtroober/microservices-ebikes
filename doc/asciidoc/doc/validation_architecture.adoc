@@ -58,6 +58,102 @@ Trattandosi di un test Unit, viene testata la parte di codice interna al microse
 Vengono testati i metodi di salvataggio e recupero di una bicicletta, l'assegnazione e la rimozione di una bicicletta da un utente, e il recupero delle biciclette disponibili.
 
 ==== Integration Test
+[source, java]
+----
+@Test
+    void testSignUpAndSignIn() {
+        System.out.println("Testing sign Up and sign In");
+        registerUser("testuser", "USER").join();
+        signIn("testuser").join();
+    }
+
+    private static CompletableFuture<Void> signIn(String username) {
+        CompletableFuture<Void> future = new CompletableFuture<>();
+        JsonObject user = new JsonObject().put("username", username);
+
+        client.post(8084, "localhost", "/api/users/signin")
+                .sendJsonObject(user, ar -> {
+                    if (ar.succeeded()) {
+                        HttpResponse<Buffer> response = ar.result();
+                        System.out.println("User sign in SUCCEEDED: " + response.bodyAsString());
+                        assertEquals(200, response.statusCode());
+                        future.complete(null);
+                    } else {
+                        System.err.println("User sign in FAILED: " + ar.cause().getMessage());
+                        future.completeExceptionally(ar.cause());
+                    }
+                });
+
+        return future;
+    }
+----
+
+Allo scopo di testare il collegamento tra un microservizio e un servizio esterno come quello di database, è stato definito un docker compose ad hoc per testare esclusivamente questo aspetto.
+
+[source, yaml]
+----
+
+services:
+
+  mongodb:
+    image: mongo:latest
+    ports:
+      - 27017:${MONGODB_INSTANCE_PORT}
+    networks:
+      - eureka-network
+    environment:
+      - GLIBC_TUNABLES=glibc.pthread.rseq=0
+    volumes:
+      - mongodb_data:/data/db
+    command: --wiredTigerCacheSizeGB 1
+    ulimits:
+      memlock: -1
+    deploy:
+      resources:
+        limits:
+          memory: 1G
+    healthcheck:
+      test: mongosh --eval 'db.runCommand("ping").ok' localhost:${MONGODB_INSTANCE_PORT}/test --quiet
+      interval: 5s
+      timeout: 5s
+      retries: 3
+      start_period: 5s
+
+  user-microservice:
+    build:
+      context: ../../../../../../../user_microservice
+    ports:
+      - 8084:${USER_INSTANCE_PORT}
+    networks:
+      - eureka-network
+    depends_on:
+      mongodb:
+        condition: service_healthy
+    environment:
+      - EUREKA_CLIENT_SERVICEURL_DEFAULTZONE=${EUREKA_CLIENT_SERVICEURL_DEFAULTZONE}
+      - EUREKA_HOST=${EUREKA_INSTANCE_HOSTNAME}
+      - EUREKA_PORT=${EUREKA_INSTANCE_PORT}
+      - SERVICE_NAME=${USER_INSTANCE_HOSTNAME}
+      - SERVICE_PORT=${USER_INSTANCE_PORT}
+      - ADAPTER_RIDE_PORT=${USER_ADAPTER_RIDE_PORT}
+      - MONGO_CONNECTION=${MONGODB_CONNECTION_STRING}
+      - MONGO_DATABSE=${USER_MONGODB_DATABASE}
+    healthcheck:
+      test: [ "CMD-SHELL", "curl -f http://localhost:${USER_INSTANCE_PORT}/health", "curl -f http://localhost:${USER_ADAPTER_RIDE_PORT}/health" ]
+      interval: 5s
+      timeout: 5s
+      retries: 3
+      start_period: 5s
+
+networks:
+  eureka-network:
+    driver: bridge
+
+volumes:
+  mongodb_data:
+----
+
+Il test è stato eseguito con successo, dimostrando che il microservizio è in grado di comunicare con il database e di eseguire le operazioni di registrazione e accesso degli utenti.
 
 ==== Component Test
 [source, java]
