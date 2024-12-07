@@ -3,6 +3,8 @@
 Il microservizio, organizzato in architettura esagonale, definisce tre porte per interfacciarsi al layer di applicazione.
 Queste porte sono utilizzate nel layer infrastrutturale, che fornisce le implementazioni concrete per interagire con la repository, pubblicare eventi,
 e gestire le richieste REST.
+Di seguito un immagine che ne descrive la struttura (Si specifica che il sistema di event publisher è stato non rappresentato per dare maggior enfasi
+all'interazione tra porte e adattatori riferiti al funzionamento del microservizio degli utenti).
 
 image::../../png/user_microservice_hexagonal.drawio.png[]
 

@@ -4,7 +4,7 @@ Il microservizio, organizzato in architettura esagonale, definisce quattro porte
 Queste porte sono utilizzate nel layer infrastrutturale, che fornisce le implementazioni concrete per interagire con la repository, pubblicare eventi,
 registrare il microservizio al Service Discovery e gestire le richieste REST.
 Di seguito un immagine che ne descrive la struttura (Si specifica che il sistema di event publisher è stato non rappresentato per dare maggior enfasi
-all'interazione tra porte e adattatori riferiti al funzionamento della mappa).
+all'interazione tra porte e adattatori riferiti al funzionamento della ride).
 
 image::../../png/light-ride-hexagonal.drawio.png[]
 

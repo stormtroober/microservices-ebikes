@@ -3,7 +3,7 @@ Allo scopo di validare il sistema, sono stati definiti dei test, seppur limitati
 Inoltre, è stato eseguito un test di utilizzo del sistema, allo scopo di verificare che funzioni allo stesso modo della versione non a microservizi.
 
 === Test pyramid
-In particolare, è stato definito un test per ogni layer dell'applicazione, seguendo la piramide dei test. I test sono stati scritti utilizzando il framework JUnit, e sono stati eseguiti con successo.
+Nel dettaglio, è stato definito un test per ogni layer dell'applicazione, seguendo la piramide dei test. Questi ultimi sono stati scritti utilizzando il framework JUnit, e sono stati eseguiti con successo.
 Di seguito vengono descritti brevemente i test eseguiti suddivisi per tipologia.
 
 ==== Unit Test
@@ -376,7 +376,7 @@ Coinvolge più componenti del servizio, verificandone il funzionamento interno s
 
 Questo tipo di test verifica l'intero flusso operativo del sistema, assicurandosi che tutti i componenti interagiscano correttamente in un ambiente il più vicino possibile a quello di produzione.
 
-L'obiettivo principale di questo è simulare l'esperienza utente, dalla registrazione degli utenti alla creazione di una eBike e alla verifica delle notifiche in tempo reale tramite WebSocket. Questo assicura che tutte le parti del sistema funzionino bene insieme.
+L'obiettivo principale di tale test è simulare l'esperienza utente, dalla registrazione degli utenti alla creazione di una eBike e alla verifica delle notifiche in tempo reale tramite WebSocket. Questo assicura che tutte le parti del sistema funzionino bene insieme.
 
 Esso coinvolge l'intero sistema, avviando tutti i container docker interessati tramite un comando shell.
 
@@ -391,6 +391,6 @@ Infine, una volta terminato il test, si passa alla fase di pulizia finale, dove 
 In conclusione, l'analisi condotta nei precedenti capitoli e i test generati dimostrano come la strategia adottata per soddisfare i requisiti e gli attributi di qualità
 sia stata efficace.
 Si evince, infatti, come i quattro microservizi principali prodotti, ricordando che discendono da sottodomini di tipo core, racchiudano in maniera appropriata ogni funzionalità identificata, favorendone la gestione modulare e facilitando l'estendibilità, la modificabilità e la scalabilità
-del sistema. L'utilizzo di Docker e di API standard per la comunicazione ha permesso di isolare i servizi e di garantire l'interoperabilità tra di essi, mentre l'uso di Vert.x ha garantito performance elevate e una gestione efficiente degli eventi.
+del sistema. L'utilizzo di Docker e di API standard per la comunicazione ha permesso di isolare i servizi e di garantire l'interoperabilità tra di essi, mentre l'uso di Vert.x ha assicurato performance elevate e una gestione efficiente degli eventi.
 Inoltre, la testabilità dei microservizi è stata garantita grazie alla definizione di test a vari livelli, che hanno permesso di verificare il corretto funzionamento di alcune funzionalità offerte da essi, sia individualmente, sia nel loro funzionamento integrato.  Tuttavia, l'insieme dei test potrebbe essere ulteriormente esteso per coprire scenari più complessi e garantire una maggiore robustezza,
 migliorando così l'affidabilità  e l'efficacia del sistema in ambienti di produzione.
