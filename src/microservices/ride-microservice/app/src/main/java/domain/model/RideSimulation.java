@@ -108,6 +108,7 @@ public class RideSimulation {
 
     public void stopSimulationManually(){
         System.out.println("Stopping simulation manually");
+        ride.end();
         if(ride.getEbike().getState() == EBikeState.IN_USE){
             ride.getEbike().setState(EBikeState.AVAILABLE);
         }

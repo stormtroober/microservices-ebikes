@@ -33,9 +33,7 @@ public class RestMapServiceAPIImpl implements RestMapServiceAPI {
 
                     bikeRepository.getUsersWithAssignedAndAvailableBikes().thenAccept(usersWithBikeMap -> {
                         if(!usersWithBikeMap.isEmpty()){
-                            usersWithBikeMap.forEach((username, userBikes) -> {
-                                eventPublisher.publishUserBikesUpdate(userBikes, username);
-                            });
+                            usersWithBikeMap.forEach((username, userBikes) -> eventPublisher.publishUserBikesUpdate(userBikes, username));
                         }
                         else{
                             bikeRepository.getAvailableBikes().thenAccept(eventPublisher::publishUserAvailableBikesUpdate);
@@ -54,17 +52,13 @@ public class RestMapServiceAPIImpl implements RestMapServiceAPI {
 
                     bikeRepository.getUsersWithAssignedAndAvailableBikes().thenAccept(usersWithBikeMap -> {
                         if(!usersWithBikeMap.isEmpty()){
-                            usersWithBikeMap.forEach((username, userBikes) -> {
-                                eventPublisher.publishUserBikesUpdate(userBikes, username);
-                            });
+                            usersWithBikeMap.forEach((username, userBikes) -> eventPublisher.publishUserBikesUpdate(userBikes, username));
 
                             registeredUsers.stream()
                                     .filter(user -> !usersWithBikeMap.containsKey(user)) // Filter users without bikes assigned
-                                    .forEach(user -> {
-                                        bikeRepository.getAvailableBikes().thenAccept(availableBikes -> {
-                                            eventPublisher.publishUserBikesUpdate(availableBikes, user);
-                                        });
-                                    });
+                                    .forEach(user -> bikeRepository.getAvailableBikes().thenAccept(availableBikes -> {
+                                        eventPublisher.publishUserBikesUpdate(availableBikes, user);
+                                    }));
                         }
                         else{
                             bikeRepository.getAvailableBikes().thenAccept(eventPublisher::publishUserAvailableBikesUpdate);
@@ -78,9 +72,7 @@ public class RestMapServiceAPIImpl implements RestMapServiceAPI {
     public CompletableFuture<Void> notifyStartRide(String username, String bikeName) {
          return bikeRepository.getBike(bikeName)
                  .thenCompose(bike -> bikeRepository.assignBikeToUser(username, bike))
-                 .thenAccept(v -> {
-                     bikeRepository.getAvailableBikes().thenAccept(eventPublisher::publishUserAvailableBikesUpdate);
-                 });
+                 .thenAccept(v -> bikeRepository.getAvailableBikes().thenAccept(eventPublisher::publishUserAvailableBikesUpdate));
     }
 
 
