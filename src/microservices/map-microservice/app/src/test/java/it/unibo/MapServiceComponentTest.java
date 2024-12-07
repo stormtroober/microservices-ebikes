@@ -4,13 +4,12 @@ import application.RestMapServiceAPIImpl;
 import application.ports.EventPublisher;
 import application.ports.RestMapServiceAPI;
 import infrastructure.adapter.BikeUpdateAdapter;
-import infrastructure.adapter.EBikeRepositoryImpl;
+import domain.model.EBikeRepositoryImpl;
 import infrastructure.adapter.EventPublisherImpl;
 import infrastructure.adapter.MapServiceVerticle;
 import infrastructure.config.ServiceConfiguration;
 import io.vertx.core.Vertx;
 import io.vertx.core.http.HttpClient;
-import io.vertx.core.http.WebSocket;
 import io.vertx.core.json.JsonArray;
 import io.vertx.core.json.JsonObject;
 import io.vertx.ext.web.client.WebClient;
@@ -40,7 +39,7 @@ public class MapServiceComponentTest {
         // Initialize components
         EBikeRepositoryImpl repository = new EBikeRepositoryImpl();
         EventPublisher eventPublisher = new EventPublisherImpl(vertx);
-        RestMapServiceAPI mapService = new RestMapServiceAPIImpl(repository, eventPublisher);
+        RestMapServiceAPI mapService = new RestMapServiceAPIImpl(eventPublisher);
 
         ServiceConfiguration config = ServiceConfiguration.getInstance(vertx);
         config.load().onSuccess(conf -> {

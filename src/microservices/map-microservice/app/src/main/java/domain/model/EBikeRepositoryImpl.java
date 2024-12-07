@@ -1,8 +1,4 @@
-package infrastructure.adapter;
-
-import domain.model.EBikeRepository;
-import domain.model.EBike;
-import domain.model.EBikeState;
+package domain.model;
 
 import java.util.ArrayList;
 import java.util.List;
