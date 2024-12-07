@@ -1,22 +1,260 @@
 In questo capitolo viene riportata una descrizione dettagliata di come i microservizi sono integrati
 tra di loro e come interagiscono, sia all'interno delll'architettura proposta che con il mondo esterno.
 
+È giusto parlare all'inizio di come vengono deployati i microservizi. Come anticipato in precedenza, ognuno ha il suo `Dockerfile` e quindi è già pronto per essere runnato da un `docker-compose`.
+[source, yaml]
+----
+services:
+  eureka-server:
+    build:
+      context: ./service-discovery
+    ports:
+      - 8761:${EUREKA_INSTANCE_PORT}
+    networks:
+      - eureka-network
+    environment:
+      - EUREKA_CLIENT_REGISTER_WITH_EUREKA=${EUREKA_CLIENT_REGISTER_WITH_EUREKA}
+      - EUREKA_CLIENT_FETCH_REGISTRY=${EUREKA_CLIENT_FETCH_REGISTRY}
+      - EUREKA_INSTANCE_HOSTNAME=${EUREKA_INSTANCE_HOSTNAME}
+      - EUREKA_INSTANCE_PORT=${EUREKA_INSTANCE_PORT}
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:${EUREKA_INSTANCE_PORT}/actuator/health"]
+      interval: 10s
+      timeout: 5s
+      retries: 3
+      start_period: 10s
+
+  map-microservice:
+      build:
+        context: ./map-microservice
+      ports:
+        - 8081:${MAP_INSTANCE_PORT}
+      networks:
+        - eureka-network
+      depends_on:
+        eureka-server:
+          condition: service_healthy
+      environment:
+        - EUREKA_CLIENT_SERVICEURL_DEFAULTZONE=${EUREKA_CLIENT_SERVICEURL_DEFAULTZONE}
+        - EUREKA_HOST=${EUREKA_INSTANCE_HOSTNAME}
+        - EUREKA_PORT=${EUREKA_INSTANCE_PORT}
+        - SERVICE_NAME=${MAP_INSTANCE_HOSTNAME}
+        - SERVICE_PORT=${MAP_INSTANCE_PORT}
+        - ADAPTER_RIDE_PORT=${MAP_ADAPTER_RIDE_PORT}
+        - ADAPTER_EBIKE_PORT=${MAP_ADAPTER_EBIKE_PORT}
+      healthcheck:
+        test: ["CMD-SHELL", "curl -f http://localhost:${MAP_INSTANCE_PORT}/health || exit 1", "curl -f http://localhost:${MAP_ADAPTER_EBIKE_PORT}/health || exit 1", "curl -f http://localhost:${MAP_ADAPTER_RIDE_PORT}/health || exit 1"]
+        interval: 10s
+        timeout: 5s
+        retries: 3
+        start_period: 10s
+
+  mongodb:
+    image: mongo:latest
+    ports:
+      - 27017:${MONGODB_INSTANCE_PORT}
+    networks:
+      - eureka-network
+    environment:
+      - GLIBC_TUNABLES=glibc.pthread.rseq=0
+    volumes:
+      - mongodb_data:/data/db
+    command: --wiredTigerCacheSizeGB 1
+    ulimits:
+      memlock: -1
+    deploy:
+      resources:
+        limits:
+          memory: 1G
+    healthcheck:
+      test: mongosh --eval 'db.runCommand("ping").ok' localhost:${MONGODB_INSTANCE_PORT}/test --quiet
+      interval: 5s
+      timeout: 5s
+      retries: 3
+      start_period: 5s
+
+  ebike-microservice:
+    build:
+      context: ./ebike-microservice
+    ports:
+      - 8082:${EBIKE_INSTANCE_PORT}
+    networks:
+      - eureka-network
+    depends_on:
+      eureka-server:
+        condition: service_healthy
+      mongodb:
+        condition: service_healthy
+      map-microservice:
+        condition: service_healthy
+    environment:
+      - EUREKA_CLIENT_SERVICEURL_DEFAULTZONE=${EUREKA_CLIENT_SERVICEURL_DEFAULTZONE}
+      - EUREKA_HOST=${EUREKA_INSTANCE_HOSTNAME}
+      - EUREKA_PORT=${EUREKA_INSTANCE_PORT}
+      - SERVICE_NAME=${EBIKE_INSTANCE_HOSTNAME}
+      - SERVICE_PORT=${EBIKE_INSTANCE_PORT}
+      - ADAPTER_RIDE_PORT=${EBIKE_ADAPTER_RIDE_PORT}
+      - MAP_HOST=${MAP_INSTANCE_HOSTNAME}
+      - MAP_PORT=${MAP_ADAPTER_EBIKE_PORT}
+      - MONGO_CONNECTION=${MONGODB_CONNECTION_STRING}
+      - MONGO_DATABSE=${EBIKE_MONGODB_DATABASE}
+    healthcheck:
+      test: [ "CMD-SHELL", "curl -f http://localhost:${EBIKE_INSTANCE_PORT}/health", "curl -f http://localhost:${EBIKE_ADAPTER_RIDE_PORT}/health" ]
+      interval: 5s
+      timeout: 5s
+      retries: 3
+      start_period: 5s
+
+  ride-microservice:
+    build:
+      context: ./ride-microservice
+    ports:
+      - 8083:${RIDE_INSTANCE_PORT}
+    networks:
+      - eureka-network
+    depends_on:
+      eureka-server:
+        condition: service_healthy
+      ebike-microservice:
+        condition: service_healthy
+      user-microservice:
+        condition: service_healthy
+      map-microservice:
+        condition: service_healthy
+    environment:
+      - EUREKA_CLIENT_SERVICEURL_DEFAULTZONE=${EUREKA_CLIENT_SERVICEURL_DEFAULTZONE}
+      - EUREKA_HOST=${EUREKA_INSTANCE_HOSTNAME}
+      - EUREKA_PORT=${EUREKA_INSTANCE_PORT}
+      - SERVICE_NAME=${RIDE_INSTANCE_HOSTNAME}
+      - SERVICE_PORT=${RIDE_INSTANCE_PORT}
+      - MAP_HOST=${MAP_INSTANCE_HOSTNAME}
+      - MAP_PORT=${MAP_ADAPTER_RIDE_PORT}
+      - EBIKE_HOST=${EBIKE_INSTANCE_HOSTNAME}
+      - EBIKE_PORT=${EBIKE_ADAPTER_RIDE_PORT}
+      - USER_HOST=${USER_INSTANCE_HOSTNAME}
+      - USER_PORT=${USER_ADAPTER_RIDE_PORT}
+    healthcheck:
+      test: [ "CMD", "curl", "-f", "http://localhost:${RIDE_INSTANCE_PORT}/health" ]
+      interval: 5s
+      timeout: 5s
+      retries: 3
+      start_period: 5s
+
+  user-microservice:
+    build:
+      context: ./user-microservice
+    ports:
+      - 8084:${USER_INSTANCE_PORT}
+    networks:
+      - eureka-network
+    depends_on:
+      eureka-server:
+        condition: service_healthy
+      mongodb:
+        condition: service_healthy
+    environment:
+      - EUREKA_CLIENT_SERVICEURL_DEFAULTZONE=${EUREKA_CLIENT_SERVICEURL_DEFAULTZONE}
+      - EUREKA_HOST=${EUREKA_INSTANCE_HOSTNAME}
+      - EUREKA_PORT=${EUREKA_INSTANCE_PORT}
+      - SERVICE_NAME=${USER_INSTANCE_HOSTNAME}
+      - SERVICE_PORT=${USER_INSTANCE_PORT}
+      - ADAPTER_RIDE_PORT=${USER_ADAPTER_RIDE_PORT}
+      - MONGO_CONNECTION=${MONGODB_CONNECTION_STRING}
+      - MONGO_DATABSE=${USER_MONGODB_DATABASE}
+    healthcheck:
+      test: [ "CMD-SHELL", "curl -f http://localhost:${USER_INSTANCE_PORT}/health", "curl -f http://localhost:${USER_ADAPTER_RIDE_PORT}/health" ]
+      interval: 5s
+      timeout: 5s
+      retries: 3
+      start_period: 5s
+
+  api-gateway:
+    build:
+      context: ./api-gateway
+    ports:
+      - 8080:${API_GATEWAY_EUREKA_INSTANCE_PORT}
+    networks:
+      - eureka-network
+    depends_on:
+      eureka-server:
+        condition: service_healthy
+      ebike-microservice:
+        condition: service_healthy
+      user-microservice:
+        condition: service_healthy
+      map-microservice:
+        condition: service_healthy
+      ride-microservice:
+        condition: service_healthy
+    environment:
+      - EUREKA_CLIENT_SERVICEURL_DEFAULTZONE=${EUREKA_CLIENT_SERVICEURL_DEFAULTZONE}
+      - API_GATEWAY_EUREKA_INSTANCE_HOSTNAME=${API_GATEWAY_EUREKA_INSTANCE_HOSTNAME}
+      - API_GATEWAY_EUREKA_INSTANCE_PORT=${API_GATEWAY_EUREKA_INSTANCE_PORT}
+    healthcheck:
+      test: [ "CMD", "curl", "-f", "http://localhost:${API_GATEWAY_EUREKA_INSTANCE_PORT}/actuator/health" ]
+      interval: 5s
+      timeout: 5s
+      retries: 3
+      start_period: 10s
+
+  prometheus:
+    image: prom/prometheus:latest
+    ports:
+      - 9090:${PROMETHEUS_INSTANCE_PORT}
+    networks:
+      - eureka-network
+    volumes:
+      - ./prometheus.yml:/etc/prometheus/prometheus.yml  # Mount Prometheus configuration file
+    depends_on:
+      api-gateway:
+        condition: service_healthy
+
+
+networks:
+  eureka-network:
+    driver: bridge
+
+volumes:
+  mongodb_data:
+----
+
+Vengono sfruttate in maniera estensiva le variabili d'ambiente, che vengono recuperate da un file .env esterno.
+
+[source, env]
+----
+#eureka configuration
+EUREKA_CLIENT_SERVICEURL_DEFAULTZONE=http://eureka-server:8761/eureka/
+EUREKA_CLIENT_REGISTER_WITH_EUREKA=false
+EUREKA_CLIENT_FETCH_REGISTRY=false
+EUREKA_INSTANCE_HOSTNAME=eureka-server
+EUREKA_INSTANCE_PORT=8761
+
+...
+
+RIDE_INSTANCE_HOSTNAME=ride-microservice
+RIDE_INSTANCE_PORT=8080
+----
+
+Questo approccio consente una gestione dinamica delle configurazioni, come le porte, i nomi di host e altre impostazioni fondamentali per ogni servizio.
+
+Utilizzando variabili d'ambiente, è possibile configurare la comunicazione tra i vari microservizi, definendo ad esempio gli URL di Eureka (come `EUREKA_CLIENT_SERVICEURL_DEFAULTZONE`), le porte per ciascun servizio (per esempio, `MAP_INSTANCE_PORT`), e i dettagli di connessione al database MongoDB (`MONGO_CONNECTION`). Grazie a questa flessibilità, le configurazioni possono essere facilmente modificate senza dover intervenire direttamente sul file `docker-compose.yml`, migliorando la portabilità e la facilità di adattamento tra ambienti diversi, come sviluppo, test e produzione.
+
+Per quanto riguarda la gestione della disponibilità dei servizi, ogni microservizio è dotato di un meccanismo di health check, che permette di monitorare lo stato di salute del contenitore. In caso di problemi, come un servizio che non risponde correttamente, Docker può tentare di riavviarlo o segnalarne il fallimento. Gli health check sono configurati in modo tale da assicurare che i microservizi vengano avviati e siano pronti per la comunicazione uno alla volta.
+
+La sequenza di esecuzione è gestita tramite la direttiva `depends_on` e l'opzione `condition: service_healthy`, che garantisce che i servizi vengano avviati in ordine. Il server Eureka, che è fondamentale per la registrazione e la comunicazione dei microservizi, deve essere avviato per primo e deve essere pronto prima che gli altri microservizi possano iniziare a funzionare. I microservizi che dipendono da Eureka, come ad esempio `map-microservice`, `ebike-microservice`, `ride-microservice`, `user-microservice` e `api-gateway`, non verranno avviati finché il server Eureka non sarà attivo. Alcuni di questi microservizi, come `ebike-microservice` e `user-microservice`, dipendono anche dalla disponibilità di MongoDB, il che significa che l'accesso a tale servizio è monitorato tramite health check dedicati.
+
 In generale la comunicazione tra i microservizi avviene tramite HTTP e chiamate REST: essi
 espongono le loro funzionalità tramite API RESTful. Ogni microservizio ha un set di endpoint HTTP che possono essere chiamati da altri microservizi o da client esterni.
 Ad esempio, il `RideServiceVerticle` espone endpoint come `/startRide` e `/stopRide` per gestire le ride.
-Per facilitare la comunicazione tra microservizi, viene utilizzato un servizio di discovery, Eureka.
 
 Ogni microservizio si registra con Eureka all'avvio, fornendo
 informazioni come l'hostname, la porta e gli endpoint di health, questi ultimi usati per rispettare il pattern di `HealthCheckAPI`. Questo permette agli altri microservizi di trovare e comunicare
 con esso senza dover conoscere a priori il suo indirizzo.
-I microservizi utilizzano client HTTP, come WebClient di Vert.x, per inviare richieste ad altri microservizi. Ad esempio, il EBikeCommunicationAdapter utilizza WebClient per inviare aggiornamenti
+I microservizi utilizzano client HTTP, come WebClient di Vert.x, per inviare richieste ad altri microservizi. Ad esempio, il `EBikeCommunicationAdapter` utilizza WebClient per inviare aggiornamenti
 al microservizio delle ebike.
-Le API RESTful sono esposte dall'API Gateway di Eureka, che funge da punto di ingresso per le richieste esterne.
 
 L'API Gateway è responsabile di instradare le richieste ai microservizi corretti,
 in base al path della richiesta. Ad esempio, una richiesta GET come `getAllBikes` viene instradata al `EbikeServiceVerticle`.
-Inoltre, per garantire la disponibilità e le prestazioni dei microservizi, vengono raccolte metriche e log. Ad esempio, il MetricsManager raccoglie metriche sulle richieste HTTP, come i tempi di
-risposta e gli errori, che possono essere utilizzate per monitorare lo stato del sistema.
 
 **Flussi di comunicazione**
 
