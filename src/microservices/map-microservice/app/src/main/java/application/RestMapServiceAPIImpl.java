@@ -5,7 +5,7 @@ import application.ports.RestMapServiceAPI;
 import domain.model.EBike;
 import application.ports.EventPublisher;
 import domain.model.EBikeRepository;
-import infrastructure.adapter.EBikeRepositoryImpl;
+import domain.model.EBikeRepositoryImpl;
 
 import java.util.List;
 import java.util.concurrent.CompletableFuture;

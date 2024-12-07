@@ -5,7 +5,7 @@ import application.RestMapServiceAPIImpl;
 import application.ports.EventPublisher;
 import application.ports.RestMapServiceAPI;
 import domain.model.EBike;
-import infrastructure.adapter.EBikeRepositoryImpl;
+import domain.model.EBikeRepositoryImpl;
 import infrastructure.config.ServiceConfiguration;
 import io.vertx.core.Vertx;
 import io.vertx.core.json.JsonObject;
@@ -13,7 +13,6 @@ import io.vertx.ext.web.client.WebClient;
 import io.vertx.junit5.VertxExtension;
 import io.vertx.junit5.VertxTestContext;
 import infrastructure.adapter.BikeUpdateAdapter;
-import infrastructure.adapter.MapServiceVerticle;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
@@ -40,7 +39,7 @@ public class MapServiceIntegrationTest {
         // Initialize components
         EBikeRepositoryImpl repository = new EBikeRepositoryImpl();
         eventPublisher = new TestEventPublisher();
-        mapService = new RestMapServiceAPIImpl(repository, eventPublisher);
+        mapService = new RestMapServiceAPIImpl(eventPublisher);
 
         ServiceConfiguration config = ServiceConfiguration.getInstance(vertx);
         config.load().onSuccess(conf -> {
