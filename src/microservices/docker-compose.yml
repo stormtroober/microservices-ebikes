@@ -164,9 +164,9 @@ services:
 
   api-gateway:
     build:
-      context: ./api-gateway  # Path to your API Gateway Dockerfile
+      context: ./api-gateway
     ports:
-      - 8080:${API_GATEWAY_EUREKA_INSTANCE_PORT}  # Gateway runs on port 8081
+      - 8080:${API_GATEWAY_EUREKA_INSTANCE_PORT}
     networks:
       - eureka-network
     depends_on:
