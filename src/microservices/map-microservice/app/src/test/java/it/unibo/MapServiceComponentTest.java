@@ -4,7 +4,6 @@ import application.RestMapServiceAPIImpl;
 import application.ports.EventPublisher;
 import application.ports.RestMapServiceAPI;
 import infrastructure.adapter.BikeUpdateAdapter;
-import domain.model.EBikeRepositoryImpl;
 import infrastructure.adapter.EventPublisherImpl;
 import infrastructure.adapter.MapServiceVerticle;
 import infrastructure.config.ServiceConfiguration;

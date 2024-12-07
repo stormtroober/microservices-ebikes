@@ -3,8 +3,7 @@ package domain.model;
 import application.ports.EventPublisher;
 import infrastructure.adapter.microservices.eventbus.EventPublisherImpl;
 import io.vertx.core.Vertx;
-import io.vertx.core.eventbus.EventBus;
-import io.vertx.core.json.JsonObject;
+
 
 import java.util.concurrent.CompletableFuture;
 
@@ -20,7 +19,7 @@ public class RideSimulation {
     public RideSimulation(Ride ride, Vertx vertx, EventPublisher publisher) {
         this.ride = ride;
         this.vertx = vertx;
-        this.publisher = new EventPublisherImpl(vertx);
+        this.publisher = publisher;
     }
 
     public Ride getRide() {

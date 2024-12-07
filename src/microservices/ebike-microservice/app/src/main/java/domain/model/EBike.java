@@ -20,35 +20,7 @@ public class EBike implements Aggregate<String>, Serializable {
         this.batteryLevel = battery;
     }
 
-
     public String getId() { return id; }
-
-    public  EBikeState getState() { return state; }
-    public  void setState(EBikeState state) { this.state = state; }
-
-    public  P2d getLocation() { return location; }
-    public  void setLocation(P2d location) { this.location = location; }
-
-
-    public  double getSpeed() { return speed; }
-    public  void setSpeed(double speed) { this.speed = speed; }
-
-    public  int getBatteryLevel() { return batteryLevel; }
-    public  void decreaseBattery(int amount) {
-        this.batteryLevel = Math.max(this.batteryLevel - amount, 0);
-        if (this.batteryLevel == 0) {
-            this.state = EBikeState.MAINTENANCE;
-        }
-    }
-
-    public  void rechargeBattery() {
-        this.batteryLevel = 100;
-        this.state = EBikeState.AVAILABLE;
-    }
-
-    public  boolean isAvailable() {
-        return this.state == EBikeState.AVAILABLE;
-    }
 
     @Override
     public String toString() {
