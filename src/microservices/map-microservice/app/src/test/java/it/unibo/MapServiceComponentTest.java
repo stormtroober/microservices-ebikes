@@ -4,7 +4,6 @@ import application.RestMapServiceAPIImpl;
 import application.ports.EventPublisher;
 import application.ports.RestMapServiceAPI;
 import infrastructure.adapter.BikeUpdateAdapter;
-import domain.model.EBikeRepositoryImpl;
 import infrastructure.adapter.EventPublisherImpl;
 import infrastructure.adapter.MapServiceVerticle;
 import infrastructure.config.ServiceConfiguration;
@@ -37,7 +36,6 @@ public class MapServiceComponentTest {
         webClient = WebClient.create(vertx);
 
         // Initialize components
-        EBikeRepositoryImpl repository = new EBikeRepositoryImpl();
         EventPublisher eventPublisher = new EventPublisherImpl(vertx);
         RestMapServiceAPI mapService = new RestMapServiceAPIImpl(eventPublisher);
 
@@ -84,19 +82,17 @@ public class MapServiceComponentTest {
 
         // Set up WebSocket client
         client.webSocket(8080, "localhost", "/observeAllBikes")
-                .onComplete(testContext.succeeding(webSocket -> {
-                    webSocket.handler(buffer -> {
-                        JsonArray receivedBike = buffer.toJsonArray();
-                        JsonObject bike = new JsonObject(receivedBike.getString(0));
-                        testContext.verify(() -> {
-                            assertEquals("bike1", bike.getString("bikeName"));
-                            assertEquals(10.0, bike.getJsonObject("position").getDouble("x"));
-                            assertEquals(20.0, bike.getJsonObject("position").getDouble("y"));
-                            assertEquals("AVAILABLE", bike.getString("state"));
-                            assertEquals(100, bike.getInteger("batteryLevel"));
-                            testContext.completeNow();
-                        });
+                .onComplete(testContext.succeeding(webSocket -> webSocket.handler(buffer -> {
+                    JsonArray receivedBike = buffer.toJsonArray();
+                    JsonObject bike = new JsonObject(receivedBike.getString(0));
+                    testContext.verify(() -> {
+                        assertEquals("bike1", bike.getString("bikeName"));
+                        assertEquals(10.0, bike.getJsonObject("position").getDouble("x"));
+                        assertEquals(20.0, bike.getJsonObject("position").getDouble("y"));
+                        assertEquals("AVAILABLE", bike.getString("state"));
+                        assertEquals(100, bike.getInteger("batteryLevel"));
+                        testContext.completeNow();
                     });
-                }));
+                })));
     }
 }

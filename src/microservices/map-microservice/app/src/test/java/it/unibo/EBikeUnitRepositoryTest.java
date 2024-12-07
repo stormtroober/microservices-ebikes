@@ -66,6 +66,6 @@ public class EBikeUnitRepositoryTest {
 
         List<EBike> availableBikes = repository.getAvailableBikes().get();
         assertEquals(1, availableBikes.size());
-        assertEquals("Bike1", availableBikes.get(0).getBikeName());
+        assertEquals("Bike1", availableBikes.getFirst().getBikeName());
     }
 }

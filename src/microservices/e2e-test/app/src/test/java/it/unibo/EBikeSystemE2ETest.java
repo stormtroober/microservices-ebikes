@@ -24,7 +24,7 @@ public class EBikeSystemE2ETest {
 
     @BeforeAll
     static void setUp() {
-        String command = "cd ../../ && docker-compose up -d --build";
+        String command = "cd ../../ && docker compose up -d --build";
         ProcessBuilder processBuilder = new ProcessBuilder();
         processBuilder.command("bash", "-c", command);
 

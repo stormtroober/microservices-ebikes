@@ -121,7 +121,7 @@ services:
 
   user-microservice:
     build:
-      context: ../../../../../../../user_microservice
+      context: ../../../../../../../user-microservice
     ports:
       - 8084:${USER_INSTANCE_PORT}
     networks:
@@ -247,7 +247,7 @@ Coinvolge più componenti del servizio, verificandone il funzionamento interno s
 ----
 @BeforeAll
     static void setUp() {
-        String command = "cd ../../ && docker-compose up -d --build";
+        String command = "cd ../../ && docker compose up -d --build";
         ProcessBuilder processBuilder = new ProcessBuilder();
         processBuilder.command("bash", "-c", command);
 

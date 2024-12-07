@@ -152,7 +152,7 @@ public class UserView extends AbstractView {
     }
 
     private void log(String msg) {
-        System.out.println("[UserView] " + msg);
+        System.out.println("[UserView-"+actualUser.username()+"] " + msg);
     }
 
 }

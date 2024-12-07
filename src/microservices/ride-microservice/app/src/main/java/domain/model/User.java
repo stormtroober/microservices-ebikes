@@ -18,12 +18,9 @@ public class User {
         this.credit = Math.max(this.credit - amount, 0);
     }
 
-    public void increaseCredit(int amount) {
-        this.credit += amount;
-    }
 
     @Override
     public String toString() {
-        return String.format("User{id='%s', type='%s', credit=%d}", id, credit);
+        return String.format("User{id='%s', credit=%d}", id, credit);
     }
 }
