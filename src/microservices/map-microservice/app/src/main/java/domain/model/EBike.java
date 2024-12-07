@@ -1,10 +1,11 @@
 package domain.model;
 
+import ddd.Aggregate;
 import ddd.ValueObject;
 
 import java.io.Serializable;
 
-public class EBike implements ValueObject, Serializable {
+public class EBike implements Aggregate<String>, Serializable {
 
     private final String bikeName;
     private P2d position;
@@ -42,5 +43,10 @@ public class EBike implements ValueObject, Serializable {
                 ", state=" + state +
                 ", batteryLevel=" + batteryLevel + // Include in toString
                 '}';
+    }
+
+    @Override
+    public String getId() {
+        return bikeName;
     }
 }

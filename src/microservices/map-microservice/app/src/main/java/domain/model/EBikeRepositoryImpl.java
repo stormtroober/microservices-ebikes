@@ -1,5 +1,7 @@
 package domain.model;
 
+import ddd.Repository;
+
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
@@ -7,7 +9,7 @@ import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.stream.Collectors;
 
-public class EBikeRepositoryImpl implements EBikeRepository {
+public class EBikeRepositoryImpl implements EBikeRepository, Repository {
     private final ConcurrentHashMap<String, EBike> bikes = new ConcurrentHashMap<>();
     private final ConcurrentHashMap<String, String> bikeAssignments = new ConcurrentHashMap<>();
 

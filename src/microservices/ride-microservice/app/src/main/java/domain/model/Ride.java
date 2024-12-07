@@ -1,9 +1,11 @@
 package domain.model;
 
+import ddd.Aggregate;
+
 import java.util.Date;
 import java.util.Optional;
 
-public class Ride {
+public class Ride implements Aggregate<String> {
     private final String id;
     private final User user;
     private final EBike ebike;
@@ -21,7 +23,7 @@ public class Ride {
     }
 
 
-
+    @Override
     public String getId() { return id; }
     public User getUser() { return user; }
     public EBike getEbike() { return ebike; }

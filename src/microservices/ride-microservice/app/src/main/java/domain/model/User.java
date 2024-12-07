@@ -1,6 +1,8 @@
 package domain.model;
 
-public class User {
+import ddd.Entity;
+
+public class User implements Entity<String> {
 
     private final String id;
     private volatile int credit;
@@ -9,7 +11,7 @@ public class User {
         this.id = id;
         this.credit = credit;
     }
-
+    @Override
     public String getId() { return id; }
 
     public int getCredit() { return credit; }

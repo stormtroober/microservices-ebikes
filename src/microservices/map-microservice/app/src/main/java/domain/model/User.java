@@ -1,10 +1,12 @@
 package domain.model;
 
+import ddd.Entity;
+
 import java.io.Serializable;
 import java.util.HashSet;
 import java.util.Set;
 
-public class User implements Serializable {
+public class User implements Serializable, Entity<String> {
 
     private final String username;
     private final Set<EBike> userBikes;
@@ -14,21 +16,6 @@ public class User implements Serializable {
         this.userBikes = new HashSet<>();
     }
 
-    public String getUsername() {
-        return username;
-    }
-
-    public Set<EBike> getUserBikes() {
-        return userBikes;
-    }
-
-    public void addBike(EBike bike) {
-        userBikes.add(bike);
-    }
-
-    public void removeBike(EBike bike) {
-        userBikes.remove(bike);
-    }
 
     @Override
     public String toString() {
@@ -36,5 +23,10 @@ public class User implements Serializable {
                 "username='" + username + '\'' +
                 ", userBikes=" + userBikes +
                 '}';
+    }
+
+    @Override
+    public String getId() {
+        return username;
     }
 }

@@ -1,6 +1,8 @@
 package domain.model;
 
-public class EBike {
+import ddd.Aggregate;
+
+public class EBike implements Aggregate<String>{
 
 
     private final String id;
@@ -19,7 +21,7 @@ public class EBike {
         this.batteryLevel = battery;
     }
 
-
+    @Override
     public String getId() { return id; }
 
     public synchronized EBikeState getState() { return state; }
