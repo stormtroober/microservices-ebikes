@@ -2,6 +2,8 @@
 
 Il microservizio, organizzato in architettura esagonale, definisce tre porte per interfacciarsi al layer di applicazione.
 
+image::../../png/map_microservice_hexagonal.drawio.png[]
+
 ==== Application Layer
 
 ===== EBikeRepository

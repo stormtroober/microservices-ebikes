@@ -4,6 +4,8 @@ Il microservizio, organizzato in architettura esagonale, definisce tre porte per
 Queste porte sono utilizzate nel layer infrastrutturale, che fornisce le implementazioni concrete per interagire con la repository, pubblicare eventi,
 e gestire le richieste REST.
 
+image::../../png/user_microservice_hexagonal.drawio.png[]
+
 ==== Domain Layer
 
 L'unico oggetto del dominio è l'entità `User`, che rappresenta un utente all'interno del sistema.
