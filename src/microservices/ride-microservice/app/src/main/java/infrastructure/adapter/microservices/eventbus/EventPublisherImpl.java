@@ -13,7 +13,7 @@ public class EventPublisherImpl implements EventPublisher {
 
 
     @Override
-    public void publishEBikeUpdate(String id, double x, double y, String state, int batteryLevel) {
+    public synchronized void publishEBikeUpdate(String id, double x, double y, String state, int batteryLevel) {
         JsonObject message = new JsonObject()
                 .put("id", id)
                 .put("state", state)
@@ -25,7 +25,7 @@ public class EventPublisherImpl implements EventPublisher {
     }
 
     @Override
-    public void publishUserUpdate(String username, int credit) {
+    public synchronized void publishUserUpdate(String username, int credit) {
         JsonObject message = new JsonObject()
                 .put("username", username)
                 .put("credit", credit);
