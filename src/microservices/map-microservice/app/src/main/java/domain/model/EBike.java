@@ -1,7 +1,7 @@
 package domain.model;
 
 import ddd.Aggregate;
-import ddd.ValueObject;
+
 
 import java.io.Serializable;
 

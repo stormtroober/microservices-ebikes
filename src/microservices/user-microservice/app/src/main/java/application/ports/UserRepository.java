@@ -1,6 +1,5 @@
 package application.ports;
 
-import ddd.Repository;
 import io.vertx.core.json.JsonArray;
 import io.vertx.core.json.JsonObject;
 
