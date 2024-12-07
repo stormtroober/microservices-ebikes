@@ -1,7 +1,6 @@
 package domain.model;
 
 import application.ports.EventPublisher;
-import infrastructure.adapter.microservices.eventbus.EventPublisherImpl;
 import io.vertx.core.Vertx;
 
 
