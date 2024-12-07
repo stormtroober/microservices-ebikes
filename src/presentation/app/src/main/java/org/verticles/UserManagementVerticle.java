@@ -33,8 +33,6 @@ public class UserManagementVerticle extends AbstractVerticle {
                     .sendJsonObject(requestPayload, ar -> {
                         if (ar.succeeded() && ar.result().statusCode() == 200) {
                             JsonObject response = ar.result().bodyAsJsonObject();
-                            System.out.println("Login successful");
-                            System.out.println(response.encodePrettily());
                             message.reply(response);
                         } else {
                             message.fail(500, "Failed to connect to API: " + (ar.cause() != null ? ar.cause().getMessage() : "Unknown error"));
@@ -43,12 +41,9 @@ public class UserManagementVerticle extends AbstractVerticle {
         });
         vertx.eventBus().consumer("user.register", message -> {
             JsonObject userDetails = (JsonObject) message.body();
-            System.out.println("Sending registration request: " + userDetails);
             webClient.post(8080, "localhost", "/USER-MICROSERVICE/api/users/signup")
                     .sendJsonObject(userDetails, ar -> {
                         if (ar.succeeded() && ar.result().statusCode() == 201) {
-                            System.out.println("Registration successful");
-                            System.out.println(ar.result().bodyAsJsonObject().encodePrettily());
                             message.reply(userDetails);
                         } else {
                             message.fail(500, "Registration failed: " + (ar.cause() != null ? ar.cause().getMessage() : "Unknown error"));
