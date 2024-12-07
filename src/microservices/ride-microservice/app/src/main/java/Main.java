@@ -15,11 +15,10 @@ public class Main {
         ServiceConfiguration config = ServiceConfiguration.getInstance(vertx);
         config.load().onSuccess(conf -> {
             System.out.println("Configuration loaded: " + conf.encodePrettily());
-            RideRepository rideRepository = new RideRepositoryImpl(vertx, new EventPublisherImpl(vertx));
             EbikeCommunicationPort ebikeCommunicationAdapter = new EBikeCommunicationAdapter(vertx);
             MapCommunicationPort mapCommunicationAdapter = new MapCommunicationAdapter(vertx);
             UserCommunicationPort userCommunicationAdapter = new UserCommunicationAdapter(vertx);
-            RestRideServiceAPI service = new RestRideServiceAPIImpl(rideRepository, vertx, ebikeCommunicationAdapter, mapCommunicationAdapter, userCommunicationAdapter);
+            RestRideServiceAPI service = new RestRideServiceAPIImpl(new EventPublisherImpl(vertx), vertx, ebikeCommunicationAdapter, mapCommunicationAdapter, userCommunicationAdapter);
             RideServiceVerticle rideServiceVerticle = new RideServiceVerticle(service, vertx);
             rideServiceVerticle.init();
         });

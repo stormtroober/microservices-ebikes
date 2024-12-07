@@ -4,8 +4,6 @@ import application.ports.RestMapServiceAPI;
 import infrastructure.adapter.BikeUpdateAdapter;
 import infrastructure.adapter.EventPublisherImpl;
 import infrastructure.adapter.MapServiceVerticle;
-import application.ports.EBikeRepository;
-import infrastructure.adapter.EBikeRepositoryImpl;
 import infrastructure.adapter.RideUpdateAdapter;
 import infrastructure.config.ServiceConfiguration;
 import io.vertx.core.Vertx;
@@ -16,9 +14,8 @@ public class Main {
         ServiceConfiguration config = ServiceConfiguration.getInstance(vertx);
         config.load().onSuccess(conf -> {
             System.out.println("Configuration loaded: " + conf.encodePrettily());
-            EBikeRepository bikeRepository = new EBikeRepositoryImpl();
             EventPublisher eventPublisher = new EventPublisherImpl(vertx);
-            RestMapServiceAPI service = new RestMapServiceAPIImpl(bikeRepository, eventPublisher);
+            RestMapServiceAPI service = new RestMapServiceAPIImpl(eventPublisher);
             MapServiceVerticle mapServiceVerticle = new MapServiceVerticle(service, vertx);
             BikeUpdateAdapter bikeUpdateAdapter = new BikeUpdateAdapter(service, vertx);
             RideUpdateAdapter rideUpdateAdapter = new RideUpdateAdapter(service, vertx);
