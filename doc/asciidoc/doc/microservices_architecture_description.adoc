@@ -3,15 +3,19 @@ tra di loro e come interagiscono, sia all'interno delll'architettura proposta ch
 
 In generale la comunicazione tra i microservizi avviene tramite HTTP e chiamate REST: essi
 espongono le loro funzionalità tramite API RESTful. Ogni microservizio ha un set di endpoint HTTP che possono essere chiamati da altri microservizi o da client esterni.
-Ad esempio, il `RideServiceVerticle` espone endpoint come `/startRide` e `/stopRide` per gestire le corse.
-Per facilitare la comunicazione tra microservizi, viene utilizzato un servizio di discovery come Eureka. Ogni microservizio si registra con Eureka all'avvio, fornendo
+Ad esempio, il `RideServiceVerticle` espone endpoint come `/startRide` e `/stopRide` per gestire le ride.
+Per facilitare la comunicazione tra microservizi, viene utilizzato un servizio di discovery, Eureka.
+
+Ogni microservizio si registra con Eureka all'avvio, fornendo
 informazioni come l'hostname, la porta e gli endpoint di health, questi ultimi usati per rispettare il pattern di `HealthCheckAPI`. Questo permette agli altri microservizi di trovare e comunicare
 con esso senza dover conoscere a priori il suo indirizzo.
 I microservizi utilizzano client HTTP, come WebClient di Vert.x, per inviare richieste ad altri microservizi. Ad esempio, il EBikeCommunicationAdapter utilizza WebClient per inviare aggiornamenti
 al microservizio delle ebike.
-Le API RESTful sono esposte dall'API Gateway di eureka, che funge da punto di ingresso per le richieste esterne. L'API Gateway è responsabile di instradare le richieste ai microservizi corretti,
+Le API RESTful sono esposte dall'API Gateway di Eureka, che funge da punto di ingresso per le richieste esterne.
+
+L'API Gateway è responsabile di instradare le richieste ai microservizi corretti,
 in base al path della richiesta. Ad esempio, una richiesta GET come `getAllBikes` viene instradata al `EbikeServiceVerticle`.
-Inoltre, Per garantire la disponibilità e le prestazioni dei microservizi, vengono raccolte metriche e log. Ad esempio, il MetricsManager raccoglie metriche sulle richieste HTTP, come i tempi di
+Inoltre, per garantire la disponibilità e le prestazioni dei microservizi, vengono raccolte metriche e log. Ad esempio, il MetricsManager raccoglie metriche sulle richieste HTTP, come i tempi di
 risposta e gli errori, che possono essere utilizzate per monitorare lo stato del sistema.
 
 **Flussi di comunicazione**
