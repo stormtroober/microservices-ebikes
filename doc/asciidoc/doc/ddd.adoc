@@ -486,3 +486,20 @@ Dall'analisi dei bounded context si è potuto definire il context map del sistem
 
 image::../png/Context_Map.drawio.png[Cotext Map,250,200]
 
+Di seguito una descrizione delle relazioni tra i contesti:
+
+* *User Management ↔ Ride Management*:
+Questi due contesti sono in partnership in quanto collaborano in modo paritario, scambiandosi dati senza una relazione gerarchica o dipendenze.
+
+* *Bike Management ↔ Ride Management*:
+Stesso discorso del precedente.
+
+* *Ride Management → Map Management*:
+`Ride Management` si adatta completamente alle regole e all'interfaccia imposta dal `Map Management`, quindi il pattern utilizzato è il conformist.
+Non tenta di modificarne il comportamento, accettando le sue dipendenze così come sono.
+- `Map Management` è *upstream*, in quanto detta le regole e fornisce i dati richiesti.
+- `Ride Management` è *downstream*, in quanto dipende dai dati e dalle regole di `Map Management`.
+
+* *Anti-Corruption Layer (ACL) su Ride Management*:
+Serve come livello di astrazione tra `Ride Management` e i suoi partner, proteggendo il servizio principale da eventuali cambiamenti
+o complessità delle interfacce dei partner.
