@@ -27,7 +27,7 @@ public class UserServiceIntegrationTest {
 
     @BeforeAll
     static void setUp() {
-        String command = "cd src/test/java/it/unibo/ && docker-compose up -d --build";
+        String command = "cd src/test/java/it/unibo/ && docker compose up -d --build";
         ProcessBuilder processBuilder = new ProcessBuilder();
         processBuilder.command("bash", "-c", command);
 
@@ -153,7 +153,7 @@ public class UserServiceIntegrationTest {
 
     @AfterAll
     static void tearDown() {
-        String command = "cd src/test/java/it/unibo/ && docker-compose down -v";
+        String command = "cd src/test/java/it/unibo/ && docker compose down -v";
         ProcessBuilder processBuilder = new ProcessBuilder();
         processBuilder.command("bash", "-c", command);
 
