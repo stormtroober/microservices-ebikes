@@ -89,7 +89,7 @@ and the map is updated following the bike position
 I casi d'uso sono stati definiti in modo da rappresentare le interazioni tra gli attori e il sistema.
 Quelli individuati sono raffigurati di seguito:
 
-image::../png/UseCase.drawio.png[]
+image::../png/UseCase.drawio.png[UseCase,400,300]
 
 ==== Descrizione dei casi d'uso
 
@@ -365,7 +365,7 @@ definito in modo da rappresentare le entità principali del sistema e le relazio
 Esso è rappresentato nel seguente diagramma:
 
 
-image::../png/Domain_Model.png[]
+image::../png/Domain_Model.png[Domain Model,350,250]
 
 **Entità: User**
 
@@ -432,7 +432,7 @@ e che osserva gli utenti.
 
 **Value Objects**
 
-image::../png/Value_Objects.drawio.png[]
+image::../png/Value_Objects.drawio.png[Value Objects,300,200]
 
 - **P2d**: rappresenta una posizione bidimensionale e contiene i valori x e y.
 - **V2d**: rappresenta un vettore bidimensionale e contiene i valori x e y.
@@ -473,7 +473,7 @@ image::../png/Value_Objects.drawio.png[]
 
 Dall'analisi del domain-model si è potuto definire i bounded context del sistema, individuando quattro contesti ben distinti:
 
-image::../png/Bounded_Context.drawio.png[]
+image::../png/Bounded_Context.drawio.png[Bounded Context,400,300]
 
 - **User Management Context**: di tipo _**core**_, contiene le entità e i servizi relativi agli utenti, sia admin che user.
 - **Ride Management Context**: di tipo _**core**_, contiene le entità e i servizi relativi alle ride.
@@ -484,5 +484,5 @@ image::../png/Bounded_Context.drawio.png[]
 
 Dall'analisi dei bounded context si è potuto definire il context map del sistema, individuando le relazioni tra i contesti:
 
-image::../png/Context_Map.drawio.png[]
+image::../png/Context_Map.drawio.png[Cotext Map,250,200]
 
