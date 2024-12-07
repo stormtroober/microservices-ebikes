@@ -1,4 +1,4 @@
-package infrastructure.adapter.microservices.notifiers;
+package infrastructure.adapter.ebike;
 
 import application.ports.EbikeCommunicationPort;
 import application.ports.EventPublisher;

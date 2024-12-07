@@ -1,7 +1,7 @@
 import application.UserServiceImpl;
 import application.ports.UserEventPublisher;
 import application.ports.UserServiceAPI;
-import infrastructure.UserEventPublisherImpl;
+import infrastructure.utils.UserEventPublisherImpl;
 import infrastructure.adapters.ride.RideCommunicationAdapter;
 import infrastructure.adapters.web.RESTUserAdapter;
 import infrastructure.adapters.web.UserVerticle;

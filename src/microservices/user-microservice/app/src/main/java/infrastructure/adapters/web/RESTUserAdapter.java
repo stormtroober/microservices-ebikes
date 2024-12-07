@@ -2,7 +2,7 @@ package infrastructure.adapters.web;
 
 import application.ports.UserServiceAPI;
 import domain.model.User;
-import infrastructure.MetricsManager;
+import infrastructure.utils.MetricsManager;
 import io.vertx.core.Vertx;
 import io.vertx.core.json.JsonObject;
 import io.vertx.ext.web.Router;

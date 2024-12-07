@@ -1,7 +1,7 @@
 package infrastructure.adapter.web;
 
 import application.ports.RestRideServiceAPI;
-import infrastructure.MetricsManager;
+import infrastructure.utils.MetricsManager;
 import infrastructure.config.ServiceConfiguration;
 import io.vertx.core.AbstractVerticle;
 import io.vertx.core.Vertx;

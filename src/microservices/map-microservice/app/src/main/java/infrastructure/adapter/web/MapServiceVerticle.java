@@ -1,28 +1,19 @@
-package infrastructure.adapter;
+package infrastructure.adapter.web;
 
 import application.ports.RestMapServiceAPI;
-import domain.model.EBike;
-import domain.model.EBikeFactory;
-import domain.model.EBikeState;
-import infrastructure.MetricsManager;
-import java.util.List;
+import infrastructure.utils.MetricsManager;
 
 import infrastructure.config.ServiceConfiguration;
 import io.vertx.core.AbstractVerticle;
 import io.vertx.core.Vertx;
-import io.vertx.core.VertxOptions;
 import io.vertx.core.http.HttpServer;
-import io.vertx.core.json.JsonArray;
 import io.vertx.core.json.JsonObject;
 import io.vertx.ext.web.Router;
 import io.vertx.ext.web.client.WebClient;
 import io.vertx.ext.web.handler.BodyHandler;
-import io.vertx.micrometer.MicrometerMetricsOptions;
-import io.vertx.micrometer.VertxPrometheusOptions;
 
 import java.util.UUID;
 import java.util.concurrent.TimeUnit;
-import java.util.stream.Collectors;
 
 public class MapServiceVerticle extends AbstractVerticle {
 

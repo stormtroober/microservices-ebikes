@@ -1,4 +1,4 @@
-package infrastructure.adapter.microservices.eventbus;
+package infrastructure.utils;
 
 import application.ports.EventPublisher;
 import io.vertx.core.Vertx;

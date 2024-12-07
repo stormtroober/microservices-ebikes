@@ -1,4 +1,4 @@
-package infrastructure.adapter.microservices.notifiers;
+package infrastructure.adapter.map;
 
 import application.ports.MapCommunicationPort;
 import infrastructure.config.ServiceConfiguration;

@@ -1,7 +1,7 @@
 package infrastructure.adapters.web;
 
 import application.ports.EBikeServiceAPI;
-import infrastructure.MetricsManager;
+import infrastructure.utils.MetricsManager;
 import io.vertx.core.json.JsonObject;
 import io.vertx.ext.web.Router;
 import io.vertx.ext.web.RoutingContext;

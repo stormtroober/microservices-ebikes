@@ -1,4 +1,4 @@
-package infrastructure;
+package infrastructure.utils;
 
 import application.ports.UserEventPublisher;
 import io.vertx.core.Vertx;

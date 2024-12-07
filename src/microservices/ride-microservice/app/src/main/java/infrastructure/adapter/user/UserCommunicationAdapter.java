@@ -1,4 +1,4 @@
-package infrastructure.adapter.microservices.notifiers;
+package infrastructure.adapter.user;
 
 import application.ports.EventPublisher;
 import application.ports.UserCommunicationPort;

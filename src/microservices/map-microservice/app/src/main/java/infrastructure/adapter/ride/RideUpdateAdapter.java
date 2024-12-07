@@ -1,15 +1,11 @@
-package infrastructure.adapter;
+package infrastructure.adapter.ride;
 
 import application.ports.RestMapServiceAPI;
-import domain.model.EBike;
-import domain.model.EBikeFactory;
-import domain.model.EBikeState;
-import infrastructure.MetricsManager;
+import infrastructure.utils.MetricsManager;
 import infrastructure.config.ServiceConfiguration;
 import io.vertx.core.AbstractVerticle;
 import io.vertx.core.Vertx;
 import io.vertx.core.http.HttpServer;
-import io.vertx.core.json.JsonArray;
 import io.vertx.core.json.JsonObject;
 import io.vertx.ext.web.Router;
 import io.vertx.ext.web.handler.BodyHandler;

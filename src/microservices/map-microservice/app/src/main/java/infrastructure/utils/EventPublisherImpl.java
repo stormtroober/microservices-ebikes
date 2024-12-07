@@ -1,4 +1,4 @@
-package infrastructure.adapter;
+package infrastructure.utils;
 
 import application.ports.EventPublisher;
 import domain.model.EBike;
