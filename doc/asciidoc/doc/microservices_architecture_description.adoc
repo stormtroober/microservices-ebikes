@@ -1,7 +1,7 @@
 In questo capitolo viene riportata una descrizione dettagliata di come i microservizi sono integrati
 tra di loro e come interagiscono, sia all'interno delll'architettura proposta che con il mondo esterno.
 
-È giusto parlare all'inizio di come vengono deployati i microservizi. Come anticipato in precedenza, ognuno ha il suo `Dockerfile` e quindi è già pronto per essere runnato da un `docker-compose`.
+È giusto parlare all'inizio di come vengono deployati i microservizi. Come anticipato in precedenza, ognuno ha il suo `Dockerfile` e quindi è già pronto per essere eseguito tramite `docker compose`.
 [source, yaml]
 ----
 services:
@@ -238,6 +238,7 @@ RIDE_INSTANCE_PORT=8080
 Questo approccio consente una gestione dinamica delle configurazioni, come le porte, i nomi di host e altre impostazioni fondamentali per ogni servizio.
 
 Utilizzando variabili d'ambiente, è possibile configurare la comunicazione tra i vari microservizi, definendo ad esempio gli URL di Eureka (come `EUREKA_CLIENT_SERVICEURL_DEFAULTZONE`), le porte per ciascun servizio (per esempio, `MAP_INSTANCE_PORT`), e i dettagli di connessione al database MongoDB (`MONGO_CONNECTION`). Grazie a questa flessibilità, le configurazioni possono essere facilmente modificate senza dover intervenire direttamente sul file `docker-compose.yml`, migliorando la portabilità e la facilità di adattamento tra ambienti diversi, come sviluppo, test e produzione.
+Ogni microservizio all'avvio carica la configurazione da utilizzare dalle variabili d'ambiente definite per il proprio container Docker, il caricamento è stato gestito sfruttando la libreria link:https://vertx.io/docs/vertx-config/java/[Config] di Vert.x .
 
 Per quanto riguarda la gestione della disponibilità dei servizi, ogni microservizio è dotato di un meccanismo di health check, che permette di monitorare lo stato di salute del contenitore. In caso di problemi, come un servizio che non risponde correttamente, Docker può tentare di riavviarlo o segnalarne il fallimento. Gli health check sono configurati in modo tale da assicurare che i microservizi vengano avviati e siano pronti per la comunicazione uno alla volta.
 

@@ -3,14 +3,16 @@
 Il microservizio, organizzato in architettura esagonale, definisce tre porte per interfacciarsi al layer di applicazione.
 Queste porte sono utilizzate nel layer infrastrutturale, che fornisce le implementazioni concrete per interagire con la repository, pubblicare eventi,
 registrare il microservizio al Service Discovery e gestire le richieste REST.
+Di seguito un immagine che ne descrive la struttura.
+
+image::../../png/light-ebike-hexagonal.drawio.png[]
 
 ==== Domain Layer
 
-* *EBike*: Rappresenta una bicicletta elettrica nel sistema. Contiene attributi come `id`, `state`, `location`, `direction`, `speed` e `batteryLevel`. Include metodi per accedere e modificare questi attributi, nonché per gestire la ricarica e il decremento della batteria.
-* *EBikeFactory*: È una classe _singleton_ che fornisce un metodo per creare istanze di EBike.
+* *EBike*: Rappresenta una bicicletta elettrica nel sistema. Contiene attributi come `id`, `state`, `location` e `batteryLevel`. Include metodi per accedere e modificare questi attributi, nonché per gestire la ricarica e il decremento della batteria.
 * *EBikeState*: È un _enum_ che definisce i possibili stati di una bicicletta elettrica: AVAILABLE (disponibile), IN_USE (in uso) e MAINTENANCE (in manutenzione).
 * *P2d*: Rappresenta un punto bidimensionale nello spazio. Contiene coordinate x e y e include metodi per operazioni vettoriali come somma, sottrazione e normalizzazione.
-* *V2d*: Rappresenta un vettore bidimensionale. Contiene componenti x e y e include metodi per operazioni vettoriali come somma, rotazione, moltiplicazione per uno scalare e normalizzazione.
+
 
 ==== Application Layer
 
@@ -70,10 +72,15 @@ Include, inoltre, i metodi per la configurazione del server HTTP e per il deploy
 
 **MongoEBikeRepository**
 
-Implementa l'interfaccia `EBikeRepository` e fornisce un'implementazione concreta per l'accesso ai dati delle ebike tramite un database MongoDB.
+Implementa l'interfaccia `EBikeRepository` e fornisce un'implementazione concreta per l'accesso ai dati delle ebike tramite un database MongoDB per garantire la persistenza.
 Utilizza MongoClient di Vert.x per eseguire operazioni sulla collezione ebikes.
 
 **MetricsManager**
 
 Rappresenta un singleton che gestisce le metriche dell’applicazione utilizzando Micrometer e Prometheus.
 Fornisce metodi per avviare e registrare timer, incrementare contatori e registrare errori per vari metodi nell'ebike microservice.
+
+**ServiceConfiguration**
+
+Rappresenta un singleton che gestisce la configurazione del microservizio delle ebike.
+Fornisce metodi per caricare la configurazione del microservizio dalle variabili d'ambiente e per accedere ai valori di configurazione dei vari adapter e verticle.

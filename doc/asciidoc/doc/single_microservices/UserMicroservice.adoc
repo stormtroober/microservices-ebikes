@@ -86,6 +86,10 @@ registrare errori per vari metodi nel servizio utenti.
 
 Implementa l'interfaccia UserEventPublisher e gestisce la pubblicazione degli eventi relativi agli utenti utilizzando il bus degli eventi di Vert.x.
 
+**ServiceConfiguration**
+
+Rappresenta un singleton che gestisce la configurazione del microservizio dello User.
+Fornisce metodi per caricare la configurazione del microservizio dalle variabili d'ambiente e per accedere ai valori di configurazione dei vari adapter e verticle.
 
 
 
