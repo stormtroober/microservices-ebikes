@@ -121,7 +121,7 @@ services:
 
   user-microservice:
     build:
-      context: ../../../../../../../user_microservice
+      context: ../../../../../../../user-microservice
     ports:
       - 8084:${USER_INSTANCE_PORT}
     networks:
