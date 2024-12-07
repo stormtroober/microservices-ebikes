@@ -256,6 +256,10 @@ al microservizio delle ebike.
 L'API Gateway è responsabile di instradare le richieste ai microservizi corretti,
 in base al path della richiesta. Ad esempio, una richiesta GET come `getAllBikes` viene instradata al `EbikeServiceVerticle`.
 
+Di seguito, un grafico di come avviene la comunicazione dell'intero sistema e tra i microservizi:
+
+image::../png/Microservices_communication.drawio.png[]
+
 **Flussi di comunicazione**
 
 * Avvio di una ride:
