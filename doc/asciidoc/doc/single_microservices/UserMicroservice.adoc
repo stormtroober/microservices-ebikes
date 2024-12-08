@@ -6,7 +6,7 @@ e gestire le richieste REST.
 Di seguito un immagine che ne descrive la struttura (Si specifica che il sistema di event publisher è stato non rappresentato per dare maggior enfasi
 all'interazione tra porte e adattatori riferiti al funzionamento del microservizio degli utenti).
 
-image::../../png/user_microservice_hexagonal.drawio.png[]
+image::../png/user_microservice_hexagonal.drawio.png[]
 
 ==== Domain Layer
 

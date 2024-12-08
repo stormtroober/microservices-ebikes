@@ -5,7 +5,7 @@ Queste porte sono utilizzate nel layer infrastrutturale, che fornisce le impleme
 registrare il microservizio al Service Discovery e gestire le richieste REST.
 Di seguito un immagine che ne descrive la struttura.
 
-image::../../png/light-ebike-hexagonal.drawio.png[]
+image::../png/light-ebike-hexagonal.drawio.png[]
 
 ==== Domain Layer
 
