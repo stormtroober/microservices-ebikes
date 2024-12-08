@@ -50,12 +50,12 @@ public class StartRideDialog extends AbstractDialog {
                 vertx.eventBus().request("user.ride.start." + user.username(), rideDetails, ar -> {
                     SwingUtilities.invokeLater(() -> {
                         if (ar.succeeded()) {
-                            JOptionPane.showMessageDialog(this, "Ride started");
                             ((UserView) parent).setRiding(true);
+                            JOptionPane.showMessageDialog(this, "Ride started");
                             dispose();
                         } else {
-                            JOptionPane.showMessageDialog(this, "Error starting ride: " + ar.cause().getMessage());
                             ((UserView) parent).setRiding(false);
+                            JOptionPane.showMessageDialog(this, "Error starting ride: " + ar.cause().getMessage());
                         }
                     });
                 });

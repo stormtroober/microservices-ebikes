@@ -7,7 +7,7 @@ import java.util.concurrent.CompletableFuture;
 /**
  * Port representing the repository for managing e-bikes.
  */
-public interface EBikeRepository {
+public interface EBikeRepository{
 
     /**
      * Saves an e-bike to the repository.

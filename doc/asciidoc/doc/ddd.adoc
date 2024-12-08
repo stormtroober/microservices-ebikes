@@ -10,31 +10,32 @@ la definizione degli artefatti utili per definire: funzionalità, attributi di q
 [cols="1,1", options="header"]
 |===
 |Termine |Descrizione
-|Admin |Un individuo che può registrarsi, accedere, con privilegi speciali che può gestire biciclette,
-visualizza tutti gli utenti registrati e monitora lo stato e la posizione di tutte le bici sulla mappa.
+|Admin |Un individuo che può registrarsi e accedere con privilegi speciali, gestire biciclette,
+visualizzare tutti gli utenti registrati e monitorare lo stato e la posizione di tutte le bici sulla mappa.
 |User |Un individuo che può registrarsi, accedere, visualizzare le biciclette disponibili, avviare e interrompere le corse,
 ricaricare il credito del proprio account e visualizzare il saldo del credito.
 |Credit |Il saldo di un utente che può essere utilizzato per avviare una corsa.
 |E-Bike |Una bici elettrica che può avere stati diversi a seconda del livello della batteria e dell'utilizzo.
 |Ride | Una sessione in cui un utente utilizza una bicicletta per un periodo specifico.
-|Map | Una rappresentazione dell'area in cui si trovano tutte le biciclette. La mappa mostra entrambi
-bici disponibili e non disponibili per gli amministratori ma solo bici disponibili per gli utenti.
+|Map | Una rappresentazione dell'area in cui si trovano tutte le biciclette. La mappa mostra sia
+bici disponibili e che quelle non disponibili per gli amministratori ma solo bici disponibili per gli utenti.
 |===
 
 === Requisiti del sistema
 
-Di seguito un elenco dei requisiti identificati che deve avere il sistema:
+Di seguito l'elenco dei requisiti funzionali identificati che deve avere il sistema:
 
 1. Il sistema deve permettere agli utenti di registrarsi e accedere.
 2. Il sistema deve permettere agli utenti di visualizzare le ebike disponibili.
 3. Il sistema deve permettere agli utenti di avviare, monitorare e fermare una ride.
-4. Il sistema deve permettere agli utenti di ricaricare il proprio credito.
-5. Il sistema deve permettere agli utenti di visualizzare il saldo del proprio credito.
-6. Il sistema deve permettere agli amministratori di visualizzare tutte le ebike sulla mappa.
-7. Il sistema deve permettere agli amministratori di aggiungere nuove ebike.
-8. Il sistema deve permettere agli amministratori di ricaricare le ebike.
-9. Il sistema deve permettere agli amministratori di visualizzare tutti gli utenti registrati.
-10. Il sistema deve permettere agli amministratori di monitorare tutte le eventuali ride in corso.
+4. Il sistema deve permettere agli utenti di monitorare la propria ride.
+5. Il sistema deve permettere agli utenti di ricaricare il proprio credito.
+6. Il sistema deve permettere agli utenti di visualizzare il saldo del proprio credito.
+7. Il sistema deve permettere agli amministratori di visualizzare tutte le ebike sulla mappa.
+8. Il sistema deve permettere agli amministratori di aggiungere nuove ebike.
+9. Il sistema deve permettere agli amministratori di ricaricare le ebike.
+10. Il sistema deve permettere agli amministratori di visualizzare tutti gli utenti registrati.
+11. Il sistema deve permettere agli amministratori di monitorare tutte le eventuali ride in corso.
 
 === User Story
 
@@ -350,7 +351,7 @@ Di seguito sono riportati i principali attributi di qualità individuati:
 |===
 
 === Domain Storytelling
-In aiuto alla definizione del domain-model, si è deciso di realizzare anche dei Domain Storytelling
+In aiuto alla definizione del domain-model, sono stati realizzati dei Domain Storytelling
 sia per lo user sia per l'admin.
 
 image::../png/user_storytelling.png[]
@@ -425,10 +426,18 @@ e che osserva gli utenti.
 
 **Interazioni tra le entità**
 
-- **User** può avviare e fermare una **Ride**.
+- **Admin** può visualizzare tutti gli **User** registrati.
 - **Admin** può aggiungere o modificare una **EBike**.
-- **User** e **Admin** possono osservare le biciclette disponibili nella **Map**.
+- **Admin** può visualizzare tutte le **EBike** sulla **Map**.
+- **Admin** può ricaricare una **EBike**.
+- **User** può avviare e fermare una **Ride**.
+- **User** può osservare le biciclette disponibili nella **Map**.
+- **User** può ricaricare il proprio credito.
+- **User** può visualizzare il proprio credito.
+- **User** può visualizzare la **Bike** della **Ride** che ha iniziato tramite la **Map**.
 - **Ride** notifica lo stato di avvio e fermo delle ride alla **Map**.
+- **Ride** notifica il decremento del credito dell'**User**.
+- **Ride** notifica il decremento del livello di carica della **EBike**.
 
 **Value Objects**
 
@@ -440,7 +449,6 @@ image::../png/Value_Objects.drawio.png[Value Objects,300,200]
 **Aggregates**
 
 - **Ride**: contiene le informazioni relative alla ride e include **User** e **EBike**.
-- **Map**: contiene le informazioni relative alla mappa e include **EBike**.
 - **EBike**: contiene le informazioni relative alla e-bike e include i value objects **P2d** e **V2d**.
 
 **Domain Events**
@@ -448,26 +456,20 @@ image::../png/Value_Objects.drawio.png[Value Objects,300,200]
 - **RideStarted**: notifica l'avvio di una ride e contiene l'aggregato **Ride**.
 - **RideStopped**: notifica la fine di una ride e contiene l'aggregato **Ride**.
 - **EBikeAdded**: notifica l'aggiunta di una e-bike e contiene l'aggregato **Map**.
-- **EBikeRecharged**: notifica la ricarica di una e-bike e contiene l'aggregato **Map**.
 
 **Domain Services**
 
-- **RideService**: contiene i metodi per avviare e fermare una ride.
-- **EBikeService**: contiene i metodi per aggiungere e ricaricare una e-bike.
-- **MapService**: contiene i metodi per visualizzare le e-bike sulla mappa.
-- **UserService**: contiene i metodi per ricaricare il credito dell'utente.
+- **RideSimulation**: simula una ride e contiene l'aggregato **Ride**.
 
 **Factory**
 
-- **RideFactory**: contiene il metodo per creare nuove istanze ride.
-- **EBikeFactory**: contiene il metodo per creare nuove istanze e-bike.
-- **UserFactory**: contiene il metodo per creare nuove istanze utente.
+. **EBikeFactory**: crea una nuova e-bike.
 
 **Repository**
 
 - **RideRepository**: gestisce la persistenza delle ride.
-- **EBikeRepository**: gestisce la persistenza delle e-bike.
-- **UserRepository**: gestisce la persistenza degli utenti.
+- **EBikeRepository**: gestisce la persistenza delle e-bike nella **Map**.
+
 
 === Bounded Context
 
@@ -486,3 +488,20 @@ Dall'analisi dei bounded context si è potuto definire il context map del sistem
 
 image::../png/Context_Map.drawio.png[Cotext Map,250,200]
 
+Di seguito una descrizione delle relazioni tra i contesti:
+
+* *User Management ↔ Ride Management*:
+Questi due contesti sono in partnership in quanto collaborano in modo paritario, scambiandosi dati senza una relazione gerarchica o dipendenze.
+
+* *Bike Management ↔ Ride Management*:
+Stesso discorso del precedente.
+
+* *Ride Management → Map Management*:
+`Ride Management` si adatta completamente alle regole e all'interfaccia imposta dal `Map Management`, quindi il pattern utilizzato è il conformist.
+Non tenta di modificarne il comportamento, accettando le sue dipendenze così come sono.
+- `Map Management` è *upstream*, in quanto detta le regole e fornisce i dati richiesti.
+- `Ride Management` è *downstream*, in quanto dipende dai dati e dalle regole di `Map Management`.
+
+* *Anti-Corruption Layer (ACL) su Ride Management*:
+Serve come livello di astrazione tra `Ride Management` e i suoi partner, proteggendo il servizio principale da eventuali cambiamenti
+o complessità delle interfacce dei partner.

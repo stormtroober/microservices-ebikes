@@ -1,9 +1,9 @@
 package domain.model;
 
 import java.io.Serializable;
-import ddd.Aggregate;
+import ddd.Entity;
 
-public class User implements Aggregate<String>, Serializable {
+public class User implements Entity<String>, Serializable {
     public enum UserType { ADMIN, USER }
 
     private final String username;
@@ -13,24 +13,16 @@ public class User implements Aggregate<String>, Serializable {
     public User(String username, UserType type, int credit) {
         this.username = username;
         this.type = type;
-        this.credit = credit; // Default credit
-    }
-
-    public String getUsername() { return username; }
-    public UserType getType() { return type; }
-
-    public int getCredit() { return credit; }
-
-    public void decreaseCredit(int amount) {
-        this.credit = Math.max(this.credit - amount, 0);
-    }
-
-    public void increaseCredit(int amount) {
-        this.credit += amount;
+        this.credit = credit;
     }
 
     @Override
     public String toString() {
         return String.format("User{username='%s', type='%s', credit=%d}", username, type, credit);
+    }
+
+    @Override
+    public String getId() {
+        return username;
     }
 }

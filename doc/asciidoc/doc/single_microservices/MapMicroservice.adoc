@@ -1,44 +1,63 @@
 === Map Microservice
 
-Il microservizio, organizzato in architettura esagonale, definisce tre porte per interfacciarsi al layer di applicazione.
+Il microservizio, organizzato in architettura esagonale, definisce due porte per interfacciarsi al layer di applicazione.
+Tali porte sono utilizzate nel layer infrastrutturale, che fornisce le implementazioni concrete per pubblicare eventi e gestire le richieste REST.
+Di seguito un immagine che ne descrive la struttura (Si specifica che il sistema di event publisher è stato non rappresentato per dare maggior enfasi
+all'interazione tra porte e adattatori riferiti al funzionamento della mappa):
+
+image::../../png/map_microservice_hexagonal.drawio.png[]
+
+==== Domain Layer
+
+Il domain layer di Map Microservice è composto dalle classi  `Ebike` e `User` che rappresentano rispettivamente una ebike e un utente all'interno del sistema ma adattate al dominio:
+
+* **Ebike**: a differenza della classe Ebike del microservizio delle ebike, questa classe è stata adattata al dominio , pertanto contiene attributi come `bikeName` per identificare la ebike,
+`position` per indicare la posizione della ebike, `batteryLevel` per indicare il livello di carica della batteria, `state` per indicare lo stato della ebike.
+
+* **User**: a differenza della classe User del microservizio degli user, questa classe è stata adattata al dominio, pertanto contiene attributi come `username` per identificare l'utente e
+`userBikes` che ospiterà le ebike assegnate all'utente.
+
+* **EBikeFactory**: È una classe _singleton_ che fornisce un metodo per creare istanze di EBike.
+
+* **EBikeRepository**: L'interfaccia è responsabile della gestione dei dati delle ebike all'interno del sistema.
+
+* **EbikeRepositoryImpl**: La classe implementa l'interfaccia EBikeRepository e fornisce metodi per salvare,
+recuperare e gestire le ebike e i loro assegnamenti agli utenti.
+
+A supporto di esse sono state introdotte, inoltre, le classi `EbikeState` e `P2d`, viste in precedenza.
 
 ==== Application Layer
 
-===== EBikeRepository
-
-La porta è responsabile della gestione dei dati delle e-bike all'interno del sistema.
-
-Fornisce metodi per salvare, recuperare e gestire le e-bike e i loro assegnamenti agli utenti. Ad esempio, consente di salvare una nuova e-bike nel repository, recuperare un'e-bike per nome e assegnare o de-assegnare e-bike agli utenti.
-
-Inoltre, può recuperare un elenco di e-bike disponibili, verificare se una specifica e-bike è assegnata a un utente e recuperare tutte le e-bike o quelle assegnate a uno specifico utente.
-
-Questa porta assicura che il sistema possa gestire in modo efficiente i dati delle e-bike e gli assegnamenti degli utenti.
-
-
-===== EventPublisher
+**EventPublisher**
 
 La porta è progettata per gestire la pubblicazione di eventi relativi alle e-bike e alle attività degli utenti.
-
 Include metodi per pubblicare aggiornamenti su tutte le e-bike, aggiornamenti sulle e-bike assegnate a specifici utenti e aggiornamenti sulle e-bike disponibili per gli utenti.
-
 Dispone anche di un metodo per pubblicare un evento quando un utente interrompe una corsa. Questa porta è fondamentale per mantenere il sistema e gli utenti informati sullo stato attuale delle e-bike e delle attività degli utenti, garantendo aggiornamenti e notifiche in tempo reale.
 
-===== RestMapServiceAPI
+*RestMapServiceAPI*
 
 La porta definisce il contratto per l'API REST che interagisce con il sistema delle e-bike.
-
 Include metodi per aggiornare le e-bike, notificare il sistema riguardo agli eventi di corsa e recuperare i dati delle e-bike.
-
 Ad esempio, consente di aggiornare una singola e-bike o più e-bike, notificare il sistema quando un utente inizia o interrompe una corsa, e recuperare tutte le e-bike o quelle assegnate a uno specifico utente.
-
 Questa interfaccia facilita la comunicazione tra il sistema delle e-bike e i client esterni, consentendo un'interazione fluida e uno scambio di dati.
 
 ==== Infrastructure Layer
 
-Le tre porte sono quindi implementate nel layer infrastrutturale, che fornisce le implementazioni concrete per interagire con la repository, pubblicare eventi e gestire le richieste REST.
+**BikeUpdateAdapter**
 
-`BikeUpdateAdapter` e `RideUpdateAdapter` servono per ricevere aggiornamenti dai servizi di Bike e Ride, non passando per il gateway, ma sfruttando quindi la rete docker a cui tutti i servizi sono connessi.
+L'adapter utilizza Vert.x per creare un server HTTP e configurare le rotte per gestire le richieste di aggiornamento delle ebike.
+Espone due endpoint principali: uno per aggiornare una singola ebike e uno per aggiornare più ebike contemporaneamente.
+Utilizza il RestMapServiceAPI per inviare aggiornamenti al Map Microservice e il MetricsManager per monitorare le metriche delle operazioni eseguite.
 
-`MapServiceVerticle` è invece il punto di ingresso del microservizio per l'utente, esso infatti è registrato al service-discovery e fornisce le due websocket per osservare i cambiamenti delle biciclette sulla mappa.
+**RideUpdateAdapter**
 
-Come gli altri microservizi, utilizza la classe MetricsManager per trasmettere a Prometheus le metriche di sistema.
+Gestisce le notifiche di inizio e fine corsa delle ebike. Configura un server HTTP con Vert.x e definisce le rotte per ricevere le notifiche di inizio e fine corsa.
+Utilizza il RestMapServiceAPI per inviare queste notifiche al servizio delle mappe e il MetricsManager per registrare le metriche delle operazioni. Questo adapter assicura
+che il sistema delle mappe sia sempre aggiornato con lo stato corrente delle corse.
+
+**MapServiceVerticle**
+
+Questa classe rappresenta il verticle principale del microservizio. Configura un server HTTP e definisce diverse rotte per gestire le richieste, tra cui endpoint per monitorare
+tutte le e-bike e quelle di un utente specifico. Utilizza il WebClient di Vert.x per registrarsi con Eureka e inviare heartbeat periodici per mantenere l'istanza registrata.
+Anch'esso utilizza il MetricsManager per monitorare le metriche delle operazioni e garantire che il sistema sia sempre operativo e monitorato.
+

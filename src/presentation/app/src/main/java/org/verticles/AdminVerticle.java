@@ -45,7 +45,6 @@ public class AdminVerticle extends AbstractVerticle {
             .onSuccess(ws -> {
                 bikeWebSocket = ws;
                 ws.textMessageHandler(message -> {
-                    System.out.println("Received bike update: " + message);
                     vertx.eventBus().publish("admin.bike.update", new JsonArray(message));
                 });
             });
@@ -53,7 +52,6 @@ public class AdminVerticle extends AbstractVerticle {
 
     private void handleUserUpdate(String message) {
         JsonObject update = new JsonObject(message);
-        System.out.println("Received user update: " + update);
         vertx.eventBus().publish("admin.user.update", update);
     }
 

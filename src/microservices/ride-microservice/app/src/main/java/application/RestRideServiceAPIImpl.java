@@ -2,7 +2,6 @@ package application;
 
 import application.ports.*;
 import domain.model.*;
-import infrastructure.adapter.microservices.eventbus.EventPublisherImpl;
 import io.vertx.core.Vertx;
 import io.vertx.core.json.JsonObject;
 

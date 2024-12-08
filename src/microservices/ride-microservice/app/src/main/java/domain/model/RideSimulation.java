@@ -1,14 +1,13 @@
 package domain.model;
 
 import application.ports.EventPublisher;
-import infrastructure.adapter.microservices.eventbus.EventPublisherImpl;
+import ddd.Service;
 import io.vertx.core.Vertx;
-import io.vertx.core.eventbus.EventBus;
-import io.vertx.core.json.JsonObject;
+
 
 import java.util.concurrent.CompletableFuture;
 
-public class RideSimulation {
+public class RideSimulation implements Service {
     private final Ride ride;
     private final Vertx vertx;
     private volatile boolean stopped = false;
@@ -16,11 +15,13 @@ public class RideSimulation {
     private final EventPublisher publisher;
     private static final int CREDIT_DECREASE = 1;
     private static final int BATTERY_DECREASE = 1;
+    private final String id;
 
     public RideSimulation(Ride ride, Vertx vertx, EventPublisher publisher) {
         this.ride = ride;
         this.vertx = vertx;
-        this.publisher = new EventPublisherImpl(vertx);
+        this.publisher = publisher;
+        this.id = ride.getId();
     }
 
     public Ride getRide() {
@@ -108,9 +109,14 @@ public class RideSimulation {
 
     public void stopSimulationManually(){
         System.out.println("Stopping simulation manually");
+        ride.end();
         if(ride.getEbike().getState() == EBikeState.IN_USE){
             ride.getEbike().setState(EBikeState.AVAILABLE);
         }
         stopped = true;
+    }
+
+    public String getId() {
+        return id;
     }
 }

@@ -1,7 +1,7 @@
 package it.unibo;
 
 import domain.model.P2d;
-import infrastructure.adapter.EBikeRepositoryImpl;
+import domain.model.EBikeRepositoryImpl;
 import domain.model.EBike;
 import domain.model.EBikeState;
 import org.junit.jupiter.api.BeforeEach;
@@ -66,6 +66,6 @@ public class EBikeUnitRepositoryTest {
 
         List<EBike> availableBikes = repository.getAvailableBikes().get();
         assertEquals(1, availableBikes.size());
-        assertEquals("Bike1", availableBikes.get(0).getBikeName());
+        assertEquals("Bike1", availableBikes.getFirst().getBikeName());
     }
 }

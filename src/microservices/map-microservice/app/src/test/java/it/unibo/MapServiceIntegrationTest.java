@@ -5,15 +5,13 @@ import application.RestMapServiceAPIImpl;
 import application.ports.EventPublisher;
 import application.ports.RestMapServiceAPI;
 import domain.model.EBike;
-import infrastructure.adapter.EBikeRepositoryImpl;
 import infrastructure.config.ServiceConfiguration;
 import io.vertx.core.Vertx;
 import io.vertx.core.json.JsonObject;
 import io.vertx.ext.web.client.WebClient;
 import io.vertx.junit5.VertxExtension;
 import io.vertx.junit5.VertxTestContext;
-import infrastructure.adapter.BikeUpdateAdapter;
-import infrastructure.adapter.MapServiceVerticle;
+import infrastructure.adapter.ebike.BikeUpdateAdapter;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
@@ -38,21 +36,18 @@ public class MapServiceIntegrationTest {
         client = WebClient.create(vertx);
 
         // Initialize components
-        EBikeRepositoryImpl repository = new EBikeRepositoryImpl();
         eventPublisher = new TestEventPublisher();
-        mapService = new RestMapServiceAPIImpl(repository, eventPublisher);
+        mapService = new RestMapServiceAPIImpl(eventPublisher);
 
         ServiceConfiguration config = ServiceConfiguration.getInstance(vertx);
-        config.load().onSuccess(conf -> {
-            vertx.deployVerticle(new BikeUpdateAdapter(mapService, vertx))
-                    .onComplete(ar -> {
-                        if (ar.succeeded()) {
-                            vertx.setTimer(1000, id -> testContext.completeNow());
-                        } else {
-                            testContext.failNow(ar.cause());
-                        }
-                    });
-        });
+        config.load().onSuccess(conf -> vertx.deployVerticle(new BikeUpdateAdapter(mapService, vertx))
+                .onComplete(ar -> {
+                    if (ar.succeeded()) {
+                        vertx.setTimer(1000, id -> testContext.completeNow());
+                    } else {
+                        testContext.failNow(ar.cause());
+                    }
+                }));
     }
 
     @AfterEach
@@ -72,23 +67,21 @@ public class MapServiceIntegrationTest {
 
         client.put(PORT, "localhost", "/updateEBike")
                 .sendJsonObject(bikeJson)
-                .onComplete(testContext.succeeding(response -> {
-                    testContext.verify(() -> {
-                        assertEquals(200, response.statusCode());
+                .onComplete(testContext.succeeding(response -> testContext.verify(() -> {
+                    assertEquals(200, response.statusCode());
 
-                        // Verify the published bikes
-                        List<EBike> publishedBikes = ((TestEventPublisher) eventPublisher).getPublishedBikes();
-                        assertEquals(1, publishedBikes.size());
-                        EBike bike = publishedBikes.get(0);
-                        assertEquals("bike1", bike.getBikeName());
-                        assertEquals(10.0, bike.getPosition().x());
-                        assertEquals(20.0, bike.getPosition().y());
-                        assertEquals("AVAILABLE", bike.getState().toString());
-                        assertEquals(100, bike.getBatteryLevel());
+                    // Verify the published bikes
+                    List<EBike> publishedBikes = ((TestEventPublisher) eventPublisher).getPublishedBikes();
+                    assertEquals(1, publishedBikes.size());
+                    EBike bike = publishedBikes.getFirst();
+                    assertEquals("bike1", bike.getBikeName());
+                    assertEquals(10.0, bike.getPosition().x());
+                    assertEquals(20.0, bike.getPosition().y());
+                    assertEquals("AVAILABLE", bike.getState().toString());
+                    assertEquals(100, bike.getBatteryLevel());
 
-                        testContext.completeNow();
-                    });
-                }));
+                    testContext.completeNow();
+                })));
     }
 
     // Test implementation of EventPublisher for integration tests

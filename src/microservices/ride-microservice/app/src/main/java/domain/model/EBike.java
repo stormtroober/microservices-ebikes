@@ -1,6 +1,8 @@
 package domain.model;
 
-public class EBike {
+import ddd.Aggregate;
+
+public class EBike implements Aggregate<String>{
 
 
     private final String id;
@@ -19,7 +21,7 @@ public class EBike {
         this.batteryLevel = battery;
     }
 
-
+    @Override
     public String getId() { return id; }
 
     public synchronized EBikeState getState() { return state; }
@@ -31,24 +33,12 @@ public class EBike {
     public synchronized V2d getDirection() { return direction; }
     public synchronized void setDirection(V2d direction) { this.direction = direction; }
 
-    public synchronized double getSpeed() { return speed; }
-    public synchronized void setSpeed(double speed) { this.speed = speed; }
-
     public synchronized int getBatteryLevel() { return batteryLevel; }
     public synchronized void decreaseBattery(int amount) {
         this.batteryLevel = Math.max(this.batteryLevel - amount, 0);
         if (this.batteryLevel == 0) {
             this.state = EBikeState.MAINTENANCE;
         }
-    }
-
-    public synchronized void rechargeBattery() {
-        this.batteryLevel = 100;
-        this.state = EBikeState.AVAILABLE;
-    }
-
-    public synchronized boolean isAvailable() {
-        return this.state == EBikeState.AVAILABLE;
     }
 
     @Override

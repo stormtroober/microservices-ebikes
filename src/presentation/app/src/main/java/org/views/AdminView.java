@@ -53,7 +53,6 @@ public class AdminView extends AbstractView {
     private void observeAllBikes() {
         vertx.eventBus().consumer("admin.bike.update", message -> {
             JsonArray update = (JsonArray) message.body();
-            log("Received bike update: " + update);
             eBikes.clear();
             for (int i = 0; i < update.size(); i++) {
                 Object element = update.getValue(i);

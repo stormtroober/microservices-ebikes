@@ -1,7 +1,7 @@
 package infrastructure.adapters.ride;
 
 import application.ports.UserServiceAPI;
-import infrastructure.MetricsManager;
+import infrastructure.utils.MetricsManager;
 import infrastructure.config.ServiceConfiguration;
 import io.vertx.core.AbstractVerticle;
 import io.vertx.core.Promise;

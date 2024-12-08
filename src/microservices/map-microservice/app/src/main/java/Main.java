@@ -1,10 +1,10 @@
 import application.RestMapServiceAPIImpl;
 import application.ports.EventPublisher;
 import application.ports.RestMapServiceAPI;
-import infrastructure.adapter.BikeUpdateAdapter;
-import infrastructure.adapter.EventPublisherImpl;
-import infrastructure.adapter.MapServiceVerticle;
-import infrastructure.adapter.RideUpdateAdapter;
+import infrastructure.adapter.ebike.BikeUpdateAdapter;
+import infrastructure.utils.EventPublisherImpl;
+import infrastructure.adapter.web.MapServiceVerticle;
+import infrastructure.adapter.ride.RideUpdateAdapter;
 import infrastructure.config.ServiceConfiguration;
 import io.vertx.core.Vertx;
 

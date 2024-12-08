@@ -1,6 +1,5 @@
 package application.ports;
 
-import ddd.Repository;
 import io.vertx.core.json.JsonArray;
 import io.vertx.core.json.JsonObject;
 
@@ -11,7 +10,7 @@ import java.util.concurrent.CompletableFuture;
  * Port for the EBike Repository.
  * Provides methods to perform CRUD operations on eBikes.
  */
-public interface EBikeRepository extends Repository {
+public interface EBikeRepository{
 
     /**
      * Saves a new eBike.

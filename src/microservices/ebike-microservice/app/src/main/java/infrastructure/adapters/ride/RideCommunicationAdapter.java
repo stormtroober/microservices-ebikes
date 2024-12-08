@@ -1,7 +1,7 @@
 package infrastructure.adapters.ride;
 
 import application.ports.EBikeServiceAPI;
-import infrastructure.MetricsManager;
+import infrastructure.utils.MetricsManager;
 import infrastructure.config.ServiceConfiguration;
 import io.vertx.core.AbstractVerticle;
 import io.vertx.core.Promise;
@@ -12,8 +12,6 @@ import io.vertx.ext.web.RoutingContext;
 import io.vertx.ext.web.handler.BodyHandler;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-
-import java.lang.module.Configuration;
 
 public class RideCommunicationAdapter extends AbstractVerticle {
     private static final Logger logger = LoggerFactory.getLogger(RideCommunicationAdapter.class);

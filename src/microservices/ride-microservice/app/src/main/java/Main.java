@@ -1,10 +1,9 @@
 import application.RestRideServiceAPIImpl;
 import application.ports.*;
-import domain.model.*;
-import infrastructure.adapter.microservices.eventbus.EventPublisherImpl;
-import infrastructure.adapter.microservices.notifiers.EBikeCommunicationAdapter;
-import infrastructure.adapter.microservices.notifiers.MapCommunicationAdapter;
-import infrastructure.adapter.microservices.notifiers.UserCommunicationAdapter;
+import infrastructure.utils.EventPublisherImpl;
+import infrastructure.adapter.ebike.EBikeCommunicationAdapter;
+import infrastructure.adapter.map.MapCommunicationAdapter;
+import infrastructure.adapter.user.UserCommunicationAdapter;
 import infrastructure.adapter.web.RideServiceVerticle;
 import infrastructure.config.ServiceConfiguration;
 import io.vertx.core.Vertx;

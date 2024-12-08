@@ -94,7 +94,6 @@ public class UserView extends AbstractView {
     private void observeRideUpdate() {
         vertx.eventBus().consumer("user.ride.update." + actualUser.username(), message -> {
             JsonObject update = (JsonObject) message.body();
-            log("Received ride update: " + update);
             if (update.containsKey("rideStatus")) {
                 String status = update.getString("rideStatus");
                 if(status.equals("stopped")){
@@ -109,7 +108,6 @@ public class UserView extends AbstractView {
 
         vertx.eventBus().consumer("user.bike.update."+ actualUser.username(), message -> {
             JsonArray update = (JsonArray) message.body();
-            log("Received bike update: " + update);
             eBikes.clear();
             for (int i = 0; i < update.size(); i++) {
                 Object element = update.getValue(i);
@@ -152,7 +150,7 @@ public class UserView extends AbstractView {
     }
 
     private void log(String msg) {
-        System.out.println("[UserView] " + msg);
+        System.out.println("[UserView-"+actualUser.username()+"] " + msg);
     }
 
 }

@@ -1,6 +1,8 @@
 package domain.model;
 
-public class User {
+import ddd.Entity;
+
+public class User implements Entity<String> {
 
     private final String id;
     private volatile int credit;
@@ -9,7 +11,7 @@ public class User {
         this.id = id;
         this.credit = credit;
     }
-
+    @Override
     public String getId() { return id; }
 
     public int getCredit() { return credit; }
@@ -18,12 +20,9 @@ public class User {
         this.credit = Math.max(this.credit - amount, 0);
     }
 
-    public void increaseCredit(int amount) {
-        this.credit += amount;
-    }
 
     @Override
     public String toString() {
-        return String.format("User{id='%s', type='%s', credit=%d}", id, credit);
+        return String.format("User{id='%s', credit=%d}", id, credit);
     }
 }

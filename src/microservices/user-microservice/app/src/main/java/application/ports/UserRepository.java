@@ -1,6 +1,5 @@
 package application.ports;
 
-import ddd.Repository;
 import io.vertx.core.json.JsonArray;
 import io.vertx.core.json.JsonObject;
 
@@ -11,7 +10,7 @@ import java.util.concurrent.CompletableFuture;
  * Port for the User Repository.
  * Provides methods to perform CRUD operations on users.
  */
-public interface UserRepository extends Repository {
+public interface UserRepository{
 
     /**
      * Saves a new user.
