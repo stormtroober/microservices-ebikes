@@ -2,7 +2,7 @@ Allo scopo di validare il sistema, sono stati definiti dei test, seppur limitati
 
 Inoltre, è stato eseguito un test di utilizzo del sistema, allo scopo di verificare che funzioni allo stesso modo della versione non a microservizi.
 
-=== Test pyramid
+=== Test Pyramid
 Nel dettaglio, è stato definito un test per ogni layer dell'applicazione, seguendo la piramide dei test. Questi ultimi sono stati scritti utilizzando il framework JUnit, e sono stati eseguiti con successo.
 Di seguito vengono descritti brevemente i test eseguiti suddivisi per tipologia.
 
