@@ -87,11 +87,6 @@ The project is built with the following components:
 
 ---
 
-### License
-This project is licensed under the MIT License.
-
----
-
 ## Versione Italiana
 
 ### Panoramica
@@ -178,6 +173,3 @@ Il progetto è composto dai seguenti componenti:
 4. Aprire una Pull Request.
 
 ---
-
-### Licenza
-Questo progetto è distribuito sotto licenza MIT.
